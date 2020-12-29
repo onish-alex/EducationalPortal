@@ -19,7 +19,7 @@ namespace EducationalPortal.DAL.Repository.Base
         public void Delete(long id)
         {
             var entities = _db.GetTable<T>();
-            var entityToRemove = entities.Find(a => a.id == id).SingleOrDefault();
+            var entityToRemove = entities.Find(a => a.Id == id).SingleOrDefault();
             if (entityToRemove != null)
                 entities.Remove(entityToRemove);
         }
@@ -34,7 +34,7 @@ namespace EducationalPortal.DAL.Repository.Base
         {
             var entities = _db.GetTable<T>();
             var entityWithId = entities
-                                .Find(a => a.id == id)
+                                .Find(a => a.Id == id)
                                 .SingleOrDefault();
             if (entityWithId != null)
                 return entityWithId.Clone() as T;
