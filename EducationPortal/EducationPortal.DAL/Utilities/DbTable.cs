@@ -26,7 +26,7 @@ namespace EducationalPortal.DAL.Utilities
 
         public void Add(T item)
         {
-            var withExistedId = _content.SingleOrDefault(a => a.id == item.id);
+            var withExistedId = _content.SingleOrDefault(a => a.Id == item.Id);
             if (withExistedId == null)
             {
                 _content.Add(item);
@@ -36,7 +36,7 @@ namespace EducationalPortal.DAL.Utilities
 
         public void Update(T item)
         {
-            var withExistedId = _content.SingleOrDefault(a => a.id == item.id);
+            var withExistedId = _content.SingleOrDefault(a => a.Id == item.Id);
             if (withExistedId != null)
             {
                 _content.Remove(withExistedId);
