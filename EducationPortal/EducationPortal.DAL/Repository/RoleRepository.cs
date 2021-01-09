@@ -1,18 +1,20 @@
-﻿using EducationPortal.DAL.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using EducationPortal.DAL.Entities;
 
 namespace EducationPortal.DAL.Repository
 {
-    public class UserRepository : IUserRepository
+    public class RoleRepository : IRoleRepository
     {
-        private IRepository<User> baseRepository;
-        public UserRepository(IRepository<User> baseRepository)
+        private IRepository<Role> baseRepository;
+
+        public RoleRepository(IRepository<Role> baseRepository)
         {
             this.baseRepository = baseRepository;
         }
 
-        public void Create(User item)
+        public void Create(Role item)
         {
             baseRepository.Create(item);
         }
@@ -22,22 +24,22 @@ namespace EducationPortal.DAL.Repository
             baseRepository.Delete(id);
         }
 
-        public IEnumerable<User> Find(Func<User, bool> predicate)
+        public IEnumerable<Role> Find(Func<Role, bool> predicate)
         {
             return baseRepository.Find(predicate);
         }
 
-        public IEnumerable<User> GetAll()
+        public IEnumerable<Role> GetAll()
         {
             return baseRepository.GetAll();
         }
 
-        public User GetById(long id)
+        public Role GetById(long id)
         {
             return baseRepository.GetById(id);
         }
 
-        public void Update(User item)
+        public void Update(Role item)
         {
             baseRepository.Update(item);
         }

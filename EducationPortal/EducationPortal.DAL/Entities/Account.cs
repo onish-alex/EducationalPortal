@@ -1,4 +1,4 @@
-﻿namespace EducationalPortal.DAL.Entities
+﻿namespace EducationPortal.DAL.Entities
 {
     public class Account : Entity
     {

@@ -1,22 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace EducationalPortal.DAL.Utilities
+namespace EducationPortal.DAL.Utilities
 {
     public static class DbConfig
     {
-        public enum TableNames
-        {
-            User,
-            Account,
-            Role,
-        };
-
-        public static string dbPathPrefix = "../../../db/";
+        public static string dbPathPrefix = "../../../../db/";
         public static readonly IDictionary<TableNames, string> TablePaths = new Dictionary<TableNames, string>()
         {
-            { TableNames.User, "users.json" },
-            { TableNames.Account, "accounts.json" },
-            { TableNames.Role, "roles.json" },
+            { TableNames.User, "users/" },
+            { TableNames.Account, "accounts/" },
+            { TableNames.Role, "roles/" },
         };
     }
 }

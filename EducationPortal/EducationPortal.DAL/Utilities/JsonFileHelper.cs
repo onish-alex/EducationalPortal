@@ -1,38 +1,76 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
-using EducationalPortal.DAL.Entities;
+using EducationPortal.DAL.Entities;
 
-namespace EducationalPortal.DAL.Utilities
+namespace EducationPortal.DAL.Utilities
 {
-    public static class JsonFileHelper
+    public class JsonFileHelper
     {
-        private static JsonSerializer _serializer = new JsonSerializer();
+        private JsonSerializer _serializer;
+        private static readonly string extension = ".json";
+        private static readonly JsonFileHelper instance = new JsonFileHelper();
 
-        public static void JsonWrite(string fileName, IEnumerable<Entity> content)
+        private JsonFileHelper()
         {
-            using (StreamWriter sw = new StreamWriter(fileName))
-            using (JsonWriter jw = new JsonTextWriter(sw))
+            _serializer = new JsonSerializer();
+        }
+
+        public static JsonFileHelper GetInstance()
+        {
+            return instance;
+        }
+
+        public void SaveTable(string tablePath, IDictionary<Entity, EntityState> content)
+        {
+            foreach (var item in content)
             {
-                _serializer.Serialize(jw, content);
+                var fileName = tablePath + item.Key.Id + extension;
+
+                if (item.Value == EntityState.Deleted)
+                {
+                    File.Delete(fileName);
+                    continue;
+                }
+
+                var fileInfo = new FileInfo(fileName);
+
+                using (StreamWriter sw = fileInfo.CreateText())
+                using (JsonWriter jw = new JsonTextWriter(sw))
+                {
+                    _serializer.Serialize(jw, item.Key);
+                }
             }
         }
 
-        public static IEnumerable<T> JsonRead<T>(string fileName)
+        public IEnumerable<T> ReadTable<T>(string tablePath) where T : Entity
         {
-            if (!File.Exists(fileName))
-            {
-                File.Create(fileName);
-                return null;
-            }
+            var entityPaths = Directory.EnumerateFiles(tablePath);
 
-            IEnumerable<T> content;
+            var tableContent = new List<T>();
+            foreach (var entity in entityPaths)
+                using (StreamReader sr = new StreamReader(entity))
+                using (JsonReader jr = new JsonTextReader(sr))
+                {
+                    tableContent.Add(_serializer.Deserialize<T>(jr));
+                }
+            
+            return tableContent;
+        }
+
+        public T ReadEntity<T>(string tablePath, long id) where T : Entity
+        {
+            var fileName = tablePath + id + extension;
+
+            T entity;
+
             using (StreamReader sr = new StreamReader(fileName))
             using (JsonReader jr = new JsonTextReader(sr))
             {
-                content = _serializer.Deserialize<IEnumerable<T>>(jr);
+                entity = _serializer.Deserialize<T>(jr);
             }
-            return content;
+
+            return entity;
         }
     }
 }

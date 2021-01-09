@@ -4,15 +4,16 @@ using System.Collections.Generic;
 
 namespace EducationPortal.DAL.Repository
 {
-    public class UserRepository : IUserRepository
+    public class AccountRepository : IAccountRepository
     {
-        private IRepository<User> baseRepository;
-        public UserRepository(IRepository<User> baseRepository)
+        private IRepository<Account> baseRepository;
+
+        public AccountRepository(IRepository<Account> baseRepository)
         {
             this.baseRepository = baseRepository;
         }
 
-        public void Create(User item)
+        public void Create(Account item)
         {
             baseRepository.Create(item);
         }
@@ -22,22 +23,22 @@ namespace EducationPortal.DAL.Repository
             baseRepository.Delete(id);
         }
 
-        public IEnumerable<User> Find(Func<User, bool> predicate)
+        public IEnumerable<Account> Find(Func<Account, bool> predicate)
         {
             return baseRepository.Find(predicate);
         }
 
-        public IEnumerable<User> GetAll()
+        public IEnumerable<Account> GetAll()
         {
             return baseRepository.GetAll();
         }
 
-        public User GetById(long id)
+        public Account GetById(long id)
         {
             return baseRepository.GetById(id);
         }
 
-        public void Update(User item)
+        public void Update(Account item)
         {
             baseRepository.Update(item);
         }

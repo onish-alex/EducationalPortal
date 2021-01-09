@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EducationalPortal.DAL.Entities
+namespace EducationPortal.DAL.Entities
 {
     public abstract class Entity : ICloneable
     {

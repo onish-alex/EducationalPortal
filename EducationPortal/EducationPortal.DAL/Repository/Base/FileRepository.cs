@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using EducationalPortal.DAL.DbContexts;
-using EducationalPortal.DAL.Entities;
+using EducationPortal.DAL.DbContexts;
+using EducationPortal.DAL.Entities;
 
-namespace EducationalPortal.DAL.Repository.Base
+namespace EducationPortal.DAL.Repository.Base
 {
     public class FileRepository<T> : IRepository<T> where T : Entity
     {
@@ -19,7 +19,8 @@ namespace EducationalPortal.DAL.Repository.Base
         public void Delete(long id)
         {
             var entities = _db.GetTable<T>();
-            var entityToRemove = entities.Find(a => a.Id == id).SingleOrDefault();
+            var entityToRemove = entities.Find(a => a.Id == id)
+                                         .SingleOrDefault();
             if (entityToRemove != null)
                 entities.Remove(entityToRemove);
         }

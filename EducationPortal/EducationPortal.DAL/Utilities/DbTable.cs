@@ -1,58 +1,86 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using EducationalPortal.DAL.Entities;
+using EducationPortal.DAL.Entities;
 
-namespace EducationalPortal.DAL.Utilities
+namespace EducationPortal.DAL.Utilities
 {
-    public class DbTable<T> where T : Entity
+
+    public class DbTable<T> : IDbTable<T> where T : Entity
     {
-        public bool IsSynch { get; set; }
-        private List<T> _content;
-        public IEnumerable<T> Content { get => _content.AsEnumerable(); }
+        private Dictionary<T, EntityState> _content;
+        public IEnumerable<T> Content { get => _content.Keys.Where(a => _content[a] != EntityState.Deleted).AsEnumerable(); }
+
+        public IEnumerable<KeyValuePair<T, EntityState>> ContentWithState { get => _content.AsEnumerable();  }
 
         public DbTable()
         {
-            _content = new List<T>();
-            IsSynch = true;
+            _content = new Dictionary<T, EntityState>();
         }
 
         public DbTable(IEnumerable<T> starterSet) : this()
         {
             if (starterSet != null)
                 foreach (var item in starterSet)
-                    _content.Add(item);
+                    _content.Add(item, EntityState.Synchronized);
+        }
+
+        public EntityState GetEntityState(T item)
+        {
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            if (withExistedId != null)
+            {
+                return _content[withExistedId];
+            }
+            return EntityState.NotFound;
+        }
+
+        public void SetEntityState(T item, EntityState state)
+        {
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            if (withExistedId != null)
+            {
+                _content[withExistedId] = state;
+            }
         }
 
         public void Add(T item)
         {
-            var withExistedId = _content.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
             if (withExistedId == null)
             {
-                _content.Add(item);
-                IsSynch = false;
+                _content.Add(item, EntityState.Created);
             }
         }
 
         public void Update(T item)
         {
-            var withExistedId = _content.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
             if (withExistedId != null)
             {
                 _content.Remove(withExistedId);
-                _content.Add(item);
-                IsSynch = false;
+                _content.Add(item, EntityState.Updated);
             }
         }
 
         public void Remove(T item)
         {
-            _content.Remove(item);
-            IsSynch = false;
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            if (withExistedId != null)
+            {
+                _content[withExistedId] = EntityState.Deleted;
+            }
         }
 
-        public IEnumerable<T> Find(Func<T, bool> predicate) => _content.Where(predicate);
+        public void RemoveFromTable(T item)
+        {
+            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            if (withExistedId != null)
+            {
+                _content.Remove(withExistedId);
+            }
+        }
 
-        public IEnumerable<T> GetAll() => _content.AsReadOnly();
+        public IEnumerable<T> Find(Func<T, bool> predicate) => _content.Keys.Where(predicate);
     }
 }

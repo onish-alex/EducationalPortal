@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using EducationalPortal.DAL.Entities;
+using EducationPortal.DAL.Entities;
 
-namespace EducationalPortal.DAL.Repository
+namespace EducationPortal.DAL.Repository
 {
     public interface IRepository<T> where T : Entity
     {
