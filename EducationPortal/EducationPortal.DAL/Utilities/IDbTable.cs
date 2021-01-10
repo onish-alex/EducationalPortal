@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using EducationPortal.DAL.Entities;
 
 namespace EducationPortal.DAL.Utilities
 {
-    public interface IDbTable<T> where T : Entity
+    public interface IDbTable
     {
-        public IEnumerable<T> Content { get; }
+        public IEnumerable<Entity> Content { get; }
 
-        public void Add(T item);
+        public void Add(Entity item);
 
-        public void Update(T item);
+        public void Update(Entity item);
 
-        public void Remove(T item);
+        public void Remove(Entity item);
 
-        public IEnumerable<T> Find(Func<T, bool> predicate);
+        public IEnumerable<Entity> Find(Func<Entity, bool> predicate);
     }
 }

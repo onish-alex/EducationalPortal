@@ -5,82 +5,105 @@ using EducationPortal.DAL.Entities;
 
 namespace EducationPortal.DAL.Utilities
 {
-
-    public class DbTable<T> : IDbTable<T> where T : Entity
+    public class DbTable : IDbTable
     {
-        private Dictionary<T, EntityState> _content;
-        public IEnumerable<T> Content { get => _content.Keys.Where(a => _content[a] != EntityState.Deleted).AsEnumerable(); }
+        private Dictionary<Entity, EntityState> content;
+        public IEnumerable<Entity> Content {
+            get 
+            {
+                return content
+                        .Keys
+                        .Where(a => content[a] != EntityState.Deleted)
+                        .AsEnumerable();
+            } 
+        }
 
-        public IEnumerable<KeyValuePair<T, EntityState>> ContentWithState { get => _content.AsEnumerable();  }
+        public IEnumerable<KeyValuePair<Entity, EntityState>> ContentWithState { get => content.AsEnumerable(); }
 
         public DbTable()
         {
-            _content = new Dictionary<T, EntityState>();
+            content = new Dictionary<Entity, EntityState>();
         }
 
-        public DbTable(IEnumerable<T> starterSet) : this()
+        public DbTable(IEnumerable<Entity> starterSet) : this()
         {
             if (starterSet != null)
+            {
                 foreach (var item in starterSet)
-                    _content.Add(item, EntityState.Synchronized);
+                {
+                    content.Add(item, EntityState.Synchronized);
+                }
+            }
         }
 
-        public EntityState GetEntityState(T item)
+        public Entity GetById(long id)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            return content.Keys.SingleOrDefault(a => a.Id == id);
+        }
+
+        public EntityState GetEntityState(Entity item)
+        {
+            var withExistedId = GetById(item.Id);
+            
             if (withExistedId != null)
             {
-                return _content[withExistedId];
+                return content[withExistedId];
             }
+            
             return EntityState.NotFound;
         }
 
-        public void SetEntityState(T item, EntityState state)
+        public void SetEntityState(Entity item, EntityState state)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = GetById(item.Id);
+
             if (withExistedId != null)
             {
-                _content[withExistedId] = state;
+                content[withExistedId] = state;
             }
         }
 
-        public void Add(T item)
+        public void Add(Entity item)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = GetById(item.Id);
+
             if (withExistedId == null)
             {
-                _content.Add(item, EntityState.Created);
+                content.Add(item, EntityState.Created);
             }
         }
 
-        public void Update(T item)
+        public void Update(Entity item)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = GetById(item.Id);
+
             if (withExistedId != null)
             {
-                _content.Remove(withExistedId);
-                _content.Add(item, EntityState.Updated);
+                content.Remove(withExistedId);
+                content.Add(item, EntityState.Updated);
             }
         }
 
-        public void Remove(T item)
+        public void Remove(Entity item)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = GetById(item.Id);
+
             if (withExistedId != null)
             {
-                _content[withExistedId] = EntityState.Deleted;
+                content[withExistedId] = EntityState.Deleted;
             }
         }
 
-        public void RemoveFromTable(T item)
+        public void RemoveFromTable(Entity item)
         {
-            var withExistedId = _content.Keys.SingleOrDefault(a => a.Id == item.Id);
+            var withExistedId = GetById(item.Id);
+
             if (withExistedId != null)
             {
-                _content.Remove(withExistedId);
+                content.Remove(withExistedId);
             }
         }
 
-        public IEnumerable<T> Find(Func<T, bool> predicate) => _content.Keys.Where(predicate);
+        public IEnumerable<Entity> Find(Func<Entity, bool> predicate) => content.Keys.Where(predicate);
     }
 }
