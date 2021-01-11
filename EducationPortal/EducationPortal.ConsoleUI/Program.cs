@@ -6,12 +6,12 @@ namespace EducationPortal.ConsoleUI
 {
     public class Program
     {
-        UserController userController;
+        //UserController userController;
 
         public static void Main(string[] args)
         {
-            UserController = new UserController();
-            RunCommandHandler();
+            //UserController = new UserController();
+            //RunCommandHandler();
         }
 
         public static void RunCommandHandler()
