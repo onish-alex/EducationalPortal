@@ -68,8 +68,8 @@ namespace LinqTask
         public static void PrintAllCustomers()
         {
             CustomersList.GetCustomers()
-                            .ToList()
-                            .ForEach(a => Console.Write("{0}, ", a.Name));
+                            .Select(a => { Console.Write("{0}, ", a.Name); return a; })
+                            .ToArray();
         }
     }
 }
