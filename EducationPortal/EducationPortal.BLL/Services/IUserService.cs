@@ -5,7 +5,7 @@ using EducationPortal.BLL.DTO;
 
 namespace EducationPortal.BLL.Services
 {
-    interface IUserService
+    public interface IUserService
     {
         string[] Register(UserDTO user);
 
