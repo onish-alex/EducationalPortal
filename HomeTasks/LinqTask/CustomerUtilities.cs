@@ -41,25 +41,21 @@ namespace LinqTask
 
         public static void PrintOneMonthRegistered()
         {
-            var oneMonthGroups = CustomersList.GetCustomers()
+            var sortedByMonthAndName = CustomersList.GetCustomers()
                                               .OrderBy(a => a.RegistrationDate.Month)
                                               .ThenBy(a => a.Name)
-                                              .GroupBy(a => a.RegistrationDate.Month);
+                                              .GroupBy(a => a.RegistrationDate.Month)
+                                              .SelectMany(g => g.Select(a => a));
 
-            foreach (var group in oneMonthGroups)
+            foreach (var item in sortedByMonthAndName)
             {
-                foreach (var item in group)
-                {
-                    Console.WriteLine("{0}, {1}", item.Name, item.RegistrationDate.ToString("dd/MM/yy"));
-                }
-                Console.WriteLine();
+                Console.WriteLine("{0}, {1}", item.Name, item.RegistrationDate.ToString("dd/MM/yy"));
             }
         }
 
         public static IEnumerable<Customer> SortByField(string fieldName, bool isAscending)
         {
-            var customerType = typeof(Customer);
-            var propertyInfo = customerType.GetProperty(fieldName);
+            var propertyInfo = typeof(Customer).GetProperty(fieldName);
 
             if (isAscending)
                 return CustomersList.GetCustomers()
@@ -71,13 +67,9 @@ namespace LinqTask
 
         public static void PrintAllCustomers()
         {
-            CustomersList.GetCustomers().DoAction(a => Console.Write("{0}, ", a.Name));
-        }
-
-        public static void DoAction<T>(this IEnumerable<T> collection, Action<T> task)
-        {
-            foreach (var item in collection)
-                task(item);
+            CustomersList.GetCustomers()
+                            .ToList()
+                            .ForEach(a => Console.Write("{0}, ", a.Name));
         }
     }
 }
