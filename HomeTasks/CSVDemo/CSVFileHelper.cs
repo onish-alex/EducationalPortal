@@ -12,11 +12,7 @@ namespace CSVDemo
             var type = typeof(T);
             using(var streamWriter = File.CreateText(fileName))
             {
-                foreach (var prop in properties)
-                {
-                    builder.AppendFormat("{0},", prop);
-                }
-                builder.Remove(builder.Length - 1, 1);
+                builder.AppendJoin(',', properties);
                 builder.Append("\n");
                 streamWriter.Write(builder.ToString());
                 builder.Clear();
@@ -31,22 +27,13 @@ namespace CSVDemo
 
                         if (strFlag)
                         {
-                            builder.Append("\"");
                             var propStr = propValue as string;
-                            if (propStr != null)
-                            {
-                                var propValueBuilder = new StringBuilder();
-                                for (int i = 0; i < propStr.Length; i++)
-                                {
-                                    if (propStr[i] == '\"')
-                                    {
-                                        propValueBuilder.Append("\"");
-                                    }
-                                    propValueBuilder.Append(propStr[i]);
-                                }
-                                builder.Append(propValueBuilder);
-                            }
-                            builder.Append("\",");
+                            var propValueBuilder = new StringBuilder();
+                            propValueBuilder.Append(propStr);
+                            propValueBuilder.Replace("\"", "\"\"");
+                            propValueBuilder.Insert(0, "\"");
+                            propValueBuilder.Append("\",");
+                            builder.Append(propValueBuilder);
                         }
                         else
                         {
