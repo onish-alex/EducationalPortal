@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Mail;
 using EducationPortal.BLL.DTO;
 using EducationPortal.BLL;
@@ -67,6 +68,15 @@ namespace EducationPortal.ConsoleUI.Validation
                 };
             }
 
+            if (account.Login.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol)))) 
+            {
+                return new ValidationResult()
+                {
+                    IsValid = false,
+                    Message = "Логин может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
+                };
+            }
+
             return new ValidationResult()
             {
                 IsValid = true,
@@ -85,6 +95,15 @@ namespace EducationPortal.ConsoleUI.Validation
                     Message = string.Format("Пароль должен быть длиной от {0} до {1} символов!",
                                              DataSettings.UserPasswordMinCharacterCount,
                                              DataSettings.UserPasswordMaxCharacterCount)
+                };
+            }
+
+            if (account.Password.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol))))
+            {
+                return new ValidationResult()
+                {
+                    IsValid = false,
+                    Message = "Пароль может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
                 };
             }
 
@@ -151,11 +170,21 @@ namespace EducationPortal.ConsoleUI.Validation
                 };
             }
 
+            if (user.Name.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol))))
+            {
+                return new ValidationResult()
+                {
+                    IsValid = false,
+                    Message = "Имя может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
+                };
+            }
+
             return new ValidationResult()
             {
                 IsValid = true,
                 Message = string.Empty
             };
+            
         }
 
     }
