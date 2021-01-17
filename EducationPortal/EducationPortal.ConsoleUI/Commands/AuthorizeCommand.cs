@@ -6,7 +6,7 @@ using EducationPortal.BLL.Services;
 
 namespace EducationPortal.ConsoleUI.Commands
 {
-    public class AuthorizeCommand : IConsoleCommand
+    public class AuthorizeCommand : ICommand
     {
         public string[] Result { get; private set; }
 

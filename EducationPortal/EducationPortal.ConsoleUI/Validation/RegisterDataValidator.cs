@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net.Mail;
 using EducationPortal.BLL.DTO;
 using EducationPortal.BLL;
@@ -10,10 +8,12 @@ namespace EducationPortal.ConsoleUI.Validation
     public class RegisterDataValidator
     {
         private UserDTO user;
+        private AccountDTO account;
 
-        public RegisterDataValidator(UserDTO user)
+        public RegisterDataValidator(UserDTO user, AccountDTO account)
         {
             this.user = user;
+            this.account = account;
         }
 
         public ValidationResult Validate()
@@ -55,8 +55,8 @@ namespace EducationPortal.ConsoleUI.Validation
 
         private ValidationResult ValidateLogin()
         {
-            if (user.account.Login.Length < DataSettings.UserLoginMinCharacterCount
-             || user.account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (account.Login.Length < DataSettings.UserLoginMinCharacterCount
+             || account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -76,8 +76,8 @@ namespace EducationPortal.ConsoleUI.Validation
 
         private ValidationResult ValidatePassword()
         {
-            if (user.account.Password.Length < DataSettings.UserPasswordMinCharacterCount
-             || user.account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
+            if (account.Password.Length < DataSettings.UserPasswordMinCharacterCount
+             || account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -100,7 +100,7 @@ namespace EducationPortal.ConsoleUI.Validation
             MailAddress email;
             try
             {
-                email = new MailAddress(user.account.Email);
+                email = new MailAddress(account.Email);
             }
             catch (ArgumentException)
             {
@@ -139,8 +139,8 @@ namespace EducationPortal.ConsoleUI.Validation
 
         private ValidationResult ValidateName()
         {
-            if (user.userInfo.Name.Length < DataSettings.UserLoginMinCharacterCount
-             || user.account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (user.Name.Length < DataSettings.UserLoginMinCharacterCount
+             || user.Name.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {

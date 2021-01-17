@@ -42,35 +42,37 @@ namespace EducationPortal.DAL.DbContexts
             return tables[tableName];
         }
 
-        public void Save()
+        public void Save<T>()
         {
-            foreach (var table in tables)
+            var tableNameStr = typeof(T).Name;
+            var tableName = (TableNames)Enum.Parse(typeof(TableNames), tableNameStr);
+
+            var entitiesToSave = new Dictionary<Entity, EntityState>();
+
+            var currentTable = tables[tableName];
+            var tablePath = DbConfig.dbPathPrefix + DbConfig.TablePaths[tableName];
+
+            foreach (var entity in currentTable.ContentWithState)
             {
-                var tablePath = DbConfig.dbPathPrefix + DbConfig.TablePaths[table.Key];
-                var entitiesToSave = new Dictionary<Entity, EntityState>();
-                
-                foreach (var entity in table.Value.ContentWithState)
+                if (entity.Value != EntityState.Synchronized)
                 {
-                    if (entity.Value != EntityState.Synchronized)
-                    {
-                        entitiesToSave.Add(entity.Key, entity.Value);
-                    }
+                    entitiesToSave.Add(entity.Key, entity.Value);
                 }
+            }
 
-                fileWatcher[table.Key].EnableRaisingEvents = false;
-                fileHelper.SaveTable(tablePath, entitiesToSave);
-                fileWatcher[table.Key].EnableRaisingEvents = true;
+            fileWatcher[tableName].EnableRaisingEvents = false;
+            fileHelper.SaveTable(tablePath, entitiesToSave);
+            fileWatcher[tableName].EnableRaisingEvents = true;
 
-                foreach (var entity in entitiesToSave.Keys)
+            foreach (var entity in entitiesToSave.Keys)
+            {
+                if (currentTable.GetEntityState(entity) == EntityState.Deleted)
                 {
-                    if (table.Value.GetEntityState(entity) == EntityState.Deleted)
-                    {
-                        table.Value.RemoveFromTable(entity);
-                    }
-                    else
-                    {
-                        table.Value.SetEntityState(entity, EntityState.Synchronized);
-                    }
+                    currentTable.RemoveFromTable(entity);
+                }
+                else
+                {
+                    currentTable.SetEntityState(entity, EntityState.Synchronized);
                 }
             }
         }

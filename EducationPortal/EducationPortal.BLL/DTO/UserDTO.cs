@@ -6,8 +6,7 @@ namespace EducationPortal.BLL.DTO
 {
     public class UserDTO
     {
-        public UserInfoDTO userInfo { get; set; }
+        public string Name { get; set; }
 
-        public AccountDTO account { get; set; }
     }
 }
