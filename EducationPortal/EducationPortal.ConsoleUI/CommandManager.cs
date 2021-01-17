@@ -10,14 +10,20 @@ namespace EducationPortal.ConsoleUI
     public class CommandManager
     {
         private IDictionary<string, IService> services;
-        private IEnumerable<string> output;
         private IDictionary<string, Action> commandHandlers;
         private IEnumerable<string> commandParts;
-        private DTOBuilder builder;
+        private IEnumerable<string> output;
+        private DTOBuilder dtoBuilder;
+        private Client client;
+        private string consoleStatePrefix;
+        private bool exitFlag;
+
 
         public CommandManager(IEnumerable<IService> services)
         {
-            this.builder = DTOBuilder.GetInstance();
+            this.dtoBuilder = DTOBuilder.GetInstance();
+            this.consoleStatePrefix = "EducationPortal";
+
             this.services = new Dictionary<string, IService>();
 
             foreach (var item in services)
@@ -26,30 +32,73 @@ namespace EducationPortal.ConsoleUI
             }
 
             commandHandlers = new Dictionary<string, Action>();
+            
             commandHandlers.Add("reg", () =>
             {
-                var account = builder.GetAccount(commandParts.ToArray(), true);
-                var user = builder.GetUser(commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
+                var account = dtoBuilder.GetAccount(commandParts.ToArray(), true);
+                var user = dtoBuilder.GetUser(commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
                 var command = new RegisterCommand(this.services["User"] as IUserService, user, account);
                 command.Execute();
-                output = command.Result;
+                var response = command.Response;
+                output = new string[] { response.Message };
             });
 
             commandHandlers.Add("login", () =>
             {
-                var command = new AuthorizeCommand(this.services["User"] as IUserService, builder.GetAccount(commandParts.ToArray()));
+                if (client != null)
+                {
+                    output = new string[] { "You are already logged in!" };
+                    return;
+                }
+
+                var account = dtoBuilder.GetAccount(commandParts.ToArray());
+                var command = new AuthorizeCommand(this.services["User"] as IUserService, account);
                 command.Execute();
-                output = command.Result;
+                var response = command.Response;
+                output = new string[] { response.Message };
+
+                if (response.IsSuccessful)
+                {
+                    this.client = Client.GetInstance();
+                    this.client.Id = response.Id;
+                    this.client.Info = response.User;
+                    this.consoleStatePrefix = client.Info.Name;
+                }
+            });
+
+            commandHandlers.Add("logout", () =>
+            {
+                if (this.client != null)
+                {
+                    this.client = null;
+                    consoleStatePrefix = "EducationPortal";
+                    output = new string[] { "Successfully logged out!" };
+                }
+                else
+                {
+                    output = new string[] { "You're not logged in!" };
+                }
+                
+            });
+
+            commandHandlers.Add("exit", () =>
+            {
+                exitFlag = true;
             });
         }
 
-
         public void Run()
         {
-            var exitFlag = false;
+            exitFlag = false;
+            output = Enumerable.Empty<string>();
             while (!exitFlag)
             {
-                Console.Write("\nEducationPortal> ");
+                foreach (var item in output)
+                {
+                    Console.WriteLine(item);
+                }
+
+                Console.Write("\n{0}> ", consoleStatePrefix);
                 var inputStr = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(inputStr))
@@ -73,10 +122,7 @@ namespace EducationPortal.ConsoleUI
                     output = new string[] { string.Format("\n\nUnrecognized command: \"{0}\". Please type \"help\" to see list of available commands\n\n", commandStr) };
                 }
 
-                foreach (var item in output)
-                {
-                    Console.WriteLine(item);
-                }
+                
             }
         }
     }

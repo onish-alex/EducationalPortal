@@ -4,12 +4,13 @@ using System.Text;
 using EducationPortal.BLL.DTO;
 using EducationPortal.BLL.Services;
 using EducationPortal.ConsoleUI.Validation;
+using EducationPortal.BLL.Response;
 
 namespace EducationPortal.ConsoleUI.Commands
 {
-    public class RegisterCommand : ICommand
+    public class RegisterCommand : ICommand<RegisterResponse>
     {
-        public string[] Result { get; private set; }
+        public RegisterResponse Response { get; private set; }
 
         private IUserService reciever;
         private UserDTO user;
@@ -27,7 +28,8 @@ namespace EducationPortal.ConsoleUI.Commands
         public void Execute()
         {
             var validationResult = validator.Validate();
-            Result = (validationResult.IsValid) ? reciever.Register(user, account) : new string[] { validationResult.Message };
+            Response = (validationResult.IsValid) ? reciever.Register(user, account)
+                                                  : new RegisterResponse() { Message = validationResult.Message } ;
         }
     }
 }

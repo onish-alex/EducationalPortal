@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
+﻿using EducationPortal.BLL.DTO;
+using EducationPortal.BLL.Response;
 
 namespace EducationPortal.BLL.Services
 {
     public interface IUserService : IService
     {
-        string[] Register(UserDTO user, AccountDTO account);
+        RegisterResponse Register(UserDTO user, AccountDTO account);
 
-        string[] Authorize(AccountDTO account);
+        AuthorizeResponse Authorize(AccountDTO account);
     }
 }

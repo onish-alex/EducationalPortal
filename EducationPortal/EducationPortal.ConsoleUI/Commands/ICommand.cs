@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using EducationPortal.BLL.Response;
 
 namespace EducationPortal.ConsoleUI.Commands
 {
-    public interface ICommand
+    public interface ICommand<T> where T : IResponse
     {
-        string[] Result { get; }
+        T Response { get; }
 
         void Execute();
     }
