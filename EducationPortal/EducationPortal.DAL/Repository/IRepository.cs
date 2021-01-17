@@ -12,5 +12,6 @@ namespace EducationPortal.DAL.Repository
         void Create(T item);
         void Update(T item);
         void Delete(long id);
+        void Save();
     }
 }

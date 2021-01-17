@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using EducationPortal.DAL.DbContexts;
 using EducationPortal.DAL.Entities;
 
-namespace EducationPortal.DAL.Repository.Base
+namespace EducationPortal.DAL.Repository
 {
     public class FileRepository<T> : IRepository<T> where T : Entity
     {
@@ -47,6 +47,11 @@ namespace EducationPortal.DAL.Repository.Base
         {
             db.GetTable<T>()
                .Update(item);
+        }
+
+        public void Save()
+        {
+            db.Save<T>();
         }
     }
 }
