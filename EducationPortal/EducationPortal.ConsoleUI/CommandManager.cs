@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using EducationPortal.ConsoleUI.Commands;
 using EducationPortal.BLL.DTO;
 using EducationPortal.BLL.Services;
-using System.Linq;
 
 namespace EducationPortal.ConsoleUI
 {
@@ -11,19 +11,18 @@ namespace EducationPortal.ConsoleUI
     {
         private IDictionary<string, IService> services;
         private IDictionary<string, Action> commandHandlers;
-        private IEnumerable<string> commandParts;
-        private IEnumerable<string> output;
+        private string[] commandParts;
+        private List<string> output;
         private DTOBuilder dtoBuilder;
         private Client client;
         private string consoleStatePrefix;
         private bool exitFlag;
 
-
         public CommandManager(IEnumerable<IService> services)
         {
             this.dtoBuilder = DTOBuilder.GetInstance();
-            this.consoleStatePrefix = "EducationPortal";
-
+            this.consoleStatePrefix = ConsoleMessages.DefaultCommandPrefix;
+            this.output = new List<string>();
             this.services = new Dictionary<string, IService>();
 
             foreach (var item in services)
@@ -32,22 +31,28 @@ namespace EducationPortal.ConsoleUI
             }
 
             commandHandlers = new Dictionary<string, Action>();
-            
+
             commandHandlers.Add("reg", () =>
             {
-                var account = dtoBuilder.GetAccount(commandParts.ToArray(), true);
+                if (client != null)
+                {
+                    output.Add(ConsoleMessages.ErrorTryRegWhileLoggedIn);
+                    return;
+                }
+
+                var account = dtoBuilder.GetAccount(commandParts, true);
                 var user = dtoBuilder.GetUser(commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
                 var command = new RegisterCommand(this.services["User"] as IUserService, user, account);
                 command.Execute();
                 var response = command.Response;
-                output = new string[] { response.Message };
+                output.Add(response.Message);
             });
 
             commandHandlers.Add("login", () =>
             {
                 if (client != null)
                 {
-                    output = new string[] { "You are already logged in!" };
+                    this.output.Add(ConsoleMessages.ErrorTryLogInWhileLoggedIn);
                     return;
                 }
 
@@ -55,7 +60,7 @@ namespace EducationPortal.ConsoleUI
                 var command = new AuthorizeCommand(this.services["User"] as IUserService, account);
                 command.Execute();
                 var response = command.Response;
-                output = new string[] { response.Message };
+                this.output.Add(response.Message);
 
                 if (response.IsSuccessful)
                 {
@@ -71,14 +76,19 @@ namespace EducationPortal.ConsoleUI
                 if (this.client != null)
                 {
                     this.client = null;
-                    consoleStatePrefix = "EducationPortal";
-                    output = new string[] { "Successfully logged out!" };
+                    consoleStatePrefix = ConsoleMessages.DefaultCommandPrefix;
+                    output.Add(ConsoleMessages.InfoLoggedOut);
                 }
                 else
                 {
-                    output = new string[] { "You're not logged in!" };
+                    output.Add(ConsoleMessages.ErrorTryLogOutWhileLoggedOut);
                 }
-                
+
+            });
+
+            commandHandlers.Add("help", () =>
+            {
+                output.AddRange(CommandInfo.Storage.Select(command => command.Value.Description));
             });
 
             commandHandlers.Add("exit", () =>
@@ -90,13 +100,14 @@ namespace EducationPortal.ConsoleUI
         public void Run()
         {
             exitFlag = false;
-            output = Enumerable.Empty<string>();
             while (!exitFlag)
             {
                 foreach (var item in output)
                 {
                     Console.WriteLine(item);
                 }
+
+                output.Clear();
 
                 Console.Write("\n{0}> ", consoleStatePrefix);
                 var inputStr = Console.ReadLine();
@@ -111,18 +122,23 @@ namespace EducationPortal.ConsoleUI
                                 .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 var commandStr = commandParts.First();
-                commandParts = commandParts.Skip(1);
+                commandParts = commandParts.Skip(1).ToArray();
 
-                if (commandHandlers.ContainsKey(commandStr))
+                if (CommandInfo.Storage.ContainsKey(commandStr))
                 {
-                    commandHandlers[commandStr].Invoke();
+                    if (CommandInfo.Storage[commandStr].ParamsCount == commandParts.Length)
+                    {
+                        commandHandlers[commandStr].Invoke();
+                    }
+                    else
+                    {
+                        output.Add(ConsoleMessages.ErrorWrongParamsCount);
+                    }
                 } 
                 else
                 {
-                    output = new string[] { string.Format("\n\nUnrecognized command: \"{0}\". Please type \"help\" to see list of available commands\n\n", commandStr) };
+                    output.Add(string.Format(ConsoleMessages.ErrorUnknownCommand, commandStr));
                 }
-
-                
             }
         }
     }

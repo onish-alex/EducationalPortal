@@ -121,20 +121,12 @@ namespace EducationPortal.ConsoleUI.Validation
             {
                 email = new MailAddress(account.Email);
             }
-            catch (ArgumentException)
+            catch (Exception)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
                     Message = "Необходимо указать email!"
-                };
-            }
-            catch
-            {
-                return new ValidationResult()
-                {
-                    IsValid = false,
-                    Message = "Неверный формат email!"
                 };
             }
 

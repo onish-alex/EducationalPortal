@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
+﻿using EducationPortal.BLL.DTO;
 using EducationPortal.BLL.Services;
 using EducationPortal.BLL.Response;
 
