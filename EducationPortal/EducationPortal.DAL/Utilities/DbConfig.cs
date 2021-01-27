@@ -10,7 +10,9 @@ namespace EducationPortal.DAL.Utilities
         {
             { TableNames.User, "users/" },
             { TableNames.Account, "accounts/" },
-            { TableNames.Role, "roles/" },
+            { TableNames.Course, "courses/" },
+            { TableNames.Material, "materials/" },
+            { TableNames.Skill, "skills/" },
         };
     }
 }

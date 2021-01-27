@@ -13,17 +13,34 @@ namespace EducationPortal.BLL.Services
     {
         private IRepository<User> users;
         private IRepository<Account> accounts;
+        private IRepository<Skill> skills;
         private Mapper userMapper;
         private Mapper accountMapper;
+        private Mapper skillMapper;
 
         public string Name => "User";
 
-        public UserService(IRepository<User> users, IRepository<Account> accounts)
+        public UserService(IRepository<User> users, IRepository<Account> accounts, IRepository<Skill> skills)
         {
             this.users = users;
             this.accounts = accounts;
+            this.skills = skills;
 
-            var userConfig = new MapperConfiguration(cfg => cfg.CreateMap<UserDTO, User>().ReverseMap());
+            var skillConfig = new MapperConfiguration(cfg => cfg.CreateMap<SkillDTO, Skill>().ReverseMap());
+            this.skillMapper = new Mapper(skillConfig);
+
+            var userConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserDTO, User>()
+                .ForMember(dest => dest.Skills,
+                           opt => opt.MapFrom(dto => dto.Skills.ToDictionary(key => skills.Find(skill => skill.Name == key.Key).Select(a => a.Id).SingleOrDefault(),
+                                                                             value => value.Value.Skill)));
+
+                cfg.CreateMap<User, UserDTO>()
+                .ForMember(dest => dest.Skills,
+                           opt => opt.MapFrom(entity => entity.Skills.ToDictionary(key => skills.GetById(key.Key).Name,
+                                                                                   value => new UserSkillDTO() { Skill = skillMapper.Map<SkillDTO>(skills.GetById(value.Key)), Level = value.Value })));
+            });
             this.userMapper = new Mapper(userConfig);
 
             var accountConfig = new MapperConfiguration(cfg => cfg.CreateMap<AccountDTO, Account>());
@@ -55,9 +72,9 @@ namespace EducationPortal.BLL.Services
             return responce;
         }
 
-        public RegisterResponse Register(UserDTO user, AccountDTO account)
+        public OperationResponse Register(UserDTO user, AccountDTO account)
         {
-            var responce = new RegisterResponse();
+            var responce = new OperationResponse();
             
             var userToRegister = userMapper.Map<User>(user); 
             var accountToRegister = accountMapper.Map<Account>(account); 
@@ -85,6 +102,131 @@ namespace EducationPortal.BLL.Services
 
             responce.Message = "Новый пользователь зарегистрирован!";
             return responce;
+        } 
+
+        public GetUserResponse GetUserById(long userId)
+        {
+            var response = new GetUserResponse();
+
+            var user = users.GetById(userId);
+            
+            if (user == null)
+            {
+                response.IsSuccessful = false;
+                response.Message = "Не удалось найти информацию о пользователе!";
+                return response;
+            }
+
+            response.User = userMapper.Map<User, UserDTO>(user);
+            response.Message = string.Empty;
+            response.IsSuccessful = true;
+
+            return response;
+        }
+
+        public OperationResponse JoinToCourse(long userId, long courseId)
+        {
+            var response = new GetUserResponse();
+
+            var user = users.GetById(userId);
+
+            if (user == null)
+            {
+                response.IsSuccessful = false;
+                response.Message = "Указанного пользователя не существует!";
+                return response;
+            }
+
+            if (user.JoinedCourseIds.Contains(courseId))
+            {
+                response.IsSuccessful = false;
+                response.Message = "Вы уже проходите данный курс!";
+                return response;
+            }
+
+            var userToUpdate = userMapper.Map<User>(user);
+            userToUpdate.JoinedCourseIds = userToUpdate.JoinedCourseIds.Append(courseId).ToArray();
+            users.Update(userToUpdate);
+            users.Save();
+
+            response.IsSuccessful = true;
+            response.Message = "Начато изучение нового курса!";
+            return response;
+
+        }
+
+        public OperationResponse AddLearnedMaterial(long userId, long materialId)
+        {
+            var response = new OperationResponse();
+
+            var user = users.GetById(userId);
+
+            if (user == null)
+            {
+                response.IsSuccessful = false;
+                response.Message = "Указанного пользователя не существует!";
+                return response;
+            }
+
+            if (user.CompletedMaterialIds.Contains(materialId))
+            {
+                response.IsSuccessful = false;
+                response.Message = "Данный материал уже изучен!";
+                return response;
+            }
+
+            user.CompletedMaterialIds = user.CompletedMaterialIds.Append(materialId).ToArray();
+
+            users.Update(user);
+            users.Save();
+
+            response.IsSuccessful = true;
+            response.Message = "Изучен новый материал!";
+            return response;
+        }
+
+        public OperationResponse AddCompletedCourse(long userId, CourseDTO course)
+        {
+            var response = new OperationResponse();
+
+            var user = users.GetById(userId);
+
+            if (user == null)
+            {
+                response.IsSuccessful = false;
+                response.Message = "Указанного пользователя не существует!";
+                return response;
+            }
+
+            if (user.CompletedCourseIds.Contains(course.Id))
+            {
+                response.IsSuccessful = false;
+                response.Message = "Данный курс уже изучен!";
+                return response;
+            }
+
+            user.JoinedCourseIds = user.JoinedCourseIds.Except(Enumerable.Repeat(course.Id, 1)).ToArray();
+            user.CompletedCourseIds = user.CompletedCourseIds.Append(course.Id).ToArray();
+            
+            foreach (var skillDTO in course.Skills)
+            {
+                var skill = skills.Find(a => a.Name == skillDTO.Name).SingleOrDefault();
+
+                if (user.Skills.ContainsKey(skill.Id))
+                {
+                    user.Skills[skill.Id]++;
+                }
+                else
+                {
+                    user.Skills.Add(skill.Id, 1);
+                }
+            }
+
+            users.Update(user);
+            users.Save();
+
+            response.IsSuccessful = true;
+            return response;
         }
 
         private string GetPasswordHash(string password)

@@ -65,12 +65,12 @@ namespace EducationPortal.DAL.Utilities
 
         public void Add(Entity item)
         {
-            var withExistedId = GetById(item.Id);
+            //var withExistedId = GetById(item.Id);
 
-            if (withExistedId == null)
-            {
+            //if (withExistedId == null)
+            //{
                 content.Add(item, EntityState.Created);
-            }
+            //}
         }
 
         public void Update(Entity item)

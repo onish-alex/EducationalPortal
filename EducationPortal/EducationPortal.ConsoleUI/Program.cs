@@ -14,6 +14,8 @@ namespace EducationPortal.ConsoleUI
             service.TryAddEnumerable(new[]
                 {
                     ServiceDescriptor.Singleton<IService, UserService>(),
+                    ServiceDescriptor.Singleton<IService, CourseService>(),
+                    ServiceDescriptor.Singleton<IService, MaterialService>(),
                 });
 
             var provider = service.BuildServiceProvider();
