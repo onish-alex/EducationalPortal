@@ -2,10 +2,8 @@
 
 namespace EducationPortal.BLL.Response
 {
-    public class AuthorizeResponse : OperationResponse
+    public class GetUserResponse : OperationResponse
     {
-        public long Id { get; set; }
-
         public UserDTO User { get; set; }
     }
 }

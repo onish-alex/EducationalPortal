@@ -21,9 +21,19 @@ namespace EducationPortal.DAL.DbContexts
             fileWatcher[TableNames.User].Created += OnCreate<User>;
             fileWatcher[TableNames.User].Changed += OnChange<User>;
             fileWatcher[TableNames.User].Deleted += OnDelete<User>;
+            
             fileWatcher[TableNames.Account].Created += OnCreate<Account>;
             fileWatcher[TableNames.Account].Changed += OnChange<Account>;
             fileWatcher[TableNames.Account].Deleted += OnDelete<Account>;
+
+            //fileWatcher[TableNames.Material].Created += OnCreate<Material>;
+            //fileWatcher[TableNames.Material].Changed += OnChange<Material>;
+            //fileWatcher[TableNames.Material].Deleted += OnDelete<Material>;
+
+            fileWatcher[TableNames.Skill].Created += OnCreate<Material>;
+            fileWatcher[TableNames.Skill].Changed += OnChange<Material>;
+            fileWatcher[TableNames.Skill].Deleted += OnDelete<Material>;
+
         }
 
         public IDbTable GetTable<T>() where T : Entity
@@ -82,6 +92,7 @@ namespace EducationPortal.DAL.DbContexts
             var tablePath = Path.GetDirectoryName(args.FullPath) + "/";
             var idStr = Path.GetFileNameWithoutExtension(args.FullPath);
             var isParsed = long.TryParse(idStr, out long id);
+            
             if (isParsed)
             {
                 var createdEntity = fileHelper.ReadEntity<T>(tablePath, id);
@@ -105,6 +116,7 @@ namespace EducationPortal.DAL.DbContexts
             var tablePath = Path.GetDirectoryName(args.FullPath) + "/";
             var idStr = Path.GetFileNameWithoutExtension(args.FullPath);
             var isParsed = long.TryParse(idStr, out long id);
+            
             if (isParsed)
             {
                 var changedEntity = fileHelper.ReadEntity<T>(tablePath, id);

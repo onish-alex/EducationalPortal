@@ -20,6 +20,6 @@ namespace EducationPortal.ConsoleUI
 
         public UserDTO Info { get; set; }
 
-        public bool IsAuthorized { get; set; }
+        public CourseDTO[] courseCache { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using EducationPortal.DAL.Entities;
 using System.Linq;
 using System.Threading;
+using System;
 
 namespace EducationPortal.DAL.Utilities
 {
@@ -17,7 +18,10 @@ namespace EducationPortal.DAL.Utilities
         private JsonFileHelper()
         {
             this.serializer = new JsonSerializer();
+            //this.serializer.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
+            this.serializer.DateFormatString = "yyyy-MM-dd";
             this.mutex = new Mutex(false, @"Global/EducationPortal");
+            
         }
 
         public static JsonFileHelper GetInstance()
@@ -63,7 +67,6 @@ namespace EducationPortal.DAL.Utilities
                     }
                 }
                 mutex.ReleaseMutex();
-                
             }
 
             mutex.WaitOne();

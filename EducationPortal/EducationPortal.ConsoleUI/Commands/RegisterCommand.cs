@@ -5,9 +5,9 @@ using EducationPortal.BLL.Response;
 
 namespace EducationPortal.ConsoleUI.Commands
 {
-    public class RegisterCommand : ICommand<RegisterResponse>
+    public class RegisterCommand : ICommand<OperationResponse>
     {
-        public RegisterResponse Response { get; private set; }
+        public OperationResponse Response { get; private set; }
 
         private IUserService reciever;
         private UserDTO user;
@@ -26,7 +26,7 @@ namespace EducationPortal.ConsoleUI.Commands
         {
             var validationResult = validator.Validate();
             Response = (validationResult.IsValid) ? reciever.Register(user, account)
-                                                  : new RegisterResponse() { Message = validationResult.Message } ;
+                                                  : new OperationResponse() { Message = validationResult.Message } ;
         }
     }
 }
