@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.BLL.DTO
+﻿namespace EducationPortal.BLL.DTO
 {
     public class ArticleDTO : MaterialDTO
     {
@@ -10,7 +6,7 @@ namespace EducationPortal.BLL.DTO
 
         public override string ToString()
         {
-            return base.ToString() + string.Format("\nДата издания: {0}\nURL: {1}", PublicationDate, Url);
+            return base.ToString() + string.Format("\nДата издания: {0}\nURL: {1}", this.PublicationDate, this.Url);
         }
     }
 }

@@ -1,25 +1,22 @@
-﻿using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class GetAllMaterialsCommand : ICommand<GetMaterialsResponse>
     {
         private IMaterialService materialService;
-
-        public GetMaterialsResponse Response { get; set; }
 
         public GetAllMaterialsCommand(IMaterialService materialService)
         {
             this.materialService = materialService;
         }
 
+        public GetMaterialsResponse Response { get; set; }
+
         public void Execute()
         {
-            Response = materialService.GetAllMaterials();
+            this.Response = this.materialService.GetAllMaterials();
         }
     }
 }

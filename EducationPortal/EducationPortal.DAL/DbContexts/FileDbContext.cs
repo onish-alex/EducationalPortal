@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using EducationPortal.DAL.Entities;
-using EducationPortal.DAL.Utilities;
-
-namespace EducationPortal.DAL.DbContexts
+﻿namespace EducationPortal.DAL.DbContexts
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using EducationPortal.DAL.Entities.File;
+    using EducationPortal.DAL.Utilities;
+
     public class FileDbContext
     {
         private IDictionary<TableNames, DbTable> tables;
@@ -14,42 +14,42 @@ namespace EducationPortal.DAL.DbContexts
 
         public FileDbContext()
         {
-            tables = new Dictionary<TableNames, DbTable>();
-            fileHelper = JsonFileHelper.GetInstance();
-            fileWatcher = DbWatcher.GetInstance();
+            this.tables = new Dictionary<TableNames, DbTable>();
+            this.fileHelper = JsonFileHelper.GetInstance();
+            this.fileWatcher = DbWatcher.GetInstance();
 
-            fileWatcher[TableNames.User].Created += OnCreate<User>;
-            fileWatcher[TableNames.User].Changed += OnChange<User>;
-            fileWatcher[TableNames.User].Deleted += OnDelete<User>;
-            
-            fileWatcher[TableNames.Account].Created += OnCreate<Account>;
-            fileWatcher[TableNames.Account].Changed += OnChange<Account>;
-            fileWatcher[TableNames.Account].Deleted += OnDelete<Account>;
+            this.fileWatcher[TableNames.User].Created += this.OnCreate<User>;
+            this.fileWatcher[TableNames.User].Changed += this.OnChange<User>;
+            this.fileWatcher[TableNames.User].Deleted += this.OnDelete<User>;
 
-            //fileWatcher[TableNames.Material].Created += OnCreate<Material>;
-            //fileWatcher[TableNames.Material].Changed += OnChange<Material>;
-            //fileWatcher[TableNames.Material].Deleted += OnDelete<Material>;
+            this.fileWatcher[TableNames.Account].Created += this.OnCreate<Account>;
+            this.fileWatcher[TableNames.Account].Changed += this.OnChange<Account>;
+            this.fileWatcher[TableNames.Account].Deleted += this.OnDelete<Account>;
 
-            fileWatcher[TableNames.Skill].Created += OnCreate<Material>;
-            fileWatcher[TableNames.Skill].Changed += OnChange<Material>;
-            fileWatcher[TableNames.Skill].Deleted += OnDelete<Material>;
+            this.fileWatcher[TableNames.Material].Created += this.OnCreate<Material>;
+            this.fileWatcher[TableNames.Material].Changed += this.OnChange<Material>;
+            this.fileWatcher[TableNames.Material].Deleted += this.OnDelete<Material>;
 
+            this.fileWatcher[TableNames.Skill].Created += this.OnCreate<Skill>;
+            this.fileWatcher[TableNames.Skill].Changed += this.OnChange<Skill>;
+            this.fileWatcher[TableNames.Skill].Deleted += this.OnDelete<Skill>;
         }
 
-        public IDbTable GetTable<T>() where T : Entity
+        public IDbTable GetTable<T>()
+            where T : Entity
         {
             var tableNameStr = typeof(T).Name;
             var tableName = (TableNames)Enum.Parse(typeof(TableNames), tableNameStr);
-            
-            if (!tables.ContainsKey(tableName))
+
+            if (!this.tables.ContainsKey(tableName))
             {
-                var tablePath = DbConfig.dbPathPrefix + DbConfig.TablePaths[tableName];
-                IEnumerable<T> tableContent = fileHelper.ReadTable<T>(tablePath);
+                var tablePath = DbConfig.DbPathPrefix + DbConfig.TablePaths[tableName];
+                IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
                 var table = new DbTable(tableContent);
-                tables.Add(tableName, table);
+                this.tables.Add(tableName, table);
             }
-            
-            return tables[tableName];
+
+            return this.tables[tableName];
         }
 
         public void Save<T>()
@@ -59,8 +59,8 @@ namespace EducationPortal.DAL.DbContexts
 
             var entitiesToSave = new Dictionary<Entity, EntityState>();
 
-            var currentTable = tables[tableName];
-            var tablePath = DbConfig.dbPathPrefix + DbConfig.TablePaths[tableName];
+            var currentTable = this.tables[tableName];
+            var tablePath = DbConfig.DbPathPrefix + DbConfig.TablePaths[tableName];
 
             foreach (var entity in currentTable.ContentWithState)
             {
@@ -70,9 +70,9 @@ namespace EducationPortal.DAL.DbContexts
                 }
             }
 
-            fileWatcher[tableName].EnableRaisingEvents = false;
-            fileHelper.SaveTable(tablePath, entitiesToSave);
-            fileWatcher[tableName].EnableRaisingEvents = true;
+            this.fileWatcher[tableName].EnableRaisingEvents = false;
+            this.fileHelper.SaveTable(tablePath, entitiesToSave);
+            this.fileWatcher[tableName].EnableRaisingEvents = true;
 
             foreach (var entity in entitiesToSave.Keys)
             {
@@ -87,73 +87,76 @@ namespace EducationPortal.DAL.DbContexts
             }
         }
 
-        private void OnCreate<T>(object sender, FileSystemEventArgs args) where T: Entity
+        private void OnCreate<T>(object sender, FileSystemEventArgs args)
+            where T : Entity
         {
             var tablePath = Path.GetDirectoryName(args.FullPath) + "/";
             var idStr = Path.GetFileNameWithoutExtension(args.FullPath);
             var isParsed = long.TryParse(idStr, out long id);
-            
+
             if (isParsed)
             {
-                var createdEntity = fileHelper.ReadEntity<T>(tablePath, id);
+                var createdEntity = this.fileHelper.ReadEntity<T>(tablePath, id);
                 var tableNameStr = typeof(T).Name;
                 var tableName = (TableNames)Enum.Parse(typeof(TableNames), tableNameStr);
 
-                if (!tables.ContainsKey(tableName))
+                if (!this.tables.ContainsKey(tableName))
                 {
-                    IEnumerable<T> tableContent = fileHelper.ReadTable<T>(tablePath);
+                    IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
                     var table = new DbTable(tableContent);
-                    tables.Add(tableName, table);
+                    this.tables.Add(tableName, table);
                 }
 
-                tables[tableName].Add(createdEntity);
-                tables[tableName].SetEntityState(createdEntity, EntityState.Synchronized);
+                this.tables[tableName].Add(createdEntity);
+                this.tables[tableName].SetEntityState(createdEntity, EntityState.Synchronized);
             }
         }
 
-        private void OnChange<T>(object sender, FileSystemEventArgs args) where T : Entity
+        private void OnChange<T>(object sender, FileSystemEventArgs args)
+            where T : Entity
         {
             var tablePath = Path.GetDirectoryName(args.FullPath) + "/";
             var idStr = Path.GetFileNameWithoutExtension(args.FullPath);
             var isParsed = long.TryParse(idStr, out long id);
-            
+
             if (isParsed)
             {
-                var changedEntity = fileHelper.ReadEntity<T>(tablePath, id);
+                var changedEntity = this.fileHelper.ReadEntity<T>(tablePath, id);
                 var tableNameStr = typeof(T).Name;
                 var tableName = (TableNames)Enum.Parse(typeof(TableNames), tableNameStr);
 
-                if (!tables.ContainsKey(tableName))
+                if (!this.tables.ContainsKey(tableName))
                 {
-                    IEnumerable<T> tableContent = fileHelper.ReadTable<T>(tablePath);
+                    IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
                     var table = new DbTable(tableContent);
-                    tables.Add(tableName, table);
+                    this.tables.Add(tableName, table);
                 }
 
-                tables[tableName].Update(changedEntity);
-                tables[tableName].SetEntityState(changedEntity, EntityState.Synchronized);
+                this.tables[tableName].Update(changedEntity);
+                this.tables[tableName].SetEntityState(changedEntity, EntityState.Synchronized);
             }
         }
 
-        private void OnDelete<T>(object sender, FileSystemEventArgs args) where T : Entity, new()
+        private void OnDelete<T>(object sender, FileSystemEventArgs args)
+            where T : Entity, new()
         {
             var tablePath = Path.GetDirectoryName(args.FullPath) + "/";
             var idStr = Path.GetFileNameWithoutExtension(args.FullPath);
             var isParsed = long.TryParse(idStr, out long id);
-            
+
             if (isParsed)
             {
                 var tableNameStr = typeof(T).Name;
                 var tableName = (TableNames)Enum.Parse(typeof(TableNames), tableNameStr);
 
-                if (!tables.ContainsKey(tableName))
+                if (!this.tables.ContainsKey(tableName))
                 {
-                    IEnumerable<T> tableContent = fileHelper.ReadTable<T>(tablePath);
+                    IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
                     var table = new DbTable(tableContent);
-                    tables.Add(tableName, table);
+                    this.tables.Add(tableName, table);
                 }
 
-                tables[tableName].Remove(new T() { Id = id });
+                this.tables[tableName].Remove(new T() { Id = id });
             }
         }
     }

@@ -1,16 +1,19 @@
-﻿using EducationPortal.BLL.Services;
-using EducationPortal.BLL;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace EducationPortal.ConsoleUI
+﻿namespace EducationPortal.ConsoleUI
 {
+    using EducationPortal.BLL;
+    using EducationPortal.BLL.Services;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            var service = new ServiceCollection();
-            service.Add(DependencySettings.GetDICollection());
+            var service = new ServiceCollection
+            {
+                DependencySettings.GetDICollection(),
+            };
+
             service.TryAddEnumerable(new[]
                 {
                     ServiceDescriptor.Singleton<IService, UserService>(),

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class GetUserCoursesCommand : ICommand<GetCoursesResponse>
     {
         private ICourseService courseService;
-
-        public GetCoursesResponse Response { get; set; }
-
         private long userId;
 
         public GetUserCoursesCommand(ICourseService courseService, long userId)
@@ -21,9 +14,11 @@ namespace EducationPortal.ConsoleUI.Commands
             this.userId = userId;
         }
 
+        public GetCoursesResponse Response { get; set; }
+
         public void Execute()
         {
-            Response = courseService.GetUserCourses(userId);
+            this.Response = this.courseService.GetUserCourses(this.userId);
         }
     }
 }

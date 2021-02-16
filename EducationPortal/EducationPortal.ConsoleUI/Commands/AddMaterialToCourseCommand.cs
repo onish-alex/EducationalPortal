@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.Response;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class AddMaterialToCourseCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private ICourseService reciever;
         private long materialId;
         private long userId;
@@ -25,9 +18,11 @@ namespace EducationPortal.ConsoleUI.Commands
             this.materialId = materialId;
         }
 
+        public OperationResponse Response { get; private set; }
+
         public void Execute()
         {
-            Response = reciever.AddMaterialToCourse(userId, courseId, materialId);
+            this.Response = this.reciever.AddMaterialToCourse(this.userId, this.courseId, this.materialId);
         }
     }
 }

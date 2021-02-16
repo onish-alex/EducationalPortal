@@ -1,109 +1,107 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using EducationPortal.DAL.Entities;
-
-namespace EducationPortal.DAL.Utilities
+﻿namespace EducationPortal.DAL.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using EducationPortal.DAL.Entities.File;
+
     public class DbTable : IDbTable
     {
         private Dictionary<Entity, EntityState> content;
-        public IEnumerable<Entity> Content {
-            get 
-            {
-                return content
-                        .Keys
-                        .Where(a => content[a] != EntityState.Deleted)
-                        .AsEnumerable();
-            } 
-        }
-
-        public IEnumerable<KeyValuePair<Entity, EntityState>> ContentWithState { get => content.AsEnumerable(); }
 
         public DbTable()
         {
-            content = new Dictionary<Entity, EntityState>();
+            this.content = new Dictionary<Entity, EntityState>();
         }
 
-        public DbTable(IEnumerable<Entity> starterSet) : this()
+        public DbTable(IEnumerable<Entity> starterSet)
+            : this()
         {
             if (starterSet != null)
             {
                 foreach (var item in starterSet)
                 {
-                    content.Add(item, EntityState.Synchronized);
+                    this.content.Add(item, EntityState.Synchronized);
                 }
             }
         }
 
+        public IEnumerable<Entity> Content
+        {
+            get
+            {
+                return this.content
+                        .Keys
+                        .Where(a => this.content[a] != EntityState.Deleted)
+                        .AsEnumerable();
+            }
+        }
+
+        public IEnumerable<KeyValuePair<Entity, EntityState>> ContentWithState { get => this.content.AsEnumerable(); }
+
         public Entity GetById(long id)
         {
-            return content.Keys.SingleOrDefault(a => a.Id == id);
+            return this.content.Keys.SingleOrDefault(a => a.Id == id);
         }
 
         public EntityState GetEntityState(Entity item)
         {
-            var withExistedId = GetById(item.Id);
-            
+            var withExistedId = this.GetById(item.Id);
+
             if (withExistedId != null)
             {
-                return content[withExistedId];
+                return this.content[withExistedId];
             }
-            
+
             return EntityState.NotFound;
         }
 
         public void SetEntityState(Entity item, EntityState state)
         {
-            var withExistedId = GetById(item.Id);
+            var withExistedId = this.GetById(item.Id);
 
             if (withExistedId != null)
             {
-                content[withExistedId] = state;
+                this.content[withExistedId] = state;
             }
         }
 
         public void Add(Entity item)
         {
-            //var withExistedId = GetById(item.Id);
-
-            //if (withExistedId == null)
-            //{
-                content.Add(item, EntityState.Created);
-            //}
+            this.content.Add(item, EntityState.Created);
         }
 
         public void Update(Entity item)
         {
-            var withExistedId = GetById(item.Id);
+            var withExistedId = this.GetById(item.Id);
 
             if (withExistedId != null)
             {
-                content.Remove(withExistedId);
-                content.Add(item, EntityState.Updated);
+                this.content.Remove(withExistedId);
+                this.content.Add(item, EntityState.Updated);
             }
         }
 
         public void Remove(Entity item)
         {
-            var withExistedId = GetById(item.Id);
+            var withExistedId = this.GetById(item.Id);
 
             if (withExistedId != null)
             {
-                content[withExistedId] = EntityState.Deleted;
+                this.content[withExistedId] = EntityState.Deleted;
             }
         }
 
         public void RemoveFromTable(Entity item)
         {
-            var withExistedId = GetById(item.Id);
+            var withExistedId = this.GetById(item.Id);
 
             if (withExistedId != null)
             {
-                content.Remove(withExistedId);
+                this.content.Remove(withExistedId);
             }
         }
 
-        public IEnumerable<Entity> Find(Func<Entity, bool> predicate) => content.Keys.Where(predicate);
+        public IEnumerable<Entity> Find(Func<Entity, bool> predicate) => this.content.Keys.Where(predicate);
     }
 }

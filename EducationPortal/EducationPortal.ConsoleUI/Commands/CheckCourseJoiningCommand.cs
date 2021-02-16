@@ -1,15 +1,10 @@
-﻿using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class CheckCourseJoiningCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private ICourseService reciever;
         private long userId;
         private long courseId;
@@ -21,9 +16,11 @@ namespace EducationPortal.ConsoleUI.Commands
             this.courseId = courseId;
         }
 
+        public OperationResponse Response { get; private set; }
+
         public void Execute()
         {
-            Response = reciever.CanJoinCourse(userId, courseId);
+            this.Response = this.reciever.CanJoinCourse(this.userId, this.courseId);
         }
     }
 }

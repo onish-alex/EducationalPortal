@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL;
-using EducationPortal.BLL.DTO;
-
-namespace EducationPortal.ConsoleUI.Validation
+﻿namespace EducationPortal.ConsoleUI.Validation
 {
+    using EducationPortal.BLL;
+    using EducationPortal.BLL.DTO;
+
     public class CourseDataValidator
     {
         private CourseDTO course;
@@ -17,14 +14,14 @@ namespace EducationPortal.ConsoleUI.Validation
 
         public ValidationResult Validate()
         {
-            var result = ValidateName();
+            var result = this.ValidateName();
 
             if (!result.IsValid)
             {
                 return result;
             }
 
-            result = ValidateDescription();
+            result = this.ValidateDescription();
 
             if (!result.IsValid)
             {
@@ -34,49 +31,51 @@ namespace EducationPortal.ConsoleUI.Validation
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateName()
         {
-            if (course.Name.Length < DataSettings.CourseNameMinCharacterCount
-             || course.Name.Length > DataSettings.CourseNameMaxCharacterCount)
+            if (this.course.Name.Length < DataSettings.CourseNameMinCharacterCount
+             || this.course.Name.Length > DataSettings.CourseNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Название курса должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.CourseNameMinCharacterCount,
-                                             DataSettings.CourseNameMaxCharacterCount)
+                    Message = string.Format(
+                        "Название курса должно быть длиной от {0} до {1} символов!",
+                        DataSettings.CourseNameMinCharacterCount,
+                        DataSettings.CourseNameMaxCharacterCount),
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateDescription()
         {
-            if (course.Description.Length < DataSettings.CourseDescriptionMinCharacterCount
-             || course.Description.Length > DataSettings.CourseDescriptionMaxCharacterCount)
+            if (this.course.Description.Length < DataSettings.CourseDescriptionMinCharacterCount
+             || this.course.Description.Length > DataSettings.CourseDescriptionMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Описание курса должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.CourseDescriptionMinCharacterCount,
-                                             DataSettings.CourseDescriptionMaxCharacterCount)
+                    Message = string.Format(
+                        "Описание курса должно быть длиной от {0} до {1} символов!",
+                        DataSettings.CourseDescriptionMinCharacterCount,
+                        DataSettings.CourseDescriptionMaxCharacterCount),
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
     }

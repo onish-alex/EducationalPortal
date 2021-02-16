@@ -1,10 +1,10 @@
-﻿using EducationPortal.BLL.DTO;
-
-namespace EducationPortal.BLL.Response
+﻿namespace EducationPortal.BLL.Response
 {
+    using EducationPortal.BLL.DTO;
+
     public class AuthorizeResponse : OperationResponse
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         public UserDTO User { get; set; }
     }

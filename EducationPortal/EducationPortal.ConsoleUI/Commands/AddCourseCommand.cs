@@ -1,14 +1,12 @@
-﻿using EducationPortal.BLL.Response;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Validation;
+
     public class AddCourseCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private ICourseService reciever;
         private CourseDTO course;
         private CourseDataValidator validator;
@@ -20,11 +18,13 @@ namespace EducationPortal.ConsoleUI.Commands
             this.validator = new CourseDataValidator(course);
         }
 
+        public OperationResponse Response { get; private set; }
+
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.AddCourse(course)
-                                                  : new OperationResponse() { Message = validationResult.Message };
+            var validationResult = this.validator.Validate();
+            this.Response = validationResult.IsValid ? this.reciever.AddCourse(this.course)
+                                                     : new OperationResponse() { Message = validationResult.Message };
         }
     }
 }

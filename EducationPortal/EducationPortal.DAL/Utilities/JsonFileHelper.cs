@@ -1,39 +1,36 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.IO;
-using EducationPortal.DAL.Entities;
-using System.Linq;
-using System.Threading;
-using System;
-
-namespace EducationPortal.DAL.Utilities
+﻿namespace EducationPortal.DAL.Utilities
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using EducationPortal.DAL.Entities.File;
+    using Newtonsoft.Json;
+
     public class JsonFileHelper
     {
+        private static readonly string Extension = ".json";
+        private static readonly JsonFileHelper Instance = new JsonFileHelper();
         private JsonSerializer serializer;
-        private static readonly string extension = ".json";
-        private static readonly JsonFileHelper instance = new JsonFileHelper();
         private Mutex mutex;
 
         private JsonFileHelper()
         {
             this.serializer = new JsonSerializer();
-            //this.serializer.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
             this.serializer.DateFormatString = "yyyy-MM-dd";
             this.mutex = new Mutex(false, @"Global/EducationPortal");
-            
         }
 
         public static JsonFileHelper GetInstance()
         {
-            return instance;
+            return Instance;
         }
 
         public void SaveTable(string tablePath, IDictionary<Entity, EntityState> content)
         {
-            mutex.WaitOne();
-            var hasGotNextId = long.TryParse(File.ReadAllText(tablePath + DbConfig.dbIdsFileName), out long nextId);
-            mutex.ReleaseMutex();
+            this.mutex.WaitOne();
+            var hasGotNextId = long.TryParse(File.ReadAllText(tablePath + DbConfig.DbIdsFileName), out long nextId);
+            this.mutex.ReleaseMutex();
 
             if (!hasGotNextId)
             {
@@ -47,8 +44,8 @@ namespace EducationPortal.DAL.Utilities
                     item.Key.Id = nextId++;
                 }
 
-                var fileName = tablePath + item.Key.Id + extension;
-                
+                var fileName = tablePath + item.Key.Id + Extension;
+
                 if (item.Value == EntityState.Deleted)
                 {
                     File.Delete(fileName);
@@ -56,61 +53,63 @@ namespace EducationPortal.DAL.Utilities
                 }
 
                 var fileInfo = new FileInfo(fileName);
-                mutex.WaitOne();
+                this.mutex.WaitOne();
 
                 using (StreamWriter sw = fileInfo.CreateText())
                 {
                     using (JsonWriter jw = new JsonTextWriter(sw))
                     {
-
-                        serializer.Serialize(jw, item.Key);
+                        this.serializer.Serialize(jw, item.Key);
                     }
                 }
-                mutex.ReleaseMutex();
+
+                this.mutex.ReleaseMutex();
             }
 
-            mutex.WaitOne();
-            File.WriteAllText(tablePath + DbConfig.dbIdsFileName, nextId.ToString());
-            mutex.ReleaseMutex();
+            this.mutex.WaitOne();
+            File.WriteAllText(tablePath + DbConfig.DbIdsFileName, nextId.ToString());
+            this.mutex.ReleaseMutex();
         }
 
-        public IEnumerable<T> ReadTable<T>(string tablePath) where T : Entity
+        public IEnumerable<T> ReadTable<T>(string tablePath)
+            where T : Entity
         {
-            var entityPaths = Directory.EnumerateFiles(tablePath).Where(file => Path.GetRelativePath(tablePath, file) != DbConfig.dbIdsFileName);
+            var entityPaths = Directory.EnumerateFiles(tablePath).Where(file => Path.GetRelativePath(tablePath, file) != DbConfig.DbIdsFileName);
             var tableContent = new List<T>();
-            mutex.WaitOne();
+            this.mutex.WaitOne();
             foreach (var entity in entityPaths)
             {
                 using (StreamReader sr = new StreamReader(entity))
                 {
                     using (JsonReader jr = new JsonTextReader(sr))
                     {
-                        tableContent.Add(serializer.Deserialize<T>(jr));
+                        tableContent.Add(this.serializer.Deserialize<T>(jr));
                     }
                 }
             }
-            mutex.ReleaseMutex();
 
+            this.mutex.ReleaseMutex();
 
             return tableContent;
         }
 
-        public T ReadEntity<T>(string tablePath, long id) where T : Entity
+        public T ReadEntity<T>(string tablePath, long id)
+            where T : Entity
         {
-            var fileName = tablePath + id + extension;
+            var fileName = tablePath + id + Extension;
             T entity;
 
-            mutex.WaitOne();
-            
+            this.mutex.WaitOne();
+
             using (StreamReader sr = new StreamReader(fileName))
             {
                 using (JsonReader jr = new JsonTextReader(sr))
                 {
-                    entity = serializer.Deserialize<T>(jr);
+                    entity = this.serializer.Deserialize<T>(jr);
                 }
             }
 
-            mutex.ReleaseMutex();
+            this.mutex.ReleaseMutex();
 
             return entity;
         }

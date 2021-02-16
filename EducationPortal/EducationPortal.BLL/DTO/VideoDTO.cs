@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.BLL.DTO
+﻿namespace EducationPortal.BLL.DTO
 {
     public class VideoDTO : MaterialDTO
     {
@@ -12,10 +8,11 @@ namespace EducationPortal.BLL.DTO
 
         public override string ToString()
         {
-            return base.ToString() + string.Format("\nПродолжительность: {0}\nКачество: {1}\nURL: {2}",
-                                                   string.Format("{0:d2}:{1:d2}", int.Parse(Duration) / 60, int.Parse(Duration) % 60), Quality, Url);
-
-
+            return base.ToString() + string.Format(
+                "\nПродолжительность: {0}\nКачество: {1}\nURL: {2}",
+                string.Format("{0:d2}:{1:d2}", int.Parse(this.Duration) / 60, int.Parse(this.Duration) % 60),
+                this.Quality,
+                this.Url);
         }
     }
 }

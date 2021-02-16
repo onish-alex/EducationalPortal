@@ -1,14 +1,12 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Validation;
+
     public class AddMaterialCommand : ICommand<AddMaterialResponse>
     {
-        public AddMaterialResponse Response { get; private set; }
-
         private IMaterialService reciever;
         private MaterialDTO material;
         private MaterialDataValidator validator;
@@ -20,11 +18,13 @@ namespace EducationPortal.ConsoleUI.Commands
             this.validator = new MaterialDataValidator(material);
         }
 
+        public AddMaterialResponse Response { get; private set; }
+
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.AddMaterial(material)
-                                                  : new AddMaterialResponse() { Message = validationResult.Message };
+            var validationResult = this.validator.Validate();
+            this.Response = validationResult.IsValid ? this.reciever.AddMaterial(this.material)
+                                                     : new AddMaterialResponse() { Message = validationResult.Message };
         }
     }
 }

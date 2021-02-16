@@ -26,7 +26,7 @@
         public static string InputCourseName = "Введите название курса: ";
         public static string InputCourseDescription = "Введите описание курса: ";
         public static string InputMaterialName = "Введите название нового материала: ";
-        public static string InputMaterialUrl= "Введите URL нового материала: ";
+        public static string InputMaterialUrl = "Введите URL нового материала: ";
 
         public static string OutputCourseName = "Название курса: {0}";
         public static string OutputCourseAuthorName = "Автор курса: {0}";
@@ -36,9 +36,5 @@
         public static string OutputIsCourseAuthor = "Вы - автор данного курса";
         public static string OutputIsJoiningCourse = "Вы участвуете в данном курсе";
         public static string OutputHasCompleteCourse = "Вы уже прошли данный курс";
-        
-        
-
-
     }
 }

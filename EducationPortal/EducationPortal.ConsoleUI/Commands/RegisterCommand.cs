@@ -1,14 +1,12 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Validation;
+
     public class RegisterCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private IUserService reciever;
         private UserDTO user;
         private AccountDTO account;
@@ -22,11 +20,13 @@ namespace EducationPortal.ConsoleUI.Commands
             this.validator = new RegisterDataValidator(user, account);
         }
 
+        public OperationResponse Response { get; private set; }
+
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.Register(user, account)
-                                                  : new OperationResponse() { Message = validationResult.Message } ;
+            var validationResult = this.validator.Validate();
+            this.Response = validationResult.IsValid ? this.reciever.Register(this.user, this.account)
+                                                     : new OperationResponse() { Message = validationResult.Message };
         }
     }
 }

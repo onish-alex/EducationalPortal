@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL;
-
-namespace EducationPortal.ConsoleUI.Validation
+﻿namespace EducationPortal.ConsoleUI.Validation
 {
+    using EducationPortal.BLL;
+    using EducationPortal.BLL.DTO;
+
     public class SkillDataValidator
     {
         private SkillDTO skill;
@@ -17,7 +14,7 @@ namespace EducationPortal.ConsoleUI.Validation
 
         public ValidationResult Validate()
         {
-            var result = ValidateName();
+            var result = this.ValidateName();
 
             if (!result.IsValid)
             {
@@ -27,28 +24,29 @@ namespace EducationPortal.ConsoleUI.Validation
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateName()
         {
-            if (skill.Name.Length < DataSettings.SkillNameMinCharacterCount
-             || skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
+            if (this.skill.Name.Length < DataSettings.SkillNameMinCharacterCount
+             || this.skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Название умения должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.SkillNameMinCharacterCount,
-                                             DataSettings.SkillNameMaxCharacterCount)
+                    Message = string.Format(
+                        "Название умения должно быть длиной от {0} до {1} символов!",
+                        DataSettings.SkillNameMinCharacterCount,
+                        DataSettings.SkillNameMaxCharacterCount),
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
     }

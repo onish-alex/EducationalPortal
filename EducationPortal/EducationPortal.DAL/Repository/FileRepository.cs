@@ -1,57 +1,67 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using EducationPortal.DAL.DbContexts;
-using EducationPortal.DAL.Entities;
-
-namespace EducationPortal.DAL.Repository
+﻿namespace EducationPortal.DAL.Repository
 {
-    public class FileRepository<T> : IRepository<T> where T : Entity
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using EducationPortal.DAL.DbContexts;
+    using EducationPortal.DAL.Entities.File;
+    using EducationPortal.DAL.Repository.Base;
+
+    public class FileRepository<T> : IRepository<T>
+        where T : Entity
     {
-        protected FileDbContext db;
+        private FileDbContext db;
+
         public FileRepository(FileDbContext context)
         {
-            db = context;
+            this.db = context;
         }
 
-        public void Create(T item) => db.GetTable<T>().Add(item);
+        public void Create(T item) => this.db.GetTable<T>().Add(item);
 
         public void Delete(long id)
         {
-            var entities = db.GetTable<T>();
+            var entities = this.db.GetTable<T>();
             var entityToRemove = entities.Find(a => a.Id == id)
                                          .SingleOrDefault();
+
             if (entityToRemove != null)
+            {
                 entities.Remove(entityToRemove);
+            }
         }
 
-        public IEnumerable<T> Find(Func<T, bool> predicate) => GetAll().Where(predicate);
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate) => this.GetAll().Where(predicate.Compile());
 
-        public IEnumerable<T> GetAll() => db.GetTable<T>()
+        public IEnumerable<T> GetAll() => this.db.GetTable<T>()
                                              .Content
                                              .Select(a => (T)a.Clone());
 
         public T GetById(long id)
         {
-            var entities = db.GetTable<T>();
+            var entities = this.db.GetTable<T>();
             var entityWithId = entities
                                 .Find(a => a.Id == id)
                                 .SingleOrDefault();
+
             if (entityWithId != null)
+            {
                 return entityWithId.Clone() as T;
+            }
 
             return null;
         }
 
         public void Update(T item)
         {
-            db.GetTable<T>()
+            this.db.GetTable<T>()
                .Update(item);
         }
 
         public void Save()
         {
-            db.Save<T>();
+            this.db.Save<T>();
         }
     }
 }

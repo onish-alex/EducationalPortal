@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace EducationPortal.DAL.Utilities
+﻿namespace EducationPortal.DAL.Utilities
 {
+    using System.Collections.Generic;
+
     public static class DbConfig
     {
-        public static string dbPathPrefix = "../../../../db/";
-        public static string dbIdsFileName = "ids.txt";
         public static readonly IDictionary<TableNames, string> TablePaths = new Dictionary<TableNames, string>()
         {
             { TableNames.User, "users/" },
@@ -14,5 +12,8 @@ namespace EducationPortal.DAL.Utilities
             { TableNames.Material, "materials/" },
             { TableNames.Skill, "skills/" },
         };
+
+        public static string DbPathPrefix = "../../../../db/";
+        public static string DbIdsFileName = "ids.txt";
     }
 }
