@@ -1,4 +1,4 @@
-﻿namespace EducationPortal.DAL.Entities
+﻿namespace EducationPortal.DAL.Entities.File
 {
     public class Course : Entity
     {
@@ -11,6 +11,5 @@
         public long[] MaterialIds { get; set; }
 
         public long[] SkillIds { get; set; }
-
     }
 }

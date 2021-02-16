@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using EducationPortal.DAL.Utilities;
-
-namespace EducationPortal.DAL.Entities
+﻿namespace EducationPortal.DAL.Entities.File
 {
+    using EducationPortal.DAL.Utilities;
+    using Newtonsoft.Json;
+
     [JsonConverter(typeof(MaterialConverter))]
     public class Video : Material
     {
