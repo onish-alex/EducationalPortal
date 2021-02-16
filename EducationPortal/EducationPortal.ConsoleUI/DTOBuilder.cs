@@ -1,7 +1,7 @@
-﻿using EducationPortal.BLL.DTO;
-
-namespace EducationPortal.ConsoleUI
+﻿namespace EducationPortal.ConsoleUI
 {
+    using EducationPortal.BLL.DTO;
+
     public class DTOBuilder
     {
         private static DTOBuilder instance = new DTOBuilder();
@@ -22,8 +22,8 @@ namespace EducationPortal.ConsoleUI
 
         public AccountDTO GetAccount(string[] parts, bool isReg = false)
         {
-            return (isReg) ? new AccountDTO() { Email = parts[0], Login = parts[1], Password = parts[2] }
-                           : new AccountDTO() { Email = parts[0], Login = parts[0], Password = parts[1] };
+            return isReg ? new AccountDTO() { Email = parts[0], Login = parts[1], Password = parts[2] }
+                         : new AccountDTO() { Email = parts[0], Login = parts[0], Password = parts[1] };
         }
 
         public SkillDTO GetSkill(string[] parts)
@@ -31,7 +31,7 @@ namespace EducationPortal.ConsoleUI
             return new SkillDTO() { Name = parts[0] };
         }
 
-        public BookDTO GetBook(string name, string url, string[] authors, string pageCount, string format, string publishingYear)
+        public BookDTO GetBook(string name, string url, string authors, string pageCount, string format, string publishingYear)
         {
             return new BookDTO()
             {
@@ -40,7 +40,7 @@ namespace EducationPortal.ConsoleUI
                 Format = format,
                 PublishingYear = publishingYear,
                 Name = name,
-                Url = url
+                Url = url,
             };
         }
 
@@ -50,7 +50,7 @@ namespace EducationPortal.ConsoleUI
             {
                 Name = name,
                 Url = url,
-                PublicationDate = publicationDate
+                PublicationDate = publicationDate,
             };
         }
 
@@ -61,7 +61,7 @@ namespace EducationPortal.ConsoleUI
                 Name = name,
                 Url = url,
                 Duration = duration,
-                Quality = quality
+                Quality = quality,
             };
         }
     }

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using EducationPortal.ConsoleUI.Commands;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-
-namespace EducationPortal.ConsoleUI
+﻿namespace EducationPortal.ConsoleUI
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Commands;
+
     public class CommandManager
     {
         private IDictionary<string, IService> services;
@@ -19,20 +19,6 @@ namespace EducationPortal.ConsoleUI
         private CourseDTO selectedCourse;
         private bool exitFlag;
 
-        private class CourseProgress
-        {
-            public string Name { get; set; }
-
-            public int CompletionPercent { get; set; }
-
-            public override string ToString()
-            {
-                return string.Format("\n{0} - {1}%", Name, CompletionPercent);
-            }
-        }
-
-        private bool IsLoggedIn { get => client != null; }
-        
         public CommandManager(IEnumerable<IService> services)
         {
             this.dtoBuilder = DTOBuilder.GetInstance();
@@ -45,164 +31,194 @@ namespace EducationPortal.ConsoleUI
                 this.services.Add(item.Name, item);
             }
 
-            commandsInfo = new Dictionary<string, CommandInfo>()
+            this.commandsInfo = new Dictionary<string, CommandInfo>()
             {
-                {"reg", new CommandInfo()
+                {
+                    "reg", new CommandInfo()
                         {
                           ParamsCount = 4,
                           Description = "reg [email] [login] [password] [username]\nРегистрация нового пользователя\n",
-                          Handler = Register
+                          Handler = this.Register,
                         }
                 },
-                {"login", new CommandInfo()
+                {
+                    "login", new CommandInfo()
                               {
                                 ParamsCount = 2,
                                 Description = "login [login | email] [password]\nАвторизация пользователя\n",
-                                Handler = LogIn
+                                Handler = this.LogIn,
                               }
                 },
-                {"logout", new CommandInfo()
+                {
+                    "logout", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "logout\nВыход из системы\n",
-                                Handler = LogOut
+                                Handler = this.LogOut,
                               }
                 },
-                {"help", new CommandInfo()
+                {
+                    "help", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "help\nВывод списка команд\n",
-                                Handler = CallHelp
+                                Handler = this.CallHelp,
                               }
                 },
-                {"exit", new CommandInfo()
+                {
+                    "exit", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "exit\nВыход из программы\n",
-                                Handler = Exit
+                                Handler = this.Exit,
                               }
                 },
-                {"createcourse", new CommandInfo()
+                {
+                    "createcourse", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "createcourse\nСоздание нового курса\n",
-                                Handler = CreateCourse
+                                Handler = this.CreateCourse,
                               }
                 },
-                {"mycourses", new CommandInfo()
+                {
+                    "mycourses", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "mycourses\nОтобразить список созданных вами курсов\n",
-                                Handler = GetUserCourses
+                                Handler = this.GetUserCourses,
                               }
                 },
-                {"allcourses", new CommandInfo()
+                {
+                    "allcourses", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "allcourses\nОтобразить список всех курсов\n",
-                                Handler = GetAllCourses
+                                Handler = this.GetAllCourses,
                               }
                 },
-                {"entercourse", new CommandInfo()
+                {
+                    "entercourse", new CommandInfo()
                               {
                                 ParamsCount = 1,
                                 Description = "entercourse [number]\nВойти в выбранный курс\n",
-                                Handler = EnterCourse
+                                Handler = this.EnterCourse,
                               }
                 },
-                {"editcourse", new CommandInfo()
+                {
+                    "editcourse", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "editcourse\nРедактирование выбранного курса\n",
-                                Handler = EditCourse
+                                Handler = this.EditCourse,
                               }
                 },
-                {"addskill", new CommandInfo()
+                {
+                    "addskill", new CommandInfo()
                               {
                                 ParamsCount = 1,
                                 Description = "addskill\nДобавление умения к выбранному курсу\n",
-                                Handler = AddSkill
+                                Handler = this.AddSkill,
                               }
                 },
-                {"removeskill", new CommandInfo()
+                {
+                    "removeskill", new CommandInfo()
                               {
                                 ParamsCount = 1,
                                 Description = "removeskill\nУдаление умения из выбранного курса\n",
-                                Handler = RemoveSkill
+                                Handler = this.RemoveSkill,
                               }
                 },
-                {"courseinfo", new CommandInfo()
+                {
+                    "courseinfo", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "courseinfo\nОтобразить информацию о выбранном курсе\n",
-                                Handler = ShowCourseInfo
+                                Handler = this.ShowCourseInfo,
                               }
                 },
-                {"addmaterial", new CommandInfo()
+                {
+                    "addmaterial", new CommandInfo()
                               {
                                 ParamsCount = 1,
                                 Description = "addmaterial [-new | -exist]\nДобавить материал к выбранному курсу\n",
-                                Handler = AddMaterial
+                                Handler = this.AddMaterial,
                               }
                 },
-                {"leavecourse", new CommandInfo()
+                {
+                    "leavecourse", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "leavecourse\nВыйти из выбранного курса\n",
-                                Handler = LeaveCourse
+                                Handler = this.LeaveCourse,
                               }
                 },
-                {"joincourse", new CommandInfo()
+                {
+                    "joincourse", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "joincourse\nНачать прохождение курса\n",
-                                Handler = JoinCourse
+                                Handler = this.JoinCourse,
                               }
                 },
-                {"myinfo", new CommandInfo()
+                {
+                    "myinfo", new CommandInfo()
                               {
                                 ParamsCount = 0,
                                 Description = "myinfo\nОтобразить личную информацию \n",
-                                Handler = ShowUserInfo
+                                Handler = this.ShowUserInfo,
                               }
                 },
-                {"nextstep", new CommandInfo()
+                {
+                    "nextstep", new CommandInfo()
                         {
                             ParamsCount = 0,
                             Description = "nextstep\nПерейти к следующему материалу курса\n",
-                            Handler = DoNextStep
-                        } 
+                            Handler = this.DoNextStep,
+                        }
                 },
-                {"joinedcourses", new CommandInfo()
+                {
+                    "joinedcourses", new CommandInfo()
                                     {
                                         ParamsCount = 0,
                                         Description = "joinedcourses\nОтобразить список курсов, в которых вы участвуете\n",
-                                        Handler = GetJoinedCourses
-                                    } 
+                                        Handler = this.GetJoinedCourses,
+                                    }
                 },
-                {"completedcourses", new CommandInfo()
+                {
+                    "completedcourses", new CommandInfo()
                                     {
                                         ParamsCount = 0,
                                         Description = "completedcourses\nОтобразить список завершенных вами курсов \n",
-                                        Handler = GetCompletedCourses
+                                        Handler = this.GetCompletedCourses,
                                     }
+                },
+                {
+                    "finish", new CommandInfo()
+                            {
+                                ParamsCount = 0,
+                                Description = "finish\nПодтвердить завершение курса\n",
+                                Handler = this.FinishCourse,
+                            }
                 },
             };
         }
 
+        private bool IsLoggedIn { get => this.client != null; }
+
         public void Run()
         {
-            exitFlag = false;
-            while (!exitFlag)
+            this.exitFlag = false;
+            while (!this.exitFlag)
             {
-                foreach (var item in output)
+                foreach (var item in this.output)
                 {
                     Console.WriteLine(item);
                 }
 
-                output.Clear();
+                this.output.Clear();
 
-                Console.Write("\n{0}> ", consoleStatePrefix);
+                Console.Write("\n{0}> ", this.consoleStatePrefix);
                 var inputStr = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(inputStr))
@@ -210,27 +226,27 @@ namespace EducationPortal.ConsoleUI
                     continue;
                 }
 
-                commandParts = inputStr
-                                .Trim()
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                this.commandParts = inputStr
+                                      .Trim()
+                                      .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                var commandStr = commandParts.First();
-                commandParts = commandParts.Skip(1).ToArray();
+                var commandStr = this.commandParts.First();
+                this.commandParts = this.commandParts.Skip(1).ToArray();
 
-                if (commandsInfo.ContainsKey(commandStr))
+                if (this.commandsInfo.ContainsKey(commandStr))
                 {
-                    if (commandsInfo[commandStr].ParamsCount == commandParts.Length)
+                    if (this.commandsInfo[commandStr].ParamsCount == this.commandParts.Length)
                     {
-                        commandsInfo[commandStr].Handler();
+                        this.commandsInfo[commandStr].Handler();
                     }
                     else
                     {
-                        output.Add(ConsoleMessages.ErrorWrongParamsCount);
+                        this.output.Add(ConsoleMessages.ErrorWrongParamsCount);
                     }
-                } 
+                }
                 else
                 {
-                    output.Add(string.Format(ConsoleMessages.ErrorUnknownCommand, commandStr));
+                    this.output.Add(string.Format(ConsoleMessages.ErrorUnknownCommand, commandStr));
                 }
             }
         }
@@ -238,84 +254,38 @@ namespace EducationPortal.ConsoleUI
         private void SetCourseMode(CourseDTO selectedCourse)
         {
             this.selectedCourse = selectedCourse;
-            consoleStatePrefix = ConsoleMessages.CoursePrefix + selectedCourse.Name;     
+            this.consoleStatePrefix = ConsoleMessages.CoursePrefix + selectedCourse.Name;
         }
 
         private void ResetCourseMode()
         {
             this.selectedCourse = null;
-            this.client.courseCache = null;
-            consoleStatePrefix = ConsoleMessages.UserPrefix + client.Info.Name;
+            this.client.CourseCache = null;
+            this.consoleStatePrefix = ConsoleMessages.UserPrefix + this.client.Info.Name;
         }
 
-        private void CompleteCourse()
+        private bool TryEditCourse()
         {
-            var completeCourseCommand = new CompleteCourseCommand(this.services["User"] as IUserService, client.Id, selectedCourse);
-            completeCourseCommand.Execute();
-            var completeCourseResponse = completeCourseCommand.Response;
+            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
+            checkCommand.Execute();
+            var checkResponse = checkCommand.Response;
 
-            if (!completeCourseResponse.IsSuccessful)
+            if (!checkResponse.IsSuccessful)
             {
-                output.Add(completeCourseResponse.Message);
-                return;
+                this.output.Add(checkResponse.Message);
             }
 
-            output.Add(string.Format("Курс {0} успешно завершен!", selectedCourse.Name));
-            foreach (var skill in selectedCourse.Skills)
-            {
-                if (client.Info.Skills.Keys.Contains(skill.Name))
-                {
-                    client.Info.Skills[skill.Name].Level++;
-                    output.Add(string.Format("Умение \"{0}\" повышено!", skill.Name));
-                }
-                else
-                {
-                    client.Info.Skills.Add(skill.Name, new UserSkillDTO() { Skill = skill, Level = 1 });
-                    output.Add(string.Format("Получено новое умение - \"{0}\"", skill.Name));
-                }
-            }
-
-            client.Info.CompletedCourseIds = client.Info.CompletedCourseIds.Append(selectedCourse.Id).ToArray();
-            client.Info.JoinedCourseIds = client.Info.JoinedCourseIds.Except(Enumerable.Repeat(selectedCourse.Id, 1)).ToArray();
-        }
-
-        private void TakeNextMaterial(long nextMaterialId)
-        {
-            var getNextMaterialCommand = new GetMaterialsByIdsCommand(this.services["Material"] as IMaterialService, new long[] { nextMaterialId });
-            getNextMaterialCommand.Execute();
-            var getNextMaterialResponse = getNextMaterialCommand.Response;
-
-            if (!getNextMaterialResponse.IsSuccessful)
-            {
-                output.Add(getNextMaterialResponse.Message);
-                return;
-            }
-
-            var nextMaterial = getNextMaterialResponse.Materials.Single();
-
-            var addLearnedMaterialCommand = new AddLearnedMaterialCommand(this.services["User"] as IUserService, client.Id, nextMaterialId);
-            addLearnedMaterialCommand.Execute();
-            var addLearnedMaterialResponse = addLearnedMaterialCommand.Response;
-
-            output.Add(addLearnedMaterialResponse.Message);
-
-            if (!addLearnedMaterialResponse.IsSuccessful)
-            {
-                return;
-            }
-
-            client.Info.CompletedMaterialIds = client.Info.CompletedMaterialIds.Append(nextMaterialId).ToArray();
-
-            output.Add(nextMaterial.ToString());
+            return checkResponse.IsSuccessful;
         }
 
         private void PrintCourses(CourseDTO[] courses)
         {
             for (int i = 0; i < courses.Length; i++)
             {
-                output.Add(string.Format("{0}. {1}\n{2}\n", i + 1, courses[i].Name, courses[i].Description));
+                this.output.Add(string.Format("{0}. {1}\n{2}\nУмения: {3}\n", i + 1, courses[i].Name, courses[i].Description, string.Join(", ", courses[i].Skills.Select(a => a.Name))));
             }
-            client.courseCache = courses;
+
+            this.client.CourseCache = courses;
         }
 
         private void PrintMaterials(MaterialDTO[] materials)
@@ -330,29 +300,29 @@ namespace EducationPortal.ConsoleUI
 
         private void Register()
         {
-            if (IsLoggedIn)
+            if (this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryRegWhileLoggedIn);
+                this.output.Add(ConsoleMessages.ErrorTryRegWhileLoggedIn);
                 return;
             }
 
-            var account = dtoBuilder.GetAccount(commandParts, true);
-            var user = dtoBuilder.GetUser(commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
+            var account = this.dtoBuilder.GetAccount(this.commandParts, true);
+            var user = this.dtoBuilder.GetUser(this.commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
             var command = new RegisterCommand(this.services["User"] as IUserService, user, account);
             command.Execute();
             var response = command.Response;
-            output.Add(response.Message);
+            this.output.Add(response.Message);
         }
 
         private void LogIn()
         {
-            if (IsLoggedIn)
+            if (this.IsLoggedIn)
             {
                 this.output.Add(ConsoleMessages.ErrorTryLogInWhileLoggedIn);
                 return;
             }
 
-            var account = dtoBuilder.GetAccount(commandParts.ToArray());
+            var account = this.dtoBuilder.GetAccount(this.commandParts.ToArray());
             var command = new AuthorizeCommand(this.services["User"] as IUserService, account);
             command.Execute();
             var response = command.Response;
@@ -363,40 +333,40 @@ namespace EducationPortal.ConsoleUI
                 this.client = Client.GetInstance();
                 this.client.Id = response.Id;
                 this.client.Info = response.User;
-                this.consoleStatePrefix = ConsoleMessages.UserPrefix + client.Info.Name;
+                this.consoleStatePrefix = ConsoleMessages.UserPrefix + this.client.Info.Name;
             }
         }
 
         private void LogOut()
         {
-            if (IsLoggedIn)
+            if (this.IsLoggedIn)
             {
-                ResetCourseMode();
+                this.ResetCourseMode();
                 this.client = null;
-                consoleStatePrefix = ConsoleMessages.DefaultCommandPrefix;
-                output.Add(ConsoleMessages.InfoLoggedOut);
+                this.consoleStatePrefix = ConsoleMessages.DefaultCommandPrefix;
+                this.output.Add(ConsoleMessages.InfoLoggedOut);
             }
             else
             {
-                output.Add(ConsoleMessages.ErrorTryLogOutWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryLogOutWhileLoggedOut);
             }
         }
 
         private void CallHelp()
         {
-            output.AddRange(commandsInfo.Select(command => command.Value.Description));
+            this.output.AddRange(this.commandsInfo.Select(command => command.Value.Description));
         }
 
         private void Exit()
         {
-            exitFlag = true;
+            this.exitFlag = true;
         }
 
         private void CreateCourse()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
@@ -409,27 +379,26 @@ namespace EducationPortal.ConsoleUI
             {
                 Name = name,
                 Description = description,
-                CreatorId = client.Id,
-                Skills = new SkillDTO[0]
+                CreatorId = this.client.Id,
             };
 
             var command = new AddCourseCommand(this.services["Course"] as ICourseService, course);
             command.Execute();
             var response = command.Response;
-            output.Add(response.Message);
+            this.output.Add(response.Message);
         }
 
         private void GetAllCourses()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
@@ -438,85 +407,90 @@ namespace EducationPortal.ConsoleUI
             var response = command.Response;
 
             var allCourses = response.Courses.ToArray();
-            PrintCourses(allCourses);
+            this.PrintCourses(allCourses);
         }
 
         private void GetUserCourses()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
-            var command = new GetUserCoursesCommand(this.services["Course"] as ICourseService, client.Id);
+            var command = new GetUserCoursesCommand(this.services["Course"] as ICourseService, this.client.Id);
             command.Execute();
             var response = command.Response;
 
             var myCourses = response.Courses.ToArray();
-            PrintCourses(myCourses);
+            this.PrintCourses(myCourses);
         }
 
         private void EnterCourse()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
-            if (client.courseCache == null)
+            if (this.client.CourseCache == null)
             {
-                output.Add(ConsoleMessages.ErrorCourseListIsEmpty);
+                this.output.Add(ConsoleMessages.ErrorCourseListIsEmpty);
                 return;
             }
 
-            var isNumberCorrect = long.TryParse(commandParts[0], out long number);
+            var isNumberCorrect = long.TryParse(this.commandParts[0], out long number);
 
             if (!isNumberCorrect
              || number - 1 < 0
-             || number - 1 >= client.courseCache.Length)
+             || number - 1 >= this.client.CourseCache.Length)
             {
-                output.Add(ConsoleMessages.ErrorIncorrectNumberOfCourse);
+                this.output.Add(ConsoleMessages.ErrorIncorrectNumberOfCourse);
                 return;
             }
 
-            SetCourseMode(client.courseCache[number - 1]);
+            this.SetCourseMode(this.client.CourseCache[number - 1]);
         }
 
         private void EditCourse()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id);
+            if (!this.TryEditCourse())
+            {
+                return;
+            }
+
+            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
             checkCommand.Execute();
             var checkResponse = checkCommand.Response;
 
             if (!checkResponse.IsSuccessful)
             {
-                output.Add(checkResponse.Message);
+                this.output.Add(checkResponse.Message);
                 return;
             }
 
@@ -529,94 +503,104 @@ namespace EducationPortal.ConsoleUI
             {
                 Name = name,
                 Description = description,
-                CreatorId = selectedCourse.CreatorId,
-                Id = selectedCourse.Id,
+                CreatorId = this.selectedCourse.CreatorId,
+                Id = this.selectedCourse.Id,
             };
 
-            var command = new EditCourseCommand(this.services["Course"] as ICourseService, course, client.Id);
+            var command = new EditCourseCommand(this.services["Course"] as ICourseService, course, this.client.Id);
             command.Execute();
             var response = command.Response;
-            output.Add(response.Message);
+            this.output.Add(response.Message);
 
             if (response.IsSuccessful)
             {
-                consoleStatePrefix = ConsoleMessages.CoursePrefix + name;
-                selectedCourse.Name = name;
-                selectedCourse.Description = description;
+                this.consoleStatePrefix = ConsoleMessages.CoursePrefix + name;
+                this.selectedCourse.Name = name;
+                this.selectedCourse.Description = description;
             }
         }
 
         private void AddSkill()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id);
+            if (!this.TryEditCourse())
+            {
+                return;
+            }
+
+            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
             checkCommand.Execute();
             var checkResponse = checkCommand.Response;
 
             if (!checkResponse.IsSuccessful)
             {
-                output.Add(checkResponse.Message);
+                this.output.Add(checkResponse.Message);
                 return;
             }
 
-            var skill = dtoBuilder.GetSkill(commandParts);
+            var skill = this.dtoBuilder.GetSkill(this.commandParts);
 
-            var command = new AddSkillCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id, skill);
+            var command = new AddSkillCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id, skill);
             command.Execute();
             var response = command.Response;
-            output.Add(response.Message);
+            this.output.Add(response.Message);
 
             if (response.IsSuccessful)
             {
-                selectedCourse.Skills = selectedCourse.Skills.Append(skill).ToArray();
+                this.selectedCourse.Skills = this.selectedCourse.Skills.Append(skill).ToArray();
             }
         }
 
         private void RemoveSkill()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id);
+            if (!this.TryEditCourse())
+            {
+                return;
+            }
+
+            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
             checkCommand.Execute();
             var checkResponse = checkCommand.Response;
 
             if (!checkResponse.IsSuccessful)
             {
-                output.Add(checkResponse.Message);
+                this.output.Add(checkResponse.Message);
                 return;
             }
 
-            var skillToRemove = dtoBuilder.GetSkill(commandParts);
+            var skillToRemove = this.dtoBuilder.GetSkill(this.commandParts);
 
-            var command = new RemoveSkillCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id, skillToRemove);
+            var command = new RemoveSkillCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id, skillToRemove);
             command.Execute();
             var response = command.Response;
-            output.Add(response.Message);
+            this.output.Add(response.Message);
 
             if (response.IsSuccessful)
             {
-                selectedCourse.Skills = selectedCourse.Skills
+                this.selectedCourse.Skills = this.selectedCourse.Skills
                                                       .Where(skill => skill.Name != skillToRemove.Name)
                                                       .ToArray();
             }
@@ -624,74 +608,85 @@ namespace EducationPortal.ConsoleUI
 
         private void ShowCourseInfo()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            var command = new GetUserCommand(this.services["User"] as IUserService, selectedCourse.CreatorId);
-            command.Execute();
-            var response = command.Response;
+            var getCourseStatusCommand = new GetCourseStatusCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
+            getCourseStatusCommand.Execute();
+            var getCourseStatusResponse = getCourseStatusCommand.Response;
 
-            output.Add(string.Format(ConsoleMessages.OutputCourseName, selectedCourse.Name));
-            output.Add(string.Format(ConsoleMessages.OutputCourseAuthorName, (response.IsSuccessful) ? response.User.Name : response.Message));
-            output.Add(string.Format(ConsoleMessages.OutputCourseDescription, selectedCourse.Description));
+            this.output.Add(string.Format(ConsoleMessages.OutputCourseName, this.selectedCourse.Name));
+            this.output.Add(string.Format(ConsoleMessages.OutputCourseAuthorName, getCourseStatusResponse.CreatorName));
+            this.output.Add(string.Format(ConsoleMessages.OutputCourseDescription, this.selectedCourse.Description));
 
-            output.Add(string.Format(ConsoleMessages.OutputCourseSkills, (selectedCourse.Skills.Length != 0)
-                                                                            ? string.Join(", ", selectedCourse.Skills.Select(a => a.Name))
-                                                                            : ConsoleMessages.OutputEmptySkillList));
+            var skillStr = this.selectedCourse.Skills.Count() != 0
+                                ? string.Join(", ", this.selectedCourse.Skills.Select(a => a.Name))
+                                : ConsoleMessages.OutputEmptySkillList;
 
-            if (client.Id == selectedCourse.CreatorId)
+            this.output.Add(string.Format(ConsoleMessages.OutputCourseSkills, skillStr));
+
+            if (!getCourseStatusResponse.IsSuccessful)
             {
-                output.Add(ConsoleMessages.OutputIsCourseAuthor);
+                this.output.Add(getCourseStatusResponse.Message);
+                return;
             }
 
-            if (client.Info.JoinedCourseIds.Contains(selectedCourse.Id))
+            if (getCourseStatusResponse.IsCreator)
             {
-                output.Add(ConsoleMessages.OutputIsJoiningCourse);
+                this.output.Add(ConsoleMessages.OutputIsCourseAuthor);
             }
 
-            if (client.Info.CompletedCourseIds.Contains(selectedCourse.Id))
+            if (getCourseStatusResponse.IsJoined)
             {
-                output.Add(ConsoleMessages.OutputHasCompleteCourse);
+                this.output.Add(ConsoleMessages.OutputIsJoiningCourse);
+            }
+
+            if (getCourseStatusResponse.IsCompleted)
+            {
+                this.output.Add(ConsoleMessages.OutputHasCompleteCourse);
             }
         }
 
         private void AddMaterial()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id);
+            if (!this.TryEditCourse())
+            {
+                return;
+            }
+
+            var checkCommand = new CheckCourseEditingCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
             checkCommand.Execute();
             var checkResponse = checkCommand.Response;
 
             if (!checkResponse.IsSuccessful)
             {
-                output.Add(checkResponse.Message);
+                this.output.Add(checkResponse.Message);
                 return;
             }
 
-            if (commandParts[0] == "-new")
+            if (this.commandParts[0] == "-new")
             {
-                MaterialDTO materialToAdd = null;
-
                 Console.WriteLine(ConsoleMessages.InputMaterialName);
                 var name = Console.ReadLine();
 
@@ -701,6 +696,8 @@ namespace EducationPortal.ConsoleUI
                 Console.WriteLine("Введите тип материала (Статья | Книга | Видео)");
                 var materialType = Console.ReadLine();
 
+                MaterialDTO materialToAdd;
+
                 switch (materialType)
                 {
                     case "Статья":
@@ -708,16 +705,14 @@ namespace EducationPortal.ConsoleUI
                         Console.WriteLine("Введите дату публикации статьи (ГГГГ-ММ-ДД): ");
                         var date = Console.ReadLine();
 
-                        materialToAdd = dtoBuilder.GetArticle(name, url, date);
+                        materialToAdd = this.dtoBuilder.GetArticle(name, url, date);
 
                         break;
 
                     case "Книга":
 
                         Console.WriteLine("Введите имена авторов, через запятую: ");
-                        var authors = Console.ReadLine().Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                                        .Select(str => str.Trim())
-                                                        .ToArray();
+                        var authors = Console.ReadLine();
 
                         Console.WriteLine("Введите количество страниц: ");
                         var pageCount = Console.ReadLine();
@@ -728,7 +723,7 @@ namespace EducationPortal.ConsoleUI
                         Console.WriteLine("Введите год издания книги: ");
                         var year = Console.ReadLine();
 
-                        materialToAdd = dtoBuilder.GetBook(name, url, authors, pageCount, format, year);
+                        materialToAdd = this.dtoBuilder.GetBook(name, url, authors, pageCount, format, year);
 
                         break;
 
@@ -740,12 +735,12 @@ namespace EducationPortal.ConsoleUI
                         Console.WriteLine("Введите качество видео: ");
                         var quality = Console.ReadLine().Trim();
 
-                        materialToAdd = dtoBuilder.GetVideo(name, url, duration, quality);
+                        materialToAdd = this.dtoBuilder.GetVideo(name, url, duration, quality);
 
                         break;
 
                     default:
-                        output.Add("Неверно указан тип материала!");
+                        this.output.Add("Неверно указан тип материала!");
                         return;
                 }
 
@@ -755,16 +750,18 @@ namespace EducationPortal.ConsoleUI
 
                 if (!materialResponse.IsSuccessful)
                 {
-                    output.Add(materialResponse.Message);
+                    this.output.Add(materialResponse.Message);
                     return;
                 }
 
-                var addMaterialToCourseCommand = new AddMaterialToCourseCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id, materialResponse.MaterialId);
+                materialToAdd.Id = materialResponse.MaterialId;
+
+                var addMaterialToCourseCommand = new AddMaterialToCourseCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id, materialToAdd.Id);
                 addMaterialToCourseCommand.Execute();
                 var addMaterialResponse = addMaterialToCourseCommand.Response;
-                output.Add(addMaterialResponse.Message);
+                this.output.Add(addMaterialResponse.Message);
             }
-            else if (commandParts[0] == "-exist")
+            else if (this.commandParts[0] == "-exist")
             {
                 var getMaterialsCommand = new GetAllMaterialsCommand(this.services["Material"] as IMaterialService);
                 getMaterialsCommand.Execute();
@@ -772,12 +769,12 @@ namespace EducationPortal.ConsoleUI
 
                 if (!response.IsSuccessful)
                 {
-                    output.Add("Список материалов пуст!");
+                    this.output.Add("Список материалов пуст!");
                     return;
                 }
 
                 var allMaterials = response.Materials.ToArray();
-                PrintMaterials(allMaterials);
+                this.PrintMaterials(allMaterials);
 
                 Console.WriteLine("\nВведите номер материала:");
                 var numberStr = Console.ReadLine();
@@ -788,226 +785,244 @@ namespace EducationPortal.ConsoleUI
                  || number - 1 < 0
                  || number - 1 >= allMaterials.Length)
                 {
-                    output.Add(ConsoleMessages.ErrorIncorrectNumberOfMaterial);
+                    this.output.Add(ConsoleMessages.ErrorIncorrectNumberOfMaterial);
                     return;
                 }
 
-                var addMaterialToCourseCommand = new AddMaterialToCourseCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id, allMaterials[number - 1].Id);
+                var checkMaterialExistingCommand = new CheckMaterialExistingCommmand(this.services["Material"] as IMaterialService, allMaterials[number - 1].Id);
+                checkMaterialExistingCommand.Execute();
+                var checkMaterialResponse = checkMaterialExistingCommand.Response;
+
+                if (!checkMaterialResponse.IsSuccessful)
+                {
+                    this.output.Add(checkMaterialResponse.Message);
+                    return;
+                }
+
+                var addMaterialToCourseCommand = new AddMaterialToCourseCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id, allMaterials[number - 1].Id);
                 addMaterialToCourseCommand.Execute();
                 var addMaterialToCourseResponse = addMaterialToCourseCommand.Response;
-                output.Add(addMaterialToCourseResponse.Message);
+                this.output.Add(addMaterialToCourseResponse.Message);
             }
             else
             {
-                output.Add(ConsoleMessages.ErrorWrongParamValue);
+                this.output.Add(ConsoleMessages.ErrorWrongParamValue);
             }
         }
 
         private void LeaveCourse()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            ResetCourseMode();
+            this.ResetCourseMode();
         }
 
         private void JoinCourse()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            if (client.Info.CompletedCourseIds.Contains(selectedCourse.Id))
-            {
-                output.Add(ConsoleMessages.ErrorAlreadyCompleteCourse);
-                return;
-            }
-
-            var checkCourseCommand = new CheckCourseJoiningCommand(this.services["Course"] as ICourseService, client.Id, selectedCourse.Id);
+            var checkCourseCommand = new CheckCourseJoiningCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id);
             checkCourseCommand.Execute();
             var checkResponse = checkCourseCommand.Response;
 
             if (!checkResponse.IsSuccessful)
             {
-                output.Add(checkResponse.Message);
+                this.output.Add(checkResponse.Message);
                 return;
             }
 
-            var joinCourseCommand = new JoinCourseCommand(this.services["User"] as IUserService, client.Id, selectedCourse.Id);
+            var joinCourseCommand = new JoinCourseCommand(this.services["User"] as IUserService, this.client.Id, this.selectedCourse.Id);
             joinCourseCommand.Execute();
             var joinCourseResponse = joinCourseCommand.Response;
 
-            output.Add(joinCourseResponse.Message);
+            this.output.Add(joinCourseResponse.Message);
 
             if (!joinCourseResponse.IsSuccessful)
             {
                 return;
             }
-
-            client.Info.JoinedCourseIds = client.Info.JoinedCourseIds.Append(selectedCourse.Id).ToArray();
         }
 
         private void ShowUserInfo()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
-            var getJoinedCoursesCommand = new GetCoursesByIdsCommand(this.services["Course"] as ICourseService, client.Info.JoinedCourseIds);
-            getJoinedCoursesCommand.Execute();
-            var getJoinedCoursesResponse = getJoinedCoursesCommand.Response;
-            
-            var getCompletedCoursesCommand = new GetCoursesByIdsCommand(this.services["Course"] as ICourseService, client.Info.CompletedCourseIds);
-            getCompletedCoursesCommand.Execute();
-            var getCompletedCoursesResponse = getCompletedCoursesCommand.Response;
+            var command = new GetUserInfoCommand(this.services["User"] as IUserService, this.client.Id);
+            command.Execute();
+            var response = command.Response;
 
-            var coursesProgress = new List<CourseProgress>();
-            foreach (var course in getJoinedCoursesResponse.Courses)
+            if (!response.IsSuccessful)
             {
-                var completedMaterialCount = client.Info.CompletedMaterialIds
-                                                        .Intersect(course.MaterialIds)
-                                                        .Count();
-
-                var allMaterialCount = course.MaterialIds
-                                             .Count();
-
-                var percent = (allMaterialCount != 0)
-                    ? Math.Round(completedMaterialCount / (double)allMaterialCount, 2)
-                    : 0;
-                
-                coursesProgress.Add(
-                    new CourseProgress() 
-                    { 
-                        Name = course.Name, 
-                        CompletionPercent = (int)(percent * 100) 
-                    }); 
+                this.output.Add(response.Message);
+                return;
             }
 
-            output.Add(string.Format("Профиль пользователя {0}", client.Info.Name));
+            this.output.Add(string.Format("Профиль пользователя {0}", this.client.Info.Name));
 
-            var userSkillStrings = client.Info.Skills.Select(us => us.ToString());
-            output.Add(string.Format("Умения: {0}", string.Join(", ", userSkillStrings)));
+            var userSkillStrings = response.SkillLevels.Select(sl => string.Format("{0} ({1})", sl.Key.Name, sl.Value));
+            this.output.Add(string.Format("Умения: {0}", string.Join(", ", userSkillStrings)));
 
-            var joinedCourseStrings = coursesProgress.Select(cp => cp.ToString());
-            output.Add(string.Format("Курсы в процессе: {0}", string.Join(", ", joinedCourseStrings)));
+            var joinedCourseStrings = response.JoinedCoursesProgress.Select(cp => string.Format("\n{0} - {1}%", cp.Key.Name, cp.Value));
+            this.output.Add(string.Format("Курсы в процессе: {0}", string.Join(", ", joinedCourseStrings)));
 
-            var courseNameStrings = getCompletedCoursesResponse.Courses.Select(course => course.Name);
-            output.Add(string.Format("Завершенные курсы: {0}", string.Join(", ", courseNameStrings)));
+            var courseNameStrings = response.CompletedCourses.Select(cc => cc.Name);
+            this.output.Add(string.Format("Завершенные курсы: {0}", string.Join(", ", courseNameStrings)));
         }
 
         private void DoNextStep()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse == null)
+            if (this.selectedCourse == null)
             {
-                output.Add(ConsoleMessages.ErrorNoSelectedCourse);
+                this.output.Add(ConsoleMessages.ErrorNoSelectedCourse);
                 return;
             }
 
-            if (!client.Info.JoinedCourseIds.Contains(selectedCourse.Id))
+            var command = new GetNextMaterialCommand(this.services["User"] as IUserService, this.client.Id, this.selectedCourse.Id);
+            command.Execute();
+            var response = command.Response;
+
+            if (!response.IsSuccessful)
             {
-                output.Add(ConsoleMessages.ErrorNotJoiningCourse);
+                this.output.Add(response.Message);
                 return;
             }
 
-            var getCurrentCourseCommand = new GetCoursesByIdsCommand(this.services["Course"] as ICourseService, new long[] { selectedCourse.Id });
-            getCurrentCourseCommand.Execute();
-            var currentCourseResponse = getCurrentCourseCommand.Response;
-            selectedCourse = currentCourseResponse.Courses.Single();
-
-            long nextMaterialId = -1;
-
-            for (int i = 0; i < selectedCourse.MaterialIds.Length; i++)
+            foreach (var item in response.Materials)
             {
-                if (!client.Info.CompletedMaterialIds.Contains(selectedCourse.MaterialIds[i]))
-                {
-                    nextMaterialId = selectedCourse.MaterialIds[i];
-                    break;
-                } 
-            }
-
-            if (nextMaterialId == -1)
-            {
-                CompleteCourse();
-            }
-            else 
-            {
-                TakeNextMaterial(nextMaterialId);
+                this.output.Add("Изучен новый материал!");
+                this.output.Add(item.ToString());
             }
         }
 
         private void GetJoinedCourses()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
-            var command = new GetCoursesByIdsCommand(this.services["Course"] as ICourseService, client.Info.JoinedCourseIds);
+            var command = new GetJoinedCoursesCommand(this.services["User"] as IUserService, this.client.Id);
             command.Execute();
             var response = command.Response;
 
+            if (!response.IsSuccessful)
+            {
+                this.output.Add(response.Message);
+                return;
+            }
+
             var joinedCourses = response.Courses.ToArray();
-            PrintCourses(joinedCourses);
+            this.PrintCourses(joinedCourses);
         }
 
         private void GetCompletedCourses()
         {
-            if (!IsLoggedIn)
+            if (!this.IsLoggedIn)
             {
-                output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
                 return;
             }
 
-            if (selectedCourse != null)
+            if (this.selectedCourse != null)
             {
-                output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
                 return;
             }
 
-            var command = new GetCoursesByIdsCommand(this.services["Course"] as ICourseService, client.Info.CompletedCourseIds);
+            var command = new GetCompletedCoursesCommand(this.services["User"] as IUserService, this.client.Id);
             command.Execute();
             var response = command.Response;
 
-            var completedCourses = response.Courses.ToArray();
-            PrintCourses(completedCourses);
+            if (!response.IsSuccessful)
+            {
+                this.output.Add(response.Message);
+                return;
+            }
+
+            var joinedCourses = response.Courses.ToArray();
+            this.PrintCourses(joinedCourses);
+        }
+
+        private void FinishCourse()
+        {
+            if (!this.IsLoggedIn)
+            {
+                this.output.Add(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.selectedCourse == null)
+            {
+                this.output.Add(ConsoleMessages.ErrorAlreadyInCourseMode);
+                return;
+            }
+
+            var completeCourseCommand = new CompleteCourseCommand(this.services["User"] as IUserService, this.client.Id, this.selectedCourse.Id);
+            completeCourseCommand.Execute();
+            var completeCourseResponse = completeCourseCommand.Response;
+
+            if (!completeCourseResponse.IsSuccessful)
+            {
+                this.output.Add(completeCourseResponse.Message);
+                return;
+            }
+
+            this.output.Add(string.Format("Курс {0} успешно завершен!", this.selectedCourse.Name));
+
+            foreach (var skillLevelPair in completeCourseResponse.RecievedSkills)
+            {
+                if (skillLevelPair.Value == 1)
+                {
+                    this.output.Add(string.Format("Получено новое умение - \"{0}\"", skillLevelPair.Key.Name));
+                }
+                else
+                {
+                    this.output.Add(string.Format("Умение \"{0}\" повышено!", skillLevelPair.Key.Name));
+                }
+            }
         }
 
         #endregion
