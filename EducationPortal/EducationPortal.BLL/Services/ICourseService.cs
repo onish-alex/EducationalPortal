@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+
     public interface ICourseService : IService
     {
         OperationResponse AddCourse(CourseDTO course);
@@ -19,15 +16,13 @@ namespace EducationPortal.BLL.Services
         OperationResponse AddSkill(long userId, long courseId, SkillDTO skill);
 
         OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill);
-        
+
         OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId);
 
         OperationResponse CanEditCourse(long userId, long courseId);
 
         OperationResponse CanJoinCourse(long userId, long courseId);
-        
-        GetCoursesResponse GetByIds(long[] ids);
 
-        OperationResponse CanCompleteCourse(long courseId, long[] learnedMaterialIds);
+        GetCourseStatusResponse GetCourseStatus(long courseId, long userId);
     }
 }
