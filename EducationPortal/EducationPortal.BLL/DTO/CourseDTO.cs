@@ -12,6 +12,6 @@
 
         public int CreatorId { get; set; }
 
-        public IEnumerable<SkillDTO> Skills { get; set; }
+        public IEnumerable<string> SkillNames { get; set; }
     }
 }

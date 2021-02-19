@@ -292,7 +292,7 @@
         {
             for (int i = 0; i < courses.Length; i++)
             {
-                this.output.Add(string.Format("{0}. {1}\n{2}\nУмения: {3}\n", i + 1, courses[i].Name, courses[i].Description, string.Join(", ", courses[i].Skills.Select(a => a.Name))));
+                this.output.Add(string.Format("{0}. {1}\n{2}\nУмения: {3}\n", i + 1, courses[i].Name, courses[i].Description, string.Join(", ", courses[i].SkillNames)));
             }
 
             this.client.CourseCache = courses;
@@ -565,11 +565,6 @@
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
-
-            if (response.IsSuccessful)
-            {
-                this.selectedCourse.Skills = this.selectedCourse.Skills.Append(skill).ToArray();
-            }
         }
 
         private void RemoveSkill()
@@ -607,13 +602,6 @@
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
-
-            if (response.IsSuccessful)
-            {
-                this.selectedCourse.Skills = this.selectedCourse.Skills
-                                                      .Where(skill => skill.Name != skillToRemove.Name)
-                                                      .ToArray();
-            }
         }
 
         private void ShowCourseInfo()
@@ -638,8 +626,8 @@
             this.output.Add(string.Format(ConsoleMessages.OutputCourseAuthorName, getCourseStatusResponse.CreatorName));
             this.output.Add(string.Format(ConsoleMessages.OutputCourseDescription, this.selectedCourse.Description));
 
-            var skillStr = this.selectedCourse.Skills.Count() != 0
-                                ? string.Join(", ", this.selectedCourse.Skills.Select(a => a.Name))
+            var skillStr = getCourseStatusResponse.Skills.Count() != 0
+                                ? string.Join(", ", getCourseStatusResponse.Skills.Select(a => a.Name))
                                 : ConsoleMessages.OutputEmptySkillList;
 
             this.output.Add(string.Format(ConsoleMessages.OutputCourseSkills, skillStr));

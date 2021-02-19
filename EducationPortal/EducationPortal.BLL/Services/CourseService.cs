@@ -260,6 +260,7 @@
             }
 
             response.CreatorName = course.Creator.Name;
+            response.Skills = this.mapper.Map<Skill, SkillDTO>(course.Skills);
 
             response.IsSuccessful = true;
 

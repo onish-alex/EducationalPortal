@@ -1,5 +1,8 @@
 ﻿namespace EducationPortal.BLL.Response
 {
+    using System.Collections.Generic;
+    using EducationPortal.BLL.DTO;
+
     public class GetCourseStatusResponse : IResponse
     {
         public string Message { get; set; }
@@ -13,5 +16,7 @@
         public bool IsJoined { get; set; }
 
         public bool IsCompleted { get; set; }
+
+        public IEnumerable<SkillDTO> Skills { get; set; }
     }
 }
