@@ -2,8 +2,8 @@
 {
     using System;
     using System.IO;
-    using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
 
     public class MaterialDataValidator : Validator
     {

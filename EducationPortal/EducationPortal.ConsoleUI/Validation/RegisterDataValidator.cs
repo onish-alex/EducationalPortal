@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Net.Mail;
-    using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
 
     public class RegisterDataValidator : Validator
     {

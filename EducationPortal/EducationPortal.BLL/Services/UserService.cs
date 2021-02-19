@@ -17,19 +17,20 @@
         private IRepository<Account> accounts;
         private IRepository<Skill> skills;
         private IRepository<Course> courses;
-        private CommonMapper mapper;
+        private IMapper mapper;
 
         public UserService(
             IRepository<User> users,
             IRepository<Account> accounts,
             IRepository<Skill> skills,
-            IRepository<Course> courses)
+            IRepository<Course> courses,
+            IMapper mapper)
         {
             this.users = users;
             this.accounts = accounts;
             this.skills = skills;
             this.courses = courses;
-            this.mapper = CommonMapper.GetInstance();
+            this.mapper = mapper;
         }
 
         public string Name => "User";

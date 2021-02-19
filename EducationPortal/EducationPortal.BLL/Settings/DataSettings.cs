@@ -1,4 +1,4 @@
-﻿namespace EducationPortal.BLL
+﻿namespace EducationPortal.BLL.Settings
 {
     public static class DataSettings
     {

@@ -1,7 +1,7 @@
 ﻿namespace EducationPortal.ConsoleUI.Validation
 {
-    using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
 
     public class SkillDataValidator : Validator
     {

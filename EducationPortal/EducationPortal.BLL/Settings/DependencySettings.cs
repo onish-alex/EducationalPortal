@@ -1,10 +1,10 @@
-﻿namespace EducationPortal.BLL
+﻿namespace EducationPortal.BLL.Settings
 {
+    using EducationPortal.BLL.Mappers;
     using EducationPortal.DAL.DbContexts;
     using EducationPortal.DAL.Entities.EF;
     using EducationPortal.DAL.Repository.Base;
     using EducationPortal.DAL.Repository.EF;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class DependencySettings
@@ -18,6 +18,7 @@
             service.AddSingleton<IRepository<Course>, CourseRepository>();
             service.AddSingleton<IRepository<Skill>, SkillRepository>();
             service.AddSingleton<IRepository<Account>, AccountRepository>();
+            service.AddSingleton<IMapper, EntityMapper>();
             return service;
         }
     }

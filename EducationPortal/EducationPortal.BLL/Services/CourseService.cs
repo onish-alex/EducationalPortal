@@ -13,18 +13,18 @@
         private IRepository<Course> courses;
         private IRepository<Skill> skills;
         private IRepository<Material> materials;
-        private CommonMapper mapper;
+        private IMapper mapper;
 
         public CourseService(
             IRepository<Course> courses,
             IRepository<Skill> skills,
-            IRepository<Material> materials)
+            IRepository<Material> materials,
+            IMapper mapper)
         {
             this.courses = courses;
             this.skills = skills;
             this.materials = materials;
-
-            this.mapper = CommonMapper.GetInstance();
+            this.mapper = mapper;
         }
 
         public string Name => "Course";

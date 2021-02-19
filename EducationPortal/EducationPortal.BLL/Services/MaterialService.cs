@@ -10,12 +10,12 @@
     public class MaterialService : IMaterialService
     {
         private IRepository<Material> materials;
-        private CommonMapper mapper;
+        private IMapper mapper;
 
-        public MaterialService(IRepository<Material> materials)
+        public MaterialService(IRepository<Material> materials, IMapper mapper)
         {
             this.materials = materials;
-            this.mapper = CommonMapper.GetInstance();
+            this.mapper = mapper;
         }
 
         public string Name => "Material";
