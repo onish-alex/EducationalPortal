@@ -5,20 +5,18 @@
     using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
 
-    public class MaterialDataValidator
+    public class MaterialDataValidator : Validator
     {
-        private MaterialDTO material;
         private Uri uri;
 
-        public MaterialDataValidator(MaterialDTO material)
-        {
-            this.material = material;
-        }
+        public override string Name => "Material";
 
-        public ValidationResult Validate()
+        public MaterialDTO Material { get; set; }
+
+        public override ValidationResult Validate()
         {
-            if (this.material.Name.Length < DataSettings.MaterialNameMinCharacterCount
-             || this.material.Name.Length > DataSettings.MaterialNameMaxCharacterCount)
+            if (this.Material.Name.Length < DataSettings.MaterialNameMinCharacterCount
+             || this.Material.Name.Length > DataSettings.MaterialNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -30,7 +28,7 @@
                 };
             }
 
-            var isUrlCorrect = Uri.TryCreate(this.material.Url, UriKind.Absolute, out this.uri)
+            var isUrlCorrect = Uri.TryCreate(this.Material.Url, UriKind.Absolute, out this.uri)
                             && (this.uri.Scheme == Uri.UriSchemeHttp || this.uri.Scheme == Uri.UriSchemeHttps);
 
             if (!isUrlCorrect)
@@ -42,15 +40,15 @@
                 };
             }
 
-            if (this.material is BookDTO)
+            if (this.Material is BookDTO)
             {
                 return this.ValidateAsBook();
             }
-            else if (this.material is ArticleDTO)
+            else if (this.Material is ArticleDTO)
             {
                 return this.ValidateAsArticle();
             }
-            else if (this.material is VideoDTO)
+            else if (this.Material is VideoDTO)
             {
                 return this.ValidateAsVideo();
             }
@@ -64,7 +62,7 @@
 
         private ValidationResult ValidateAsVideo()
         {
-            var video = this.material as VideoDTO;
+            var video = this.Material as VideoDTO;
 
             if (!int.TryParse(video.Duration, out int value)
             || value <= 0)
@@ -85,7 +83,7 @@
 
         private ValidationResult ValidateAsArticle()
         {
-            var article = this.material as ArticleDTO;
+            var article = this.Material as ArticleDTO;
             if (!DateTime.TryParse(article.PublicationDate, out _))
             {
                 return new ValidationResult()
@@ -104,7 +102,7 @@
 
         private ValidationResult ValidateAsBook()
         {
-            var book = this.material as BookDTO;
+            var book = this.Material as BookDTO;
 
             if (!Path.HasExtension(this.uri.AbsolutePath))
             {

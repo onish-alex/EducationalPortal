@@ -3,16 +3,13 @@
     using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
 
-    public class CourseDataValidator
+    public class CourseDataValidator : Validator
     {
-        private CourseDTO course;
+        public CourseDTO Course { get; set; }
 
-        public CourseDataValidator(CourseDTO course)
-        {
-            this.course = course;
-        }
+        public override string Name => "Course";
 
-        public ValidationResult Validate()
+        public override ValidationResult Validate()
         {
             var result = this.ValidateName();
 
@@ -37,8 +34,8 @@
 
         private ValidationResult ValidateName()
         {
-            if (this.course.Name.Length < DataSettings.CourseNameMinCharacterCount
-             || this.course.Name.Length > DataSettings.CourseNameMaxCharacterCount)
+            if (this.Course.Name.Length < DataSettings.CourseNameMinCharacterCount
+             || this.Course.Name.Length > DataSettings.CourseNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -59,8 +56,8 @@
 
         private ValidationResult ValidateDescription()
         {
-            if (this.course.Description.Length < DataSettings.CourseDescriptionMinCharacterCount
-             || this.course.Description.Length > DataSettings.CourseDescriptionMaxCharacterCount)
+            if (this.Course.Description.Length < DataSettings.CourseDescriptionMinCharacterCount
+             || this.Course.Description.Length > DataSettings.CourseDescriptionMaxCharacterCount)
             {
                 return new ValidationResult()
                 {

@@ -6,10 +6,12 @@
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Commands;
+    using EducationPortal.ConsoleUI.Validation;
 
     public class CommandManager
     {
         private IDictionary<string, IService> services;
+        private IDictionary<string, IValidator> validators;
         private IDictionary<string, CommandInfo> commandsInfo;
         private string[] commandParts;
         private List<string> output;
@@ -19,16 +21,24 @@
         private CourseDTO selectedCourse;
         private bool exitFlag;
 
-        public CommandManager(IEnumerable<IService> services)
+        public CommandManager(IEnumerable<IService> services, IEnumerable<IValidator> validators)
         {
             this.dtoBuilder = DTOBuilder.GetInstance();
             this.consoleStatePrefix = ConsoleMessages.DefaultCommandPrefix;
             this.output = new List<string>();
+
             this.services = new Dictionary<string, IService>();
 
             foreach (var item in services)
             {
                 this.services.Add(item.Name, item);
+            }
+
+            this.validators = new Dictionary<string, IValidator>();
+
+            foreach (var item in validators)
+            {
+                this.validators.Add(item.Name, item);
             }
 
             this.commandsInfo = new Dictionary<string, CommandInfo>()
@@ -308,7 +318,7 @@
 
             var account = this.dtoBuilder.GetAccount(this.commandParts, true);
             var user = this.dtoBuilder.GetUser(this.commandParts.Skip(typeof(AccountDTO).GetProperties().Length).ToArray());
-            var command = new RegisterCommand(this.services["User"] as IUserService, user, account);
+            var command = new RegisterCommand(this.services["User"] as IUserService, this.validators["Register"], user, account);
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
@@ -382,7 +392,7 @@
                 CreatorId = this.client.Id,
             };
 
-            var command = new AddCourseCommand(this.services["Course"] as ICourseService, course);
+            var command = new AddCourseCommand(this.services["Course"] as ICourseService, this.validators["Course"], course);
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
@@ -507,7 +517,7 @@
                 Id = this.selectedCourse.Id,
             };
 
-            var command = new EditCourseCommand(this.services["Course"] as ICourseService, course, this.client.Id);
+            var command = new EditCourseCommand(this.services["Course"] as ICourseService, this.validators["Course"], course, this.client.Id);
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
@@ -551,7 +561,7 @@
 
             var skill = this.dtoBuilder.GetSkill(this.commandParts);
 
-            var command = new AddSkillCommand(this.services["Course"] as ICourseService, this.client.Id, this.selectedCourse.Id, skill);
+            var command = new AddSkillCommand(this.services["Course"] as ICourseService, this.validators["Skill"], this.client.Id, this.selectedCourse.Id, skill);
             command.Execute();
             var response = command.Response;
             this.output.Add(response.Message);
@@ -744,7 +754,7 @@
                         return;
                 }
 
-                var addMaterialCommand = new AddMaterialCommand(this.services["Material"] as IMaterialService, materialToAdd);
+                var addMaterialCommand = new AddMaterialCommand(this.services["Material"] as IMaterialService, this.validators["Material"], materialToAdd);
                 addMaterialCommand.Execute();
                 var materialResponse = addMaterialCommand.Response;
 

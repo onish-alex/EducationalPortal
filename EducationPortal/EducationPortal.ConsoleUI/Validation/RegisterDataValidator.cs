@@ -6,18 +6,15 @@
     using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
 
-    public class RegisterDataValidator
+    public class RegisterDataValidator : Validator
     {
-        private UserDTO user;
-        private AccountDTO account;
+        public UserDTO User { get; set; }
 
-        public RegisterDataValidator(UserDTO user, AccountDTO account)
-        {
-            this.user = user;
-            this.account = account;
-        }
+        public AccountDTO Account { get; set; }
 
-        public ValidationResult Validate()
+        public override string Name => "Register";
+
+        public override ValidationResult Validate()
         {
             var result = this.ValidateLogin();
 
@@ -56,8 +53,8 @@
 
         private ValidationResult ValidateLogin()
         {
-            if (this.account.Login.Length < DataSettings.UserLoginMinCharacterCount
-             || this.account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (this.Account.Login.Length < DataSettings.UserLoginMinCharacterCount
+             || this.Account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -69,7 +66,7 @@
                 };
             }
 
-            if (this.account.Login.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
+            if (this.Account.Login.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {
@@ -87,8 +84,8 @@
 
         private ValidationResult ValidatePassword()
         {
-            if (this.account.Password.Length < DataSettings.UserPasswordMinCharacterCount
-             || this.account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
+            if (this.Account.Password.Length < DataSettings.UserPasswordMinCharacterCount
+             || this.Account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -100,7 +97,7 @@
                 };
             }
 
-            if (this.account.Password.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
+            if (this.Account.Password.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {
@@ -121,7 +118,7 @@
             MailAddress email;
             try
             {
-                email = new MailAddress(this.account.Email);
+                email = new MailAddress(this.Account.Email);
             }
             catch (Exception)
             {
@@ -152,8 +149,8 @@
 
         private ValidationResult ValidateName()
         {
-            if (this.user.Name.Length < DataSettings.UserLoginMinCharacterCount
-             || this.user.Name.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (this.User.Name.Length < DataSettings.UserLoginMinCharacterCount
+             || this.User.Name.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
@@ -165,7 +162,7 @@
                 };
             }
 
-            if (this.user.Name.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
+            if (this.User.Name.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {

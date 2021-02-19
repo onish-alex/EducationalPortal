@@ -10,20 +10,21 @@
         private ICourseService reciever;
         private CourseDTO course;
         private long userId;
-        private CourseDataValidator validator;
+        private IValidator validator;
 
-        public EditCourseCommand(ICourseService reciever, CourseDTO course, long userId)
+        public EditCourseCommand(ICourseService reciever, IValidator validator, CourseDTO course, long userId)
         {
             this.reciever = reciever;
             this.course = course;
             this.userId = userId;
-            this.validator = new CourseDataValidator(course);
+            this.validator = validator;
         }
 
         public OperationResponse Response { get; private set; }
 
         public void Execute()
         {
+            this.validator.SetData(this.course);
             var validationResult = this.validator.Validate();
             this.Response = validationResult.IsValid ? this.reciever.EditCourse(this.userId, this.course)
                                                      : new OperationResponse() { Message = validationResult.Message };

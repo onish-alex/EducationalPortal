@@ -9,19 +9,20 @@
     {
         private IMaterialService reciever;
         private MaterialDTO material;
-        private MaterialDataValidator validator;
+        private IValidator validator;
 
-        public AddMaterialCommand(IMaterialService reciever, MaterialDTO material)
+        public AddMaterialCommand(IMaterialService reciever, IValidator validator, MaterialDTO material)
         {
             this.reciever = reciever;
             this.material = material;
-            this.validator = new MaterialDataValidator(material);
+            this.validator = validator;
         }
 
         public AddMaterialResponse Response { get; private set; }
 
         public void Execute()
         {
+            this.validator.SetData(this.material);
             var validationResult = this.validator.Validate();
             this.Response = validationResult.IsValid ? this.reciever.AddMaterial(this.material)
                                                      : new AddMaterialResponse() { Message = validationResult.Message };

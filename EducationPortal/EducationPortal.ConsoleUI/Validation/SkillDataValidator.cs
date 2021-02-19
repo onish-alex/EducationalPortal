@@ -3,16 +3,13 @@
     using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
 
-    public class SkillDataValidator
+    public class SkillDataValidator : Validator
     {
-        private SkillDTO skill;
+        public SkillDTO Skill { get; set; }
 
-        public SkillDataValidator(SkillDTO skill)
-        {
-            this.skill = skill;
-        }
+        public override string Name => "Skill";
 
-        public ValidationResult Validate()
+        public override ValidationResult Validate()
         {
             var result = this.ValidateName();
 
@@ -30,8 +27,8 @@
 
         private ValidationResult ValidateName()
         {
-            if (this.skill.Name.Length < DataSettings.SkillNameMinCharacterCount
-             || this.skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
+            if (this.Skill.Name.Length < DataSettings.SkillNameMinCharacterCount
+             || this.Skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
