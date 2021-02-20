@@ -2,9 +2,9 @@
 {
     public interface IValidator
     {
-        ValidationResult Validate();
-
         string Name { get; }
+
+        ValidationResult Validate();
 
         void SetData(params object[] dtos);
     }

@@ -32,29 +32,32 @@
 
         public OperationResponse AddCourse(CourseDTO course)
         {
-            var response = new OperationResponse();
+            var response = new OperationResponse(ResponseMessages.AddCourseSuccess, true);
             var courseToAdd = this.mapper.Map<CourseDTO, Course>(course);
 
             this.courses.Create(courseToAdd);
             this.courses.Save();
 
-            response.Message = ResponseMessages.AddCourseSuccess;
             return response;
         }
 
         public GetCoursesResponse GetUserCourses(long userId)
         {
             var response = new GetCoursesResponse();
+
             var userCourses = this.courses.Find(course => course.CreatorId == userId);
             response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
+
             return response;
         }
 
         public GetCoursesResponse GetAllCourses()
         {
             var response = new GetCoursesResponse();
+
             var userCourses = this.courses.GetAll();
             response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
+
             return response;
         }
 
