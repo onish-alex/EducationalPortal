@@ -49,7 +49,7 @@
 
             if (loggedInAccount == null)
             {
-                responce.Message = "Неверно введенное имя пользователя, email или пароль!";
+                responce.Message = ResponseMessages.AuthorizeWrongCredentials;
                 return responce;
             }
 
@@ -69,13 +69,13 @@
 
             if (this.accounts.Find(account => account.Email == accountToRegister.Email.ToLower()).SingleOrDefault() != null)
             {
-                responce.Message = "Данный Email уже занят!";
+                responce.Message = ResponseMessages.RegisterEmailUsed;
                 return responce;
             }
 
             if (this.accounts.Find(account => account.Login == accountToRegister.Login).SingleOrDefault() != null)
             {
-                responce.Message = "Данный логин уже занят!";
+                responce.Message = ResponseMessages.RegisterEmailUsed;
                 return responce;
             }
 
@@ -86,7 +86,7 @@
             this.accounts.Create(accountToRegister);
             this.accounts.Save();
 
-            responce.Message = "Новый пользователь зарегистрирован!";
+            responce.Message = ResponseMessages.RegisterSuccess;
             return responce;
         }
 
@@ -99,7 +99,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Не удалось найти информацию о пользователе!";
+                response.Message = ResponseMessages.GetUserByIdNotFound;
                 return response;
             }
 
@@ -143,14 +143,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного пользователя не существует!";
-                return response;
-            }
-
-            if (user.JoinedCourses.Any(x => x.CourseId == courseId))
-            {
-                response.IsSuccessful = false;
-                response.Message = "Вы уже проходите данный курс!";
+                response.Message = ResponseMessages.UserNotFound;
                 return response;
             }
 
@@ -164,7 +157,7 @@
             this.users.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Начато изучение нового курса!";
+            response.Message = ResponseMessages.JoinToCourseSuccess;
             return response;
         }
 
@@ -177,7 +170,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного пользователя не существует!";
+                response.Message = ResponseMessages.UserNotFound;
                 return response;
             }
 
@@ -186,14 +179,14 @@
             if (user.CompletedCourses.Select(x => x.Course).Contains(course))
             {
                 response.IsSuccessful = false;
-                response.Message = "Данный курс уже изучен!";
+                response.Message = ResponseMessages.CourseAlreadyCompleted;
                 return response;
             }
 
             if (course.Materials.Any(x => !user.LearnedMaterials.Contains(x)))
             {
                 response.IsSuccessful = false;
-                response.Message = "Изучены не все материалы курса!";
+                response.Message = ResponseMessages.AddCompletedCourseNotCompleted;
                 return response;
             }
 
@@ -247,7 +240,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного пользователя не существует!";
+                response.Message = ResponseMessages.UserNotFound;
                 return response;
             }
 
@@ -265,7 +258,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного пользователя не существует!";
+                response.Message = ResponseMessages.UserNotFound;
                 return response;
             }
 
@@ -283,7 +276,7 @@
             if (user == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного пользователя не существует!";
+                response.Message = ResponseMessages.UserNotFound;
                 return response;
             }
 
@@ -294,7 +287,7 @@
             if (materialToLearn == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Все материалы курса пройдены!";
+                response.Message = ResponseMessages.GetNextMaterialAnyNewMaterial;
                 return response;
             }
 

@@ -292,7 +292,7 @@
         {
             for (int i = 0; i < courses.Length; i++)
             {
-                this.output.Add(string.Format("{0}. {1}\n{2}\nУмения: {3}\n", i + 1, courses[i].Name, courses[i].Description, string.Join(", ", courses[i].SkillNames)));
+                this.output.Add(string.Format(ConsoleMessages.OutputCourseTemplate, i + 1, courses[i].Name, courses[i].Description, string.Join(", ", courses[i].SkillNames)));
             }
 
             this.client.CourseCache = courses;
@@ -302,7 +302,7 @@
         {
             for (int i = 0; i < materials.Length; i++)
             {
-                Console.WriteLine("{0}. {1}\n", i + 1, materials[i].ToString());
+                Console.WriteLine(ConsoleMessages.OutputMaterialTemplate, i + 1, materials[i].ToString());
             }
         }
 
@@ -380,9 +380,9 @@
                 return;
             }
 
-            Console.WriteLine("Введите название курса: ");
+            Console.WriteLine(ConsoleMessages.InputCourseName);
             var name = Console.ReadLine();
-            Console.WriteLine("Введите описание курса: ");
+            Console.WriteLine(ConsoleMessages.InputCourseDescription);
             var description = Console.ReadLine();
 
             var course = new CourseDTO()
@@ -691,7 +691,7 @@
                 Console.WriteLine(ConsoleMessages.InputMaterialUrl);
                 var url = Console.ReadLine();
 
-                Console.WriteLine("Введите тип материала (Статья | Книга | Видео)");
+                Console.WriteLine(ConsoleMessages.InputMaterialType);
                 var materialType = Console.ReadLine();
 
                 MaterialDTO materialToAdd;
@@ -700,7 +700,7 @@
                 {
                     case "Статья":
 
-                        Console.WriteLine("Введите дату публикации статьи (ГГГГ-ММ-ДД): ");
+                        Console.WriteLine(ConsoleMessages.InputPublicationDate);
                         var date = Console.ReadLine();
 
                         materialToAdd = this.dtoBuilder.GetArticle(name, url, date);
@@ -709,16 +709,16 @@
 
                     case "Книга":
 
-                        Console.WriteLine("Введите имена авторов, через запятую: ");
+                        Console.WriteLine(ConsoleMessages.InputAuthorNames);
                         var authors = Console.ReadLine();
 
-                        Console.WriteLine("Введите количество страниц: ");
+                        Console.WriteLine(ConsoleMessages.InputPagesCount);
                         var pageCount = Console.ReadLine();
 
-                        Console.WriteLine("Введите формат книги: ");
+                        Console.WriteLine(ConsoleMessages.InputFormat);
                         var format = Console.ReadLine().Trim();
 
-                        Console.WriteLine("Введите год издания книги: ");
+                        Console.WriteLine(ConsoleMessages.InputPublicationYear);
                         var year = Console.ReadLine();
 
                         materialToAdd = this.dtoBuilder.GetBook(name, url, authors, pageCount, format, year);
@@ -727,10 +727,10 @@
 
                     case "Видео":
 
-                        Console.WriteLine("Введите длительность видео (в секундах): ");
+                        Console.WriteLine(ConsoleMessages.InputDuration);
                         var duration = Console.ReadLine();
 
-                        Console.WriteLine("Введите качество видео: ");
+                        Console.WriteLine(ConsoleMessages.InputQuality);
                         var quality = Console.ReadLine().Trim();
 
                         materialToAdd = this.dtoBuilder.GetVideo(name, url, duration, quality);
@@ -738,7 +738,7 @@
                         break;
 
                     default:
-                        this.output.Add("Неверно указан тип материала!");
+                        this.output.Add(ConsoleMessages.ErrorWrongMaterialType);
                         return;
                 }
 
@@ -767,14 +767,14 @@
 
                 if (!response.IsSuccessful)
                 {
-                    this.output.Add("Список материалов пуст!");
+                    this.output.Add(response.Message);
                     return;
                 }
 
                 var allMaterials = response.Materials.ToArray();
                 this.PrintMaterials(allMaterials);
 
-                Console.WriteLine("\nВведите номер материала:");
+                Console.WriteLine(ConsoleMessages.InputMaterialNumber);
                 var numberStr = Console.ReadLine();
 
                 var isNumberCorrect = long.TryParse(numberStr, out long number);
@@ -885,16 +885,16 @@
                 return;
             }
 
-            this.output.Add(string.Format("Профиль пользователя {0}", this.client.Info.Name));
+            this.output.Add(string.Format(ConsoleMessages.OutputProfileUserName, this.client.Info.Name));
 
             var userSkillStrings = response.SkillLevels.Select(sl => string.Format("{0} ({1})", sl.Key.Name, sl.Value));
-            this.output.Add(string.Format("Умения: {0}", string.Join(", ", userSkillStrings)));
+            this.output.Add(string.Format(ConsoleMessages.OutputProfileSkills, string.Join(", ", userSkillStrings)));
 
             var joinedCourseStrings = response.JoinedCoursesProgress.Select(cp => string.Format("\n{0} - {1}%", cp.Key.Name, cp.Value));
-            this.output.Add(string.Format("Курсы в процессе: {0}", string.Join(", ", joinedCourseStrings)));
+            this.output.Add(string.Format(ConsoleMessages.OutputProfileJoinedCourses, string.Join(", ", joinedCourseStrings)));
 
             var courseNameStrings = response.CompletedCourses.Select(cc => cc.Name);
-            this.output.Add(string.Format("Завершенные курсы: {0}", string.Join(", ", courseNameStrings)));
+            this.output.Add(string.Format(ConsoleMessages.OutputProfileCompletedCourses, string.Join(", ", courseNameStrings)));
         }
 
         private void DoNextStep()
@@ -1008,17 +1008,17 @@
                 return;
             }
 
-            this.output.Add(string.Format("Курс {0} успешно завершен!", this.selectedCourse.Name));
+            this.output.Add(string.Format(ConsoleMessages.OutputCourseCompleted, this.selectedCourse.Name));
 
             foreach (var skillLevelPair in completeCourseResponse.RecievedSkills)
             {
                 if (skillLevelPair.Value == 1)
                 {
-                    this.output.Add(string.Format("Получено новое умение - \"{0}\"", skillLevelPair.Key.Name));
+                    this.output.Add(string.Format(ConsoleMessages.OutputNewSkillRecieved, skillLevelPair.Key.Name));
                 }
                 else
                 {
-                    this.output.Add(string.Format("Умение \"{0}\" повышено!", skillLevelPair.Key.Name));
+                    this.output.Add(string.Format(ConsoleMessages.OutputSkillIncreased, skillLevelPair.Key.Name));
                 }
             }
         }

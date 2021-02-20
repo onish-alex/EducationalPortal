@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers;
     using EducationPortal.BLL.Response;
@@ -37,7 +38,7 @@
             this.courses.Create(courseToAdd);
             this.courses.Save();
 
-            response.Message = "Новый курс успешно создан!";
+            response.Message = ResponseMessages.AddCourseSuccess;
             return response;
         }
 
@@ -73,7 +74,7 @@
             this.courses.Update(courseToUpdate);
             this.courses.Save();
 
-            response.Message = "Курс успешно обновлен";
+            response.Message = ResponseMessages.EditCourseSuccess;
             response.IsSuccessful = true;
 
             return response;
@@ -101,7 +102,7 @@
             else if (course.Skills.Contains(skillToAdd))
             {
                 response.IsSuccessful = false;
-                response.Message = "Курс уже содержит такое умение!";
+                response.Message = ResponseMessages.AddSkillAlreadyExists;
                 return response;
             }
 
@@ -111,7 +112,7 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Умение успешно добавлено!";
+            response.Message = ResponseMessages.AddSkillSuccess;
 
             return response;
         }
@@ -131,7 +132,7 @@
 
             if (skillToRemove == null)
             {
-                response.Message = "У выбранного курса нет указанного умения!";
+                response.Message = ResponseMessages.RemoveSkillNotFound;
                 response.IsSuccessful = false;
                 return response;
             }
@@ -141,7 +142,7 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Умение успешно удалено!";
+            response.Message = ResponseMessages.RemoveSkillSuccess;
 
             return response;
         }
@@ -159,7 +160,7 @@
 
             if (course.Materials.Select(x => x.Id).Contains((int)materialId))
             {
-                response.Message = "Данный курс уже содержит этот материал!";
+                response.Message = ResponseMessages.AddMaterialToCourseAlreadyExists;
                 response.IsSuccessful = false;
                 return response;
             }
@@ -172,7 +173,7 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Материал успешно добавлен к курсу!";
+            response.Message = ResponseMessages.AddMaterialToCourseSuccess;
 
             return response;
         }
@@ -185,14 +186,14 @@
 
             if (course == null)
             {
-                response.Message = "Указанного курса не существует!";
+                response.Message = ResponseMessages.CourseNotFound;
                 response.IsSuccessful = false;
                 return response;
             }
 
             if (course.CreatorId != userId)
             {
-                response.Message = "Вы не являетесь автором данного курса";
+                response.Message = ResponseMessages.CanEditCourseNotAnAuthor;
                 response.IsSuccessful = false;
                 return response;
             }
@@ -210,21 +211,21 @@
             if (course == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Данного курса не существует!";
+                response.Message = ResponseMessages.CourseNotFound;
                 return response;
             }
 
             if (course.JoinedUsers.Any(x => x.UserId == userId))
             {
                 response.IsSuccessful = false;
-                response.Message = "Вы уже участник данного курса!";
+                response.Message = ResponseMessages.CanJoinCourseAlreadyJoin;
                 return response;
             }
 
             if (course.CompletedUsers.Any(x => x.UserId == userId))
             {
                 response.IsSuccessful = false;
-                response.Message = "Вы уже прошли данный курс!";
+                response.Message = ResponseMessages.CourseAlreadyCompleted;
                 return response;
             }
 
@@ -241,7 +242,7 @@
             if (course == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Указанного курса не существует!";
+                response.Message = ResponseMessages.CourseNotFound;
             }
 
             if (course.CreatorId == userId)

@@ -50,6 +50,12 @@
             }
 
             response.IsSuccessful = allMaterialDTOs.Count != 0;
+
+            if (!response.IsSuccessful)
+            {
+                response.Message = ResponseMessages.GetAllMaterialsEmptyResult;
+            }
+
             response.Materials = allMaterialDTOs;
 
             return response;
@@ -62,7 +68,7 @@
             if (this.materials.GetById(materialId) == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Данного материала не существует!";
+                response.Message = ResponseMessages.CheckMaterialExistingNotFound;
             }
 
             response.IsSuccessful = true;
