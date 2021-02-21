@@ -32,6 +32,7 @@
 
         #region UserServiceMessages
         public static string UserNotFound = "Указанного пользователя не существует!";
+        public static string CourseNotJoined = "Вы не участвуете в этом курсе!";
 
         public static string AuthorizeWrongCredentials = "Неверно введенное имя пользователя, email или пароль!";
 
@@ -43,7 +44,6 @@
 
         public static string JoinToCourseSuccess = "Начато изучение нового курса!";
 
-        public static string AddCompletedCourseNotJoined = "Вы не участвуете в этом курсе!";
         public static string AddCompletedCourseNotCompleted = "Изучены не все материалы курса!";
 
         public static string GetNextMaterialAnyNewMaterial = "Все материалы курса пройдены!";

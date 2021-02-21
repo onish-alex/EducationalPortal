@@ -201,7 +201,7 @@
             if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
             {
                 response.IsSuccessful = false;
-                response.Message = ResponseMessages.AddCompletedCourseNotJoined;
+                response.Message = ResponseMessages.CourseNotJoined;
                 return response;
             }
 
@@ -321,7 +321,8 @@
 
             var user = this.users.Find(
                 user => user.Id == userId,
-                user => user.LearnedMaterials)
+                user => user.LearnedMaterials,
+                user => user.JoinedCourses)
                 .SingleOrDefault();
 
             if (user == null)
@@ -335,6 +336,13 @@
                 course => course.Id == courseId,
                 course => course.Materials)
                 .SingleOrDefault();
+
+            if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
+            {
+                response.IsSuccessful = false;
+                response.Message = ResponseMessages.CourseNotJoined;
+                return response;
+            }
 
             var materialToLearn = course.Materials.FirstOrDefault(x => !user.LearnedMaterials.Contains(x));
 
