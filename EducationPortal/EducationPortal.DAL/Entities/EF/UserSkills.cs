@@ -2,9 +2,9 @@
 {
     public class UserSkills
     {
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
-        public int SkillId { get; set; }
+        public long SkillId { get; set; }
 
         public int Level { get; set; }
 

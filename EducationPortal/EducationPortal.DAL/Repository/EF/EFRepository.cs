@@ -52,7 +52,7 @@
 
         public T GetById(long id)
         {
-            return this.db.Set<T>().Find((int)id);
+            return this.db.Set<T>().Find(id);
         }
 
         public void Save()

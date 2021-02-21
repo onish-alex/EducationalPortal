@@ -275,12 +275,12 @@
                 response.IsCreator = true;
             }
 
-            if (course.CompletedUsers.Select(x => x.UserId).Contains((int)userId))
+            if (course.CompletedUsers.Any(x => x.UserId == userId))
             {
                 response.IsCompleted = true;
             }
 
-            if (course.JoinedUsers.Select(x => x.UserId).Contains((int)userId))
+            if (course.JoinedUsers.Any(x => x.UserId == userId))
             {
                 response.IsJoined = true;
             }

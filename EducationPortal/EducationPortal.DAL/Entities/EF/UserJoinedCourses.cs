@@ -2,9 +2,9 @@
 {
     public class UserJoinedCourses
     {
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
-        public int CourseId { get; set; }
+        public long CourseId { get; set; }
 
         public User User { get; set; }
 

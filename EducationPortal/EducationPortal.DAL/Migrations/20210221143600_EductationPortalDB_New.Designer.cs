@@ -10,24 +10,24 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EducationPortal.DAL.Migrations
 {
     [DbContext(typeof(EFDbContext))]
-    [Migration("20210207105855_PropertyConstraints")]
-    partial class PropertyConstraints
+    [Migration("20210221143600_EductationPortalDB_New")]
+    partial class EductationPortalDB_New
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.2");
+                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("CourseMaterial", b =>
                 {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
+                    b.Property<long>("CoursesId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("MaterialsId")
-                        .HasColumnType("int");
+                    b.Property<long>("MaterialsId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("CoursesId", "MaterialsId");
 
@@ -38,11 +38,11 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("CourseSkill", b =>
                 {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
+                    b.Property<long>("CoursesId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("SkillsId")
-                        .HasColumnType("int");
+                    b.Property<long>("SkillsId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("CoursesId", "SkillsId");
 
@@ -53,10 +53,10 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.Account", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Email")
                         .HasMaxLength(50)
@@ -77,13 +77,13 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.Course", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("int");
+                    b.Property<long>("CreatorId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .HasMaxLength(250)
@@ -102,10 +102,10 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.Material", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .HasMaxLength(50)
@@ -122,10 +122,10 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.Skill", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .HasMaxLength(30)
@@ -138,10 +138,10 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .HasMaxLength(50)
@@ -154,11 +154,11 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.UserCompletedCourses", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("UserId", "CourseId");
 
@@ -169,11 +169,11 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.UserJoinedCourses", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("UserId", "CourseId");
 
@@ -184,11 +184,11 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("EducationPortal.DAL.Entities.EF.UserSkills", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("SkillId")
-                        .HasColumnType("int");
+                    b.Property<long>("SkillId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Level")
                         .HasColumnType("int");
@@ -202,11 +202,11 @@ namespace EducationPortal.DAL.Migrations
 
             modelBuilder.Entity("MaterialUser", b =>
                 {
-                    b.Property<int>("LearnedMaterialsId")
-                        .HasColumnType("int");
+                    b.Property<long>("LearnedMaterialsId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("int");
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("LearnedMaterialsId", "UsersId");
 
@@ -220,7 +220,7 @@ namespace EducationPortal.DAL.Migrations
                     b.HasBaseType("EducationPortal.DAL.Entities.EF.Material");
 
                     b.Property<DateTime>("PublicationDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.ToTable("Articles");
                 });
@@ -251,7 +251,7 @@ namespace EducationPortal.DAL.Migrations
                     b.HasBaseType("EducationPortal.DAL.Entities.EF.Material");
 
                     b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                        .HasColumnType("time(0)");
 
                     b.Property<string>("Quality")
                         .HasMaxLength(20)

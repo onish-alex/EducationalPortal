@@ -6,10 +6,10 @@
     public class GetNextMaterialCommand : ICommand<GetMaterialsResponse>
     {
         private IUserService reciever;
-        private int courseId;
-        private int userId;
+        private long courseId;
+        private long userId;
 
-        public GetNextMaterialCommand(IUserService reciever, int userId, int courseId)
+        public GetNextMaterialCommand(IUserService reciever, long userId, long courseId)
         {
             this.reciever = reciever;
             this.courseId = courseId;

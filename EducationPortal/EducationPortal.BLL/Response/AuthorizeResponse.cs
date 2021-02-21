@@ -4,7 +4,7 @@
 
     public class AuthorizeResponse : OperationResponse
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public UserDTO User { get; set; }
     }

@@ -57,7 +57,7 @@
             }
 
             responce.Id = loggedInAccount.Id;
-            responce.User = this.mapper.Map<User, UserDTO>(loggedInAccount.User );
+            responce.User = this.mapper.Map<User, UserDTO>(loggedInAccount.User);
             responce.IsSuccessful = true;
 
             return responce;

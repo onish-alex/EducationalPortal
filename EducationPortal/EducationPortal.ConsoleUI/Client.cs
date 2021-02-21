@@ -10,7 +10,7 @@
         {
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public UserDTO Info { get; set; }
 

@@ -6,7 +6,7 @@
 
     public class User
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public string Name { get; set; }
 
@@ -15,9 +15,6 @@
         public ICollection<UserCompletedCourses> CompletedCourses { get; set; }
 
         public ICollection<Material> LearnedMaterials { get; set; }
-
-        [NotMapped]
-        public IDictionary<Skill, int> SkillsLevels => this.UserSkills.ToDictionary(k => k.Skill, v => v.Level);
 
         public ICollection<Course> CreatedCourses { get; set; }
 

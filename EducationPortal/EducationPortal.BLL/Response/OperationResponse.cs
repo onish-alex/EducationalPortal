@@ -6,13 +6,8 @@
 
     public class OperationResponse : IResponse
     {
-        public string Message { get; set; }
-
-        public bool IsSuccessful { get; set; }
-
         public OperationResponse()
         {
-
         }
 
         public OperationResponse(string message, bool isSuccessful)
@@ -20,5 +15,9 @@
             this.Message = message;
             this.IsSuccessful = isSuccessful;
         }
+
+        public string Message { get; set; }
+
+        public bool IsSuccessful { get; set; }
     }
 }
