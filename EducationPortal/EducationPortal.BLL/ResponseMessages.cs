@@ -43,6 +43,7 @@
 
         public static string JoinToCourseSuccess = "Начато изучение нового курса!";
 
+        public static string AddCompletedCourseNotJoined = "Вы не участвуете в этом курсе!";
         public static string AddCompletedCourseNotCompleted = "Изучены не все материалы курса!";
 
         public static string GetNextMaterialAnyNewMaterial = "Все материалы курса пройдены!";

@@ -4,21 +4,19 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using EducationPortal.DAL.DbContexts;
     using EducationPortal.DAL.Repository.Base;
     using Microsoft.EntityFrameworkCore;
 
     public abstract class EFRepository<T> : IRepository<T>
         where T : class
     {
-        protected DbContext db;
+        protected EFDbContext db;
 
-        public EFRepository(DbContext db)
+        public EFRepository(EFDbContext db)
         {
             this.db = db;
-            DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
         }
-
-        protected abstract IQueryable<T> SelectQuery { get; }
 
         public void Create(T item)
         {
@@ -34,15 +32,28 @@
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
-            return this.SelectQuery.Where(predicate);
+            return this.db.Set<T>().Where(predicate);
+        }
+
+        public virtual IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            return this.Get(includes).Where(predicate).ToList();
         }
 
         public IEnumerable<T> GetAll()
         {
-            return this.SelectQuery;
+            return this.db.Set<T>();
         }
 
-        public abstract T GetById(long id);
+        public virtual IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes)
+        {
+            return this.Get(includes).ToList();
+        }
+
+        public T GetById(long id)
+        {
+            return this.db.Set<T>().Find((int)id);
+        }
 
         public void Save()
         {
@@ -52,6 +63,17 @@
         public virtual void Update(T item)
         {
             this.db.Entry(item).State = EntityState.Modified;
+        }
+
+        protected virtual IQueryable<T> Get(params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> result = this.db.Set<T>();
+            foreach (var include in includes)
+            {
+                result = result.Include(include);
+            }
+
+            return result;
         }
     }
 }

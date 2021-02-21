@@ -19,6 +19,6 @@
 
         GetCoursesResponse GetCompletedCourses(long userId);
 
-        GetMaterialsResponse GetNextMaterial(int userId, int courseId);
+        GetMaterialsResponse GetNextMaterial(long userId, long courseId);
     }
 }

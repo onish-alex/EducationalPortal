@@ -43,9 +43,12 @@
 
             var hash = this.GetPasswordHash(accountToLogIn.Password);
 
-            var loggedInAccount = this.accounts.Find(account => (account.Email == accountToLogIn.Email.ToLower()
-                                                         || account.Login == accountToLogIn.Login)
-                                                         && account.Password == hash).SingleOrDefault();
+            var loggedInAccount = this.accounts.Find(
+                account => (account.Email == accountToLogIn.Email.ToLower()
+                         || account.Login == accountToLogIn.Login)
+                         && account.Password == hash,
+                account => account.User)
+                .SingleOrDefault();
 
             if (loggedInAccount == null)
             {
@@ -54,7 +57,7 @@
             }
 
             responce.Id = loggedInAccount.Id;
-            responce.User = this.mapper.Map<User, UserDTO>(this.users.GetById(loggedInAccount.Id));
+            responce.User = this.mapper.Map<User, UserDTO>(loggedInAccount.User );
             responce.IsSuccessful = true;
 
             return responce;
@@ -94,7 +97,13 @@
         {
             var response = new GetUserInfoResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                user => user.Id == userId,
+                user => user.JoinedCourses,
+                user => user.CompletedCourses,
+                user => user.LearnedMaterials,
+                user => user.UserSkills)
+                .SingleOrDefault();
 
             if (user == null)
             {
@@ -104,12 +113,12 @@
             }
 
             response.User = this.mapper.Map<User, UserDTO>(user);
-
-            var completedCourses = this.courses.Find(x => user.CompletedCourses.Select(a => a.CourseId).Contains(x.Id));
-            response.CompletedCourses = this.mapper.Map<Course, CourseDTO>(completedCourses);
+            response.CompletedCourses = this.mapper.Map<Course, CourseDTO>(user.CompletedCourses.Select(x => x.Course));
 
             var joinedCourseProgress = new Dictionary<CourseDTO, int>();
-            var joinedCourses = this.courses.Find(x => user.JoinedCourses.Select(y => y.CourseId).Contains(x.Id));
+            var joinedCourses = this.courses.Find(
+                x => user.JoinedCourses.Select(y => y.CourseId).Contains(x.Id),
+                x => x.Materials);
 
             foreach (var course in joinedCourses)
             {
@@ -138,7 +147,10 @@
         {
             var response = new GetUserInfoResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                user => user.Id == userId,
+                user => user.JoinedCourses)
+                .SingleOrDefault();
 
             if (user == null)
             {
@@ -165,7 +177,13 @@
         {
             var response = new CompletedCourseResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                user => user.Id == userId,
+                user => user.CompletedCourses,
+                user => user.JoinedCourses,
+                user => user.LearnedMaterials,
+                user => user.UserSkills)
+                .SingleOrDefault();
 
             if (user == null)
             {
@@ -174,7 +192,18 @@
                 return response;
             }
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Materials,
+                course => course.Skills)
+                .SingleOrDefault();
+
+            if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
+            {
+                response.IsSuccessful = false;
+                response.Message = ResponseMessages.AddCompletedCourseNotJoined;
+                return response;
+            }
 
             if (user.CompletedCourses.Select(x => x.Course).Contains(course))
             {
@@ -208,6 +237,7 @@
                         SkillId = skill.Id,
                         UserId = (int)userId,
                         Level = 1,
+                        Skill = skill,
                     });
                 }
                 else
@@ -218,7 +248,7 @@
                 }
             }
 
-            var recievedSkills = new Dictionary<SkillDTO, int>();
+            var smth = user.UserSkills.Where(x => course.Skills.Contains(x.Skill));
 
             response.RecievedSkills = user.UserSkills
                                           .Where(x => course.Skills.Contains(x.Skill))
@@ -235,7 +265,10 @@
         {
             var response = new GetCoursesResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                user => user.Id == userId,
+                user => user.JoinedCourses)
+                .SingleOrDefault();
 
             if (user == null)
             {
@@ -244,7 +277,13 @@
                 return response;
             }
 
-            response.Courses = this.mapper.Map<Course, CourseDTO>(user.JoinedCourses.Select(x => x.Course));
+            var joinedCourseIds = user.JoinedCourses.Select(x => x.CourseId);
+            var joinedCourses = this.courses.Find(
+                course => joinedCourseIds.Contains(course.Id),
+                course => course.Skills);
+
+            response.Courses = this.mapper.Map<Course, CourseDTO>(joinedCourses);
+
             response.IsSuccessful = true;
             return response;
         }
@@ -253,7 +292,10 @@
         {
             var response = new GetCoursesResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                            user => user.Id == userId,
+                            user => user.CompletedCourses)
+                            .SingleOrDefault();
 
             if (user == null)
             {
@@ -262,16 +304,25 @@
                 return response;
             }
 
-            response.Courses = this.mapper.Map<Course, CourseDTO>(user.CompletedCourses.Select(x => x.Course));
+            var completedCourseIds = user.CompletedCourses.Select(x => x.CourseId);
+            var completedCourses = this.courses.Find(
+                course => completedCourseIds.Contains(course.Id),
+                course => course.Skills);
+
+            response.Courses = this.mapper.Map<Course, CourseDTO>(completedCourses);
+
             response.IsSuccessful = true;
             return response;
         }
 
-        public GetMaterialsResponse GetNextMaterial(int userId, int courseId)
+        public GetMaterialsResponse GetNextMaterial(long userId, long courseId)
         {
             var response = new GetMaterialsResponse();
 
-            var user = this.users.GetById(userId);
+            var user = this.users.Find(
+                user => user.Id == userId,
+                user => user.LearnedMaterials)
+                .SingleOrDefault();
 
             if (user == null)
             {
@@ -280,7 +331,10 @@
                 return response;
             }
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Materials)
+                .SingleOrDefault();
 
             var materialToLearn = course.Materials.FirstOrDefault(x => !user.LearnedMaterials.Contains(x));
 

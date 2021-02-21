@@ -63,5 +63,15 @@
         {
             this.db.Save<T>();
         }
+
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

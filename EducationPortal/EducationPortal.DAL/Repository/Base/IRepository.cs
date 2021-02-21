@@ -19,5 +19,9 @@
         void Delete(long id);
 
         void Save();
+
+        IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes);
+
+        IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
     }
 }

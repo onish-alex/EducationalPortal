@@ -45,7 +45,10 @@
         {
             var response = new GetCoursesResponse();
 
-            var userCourses = this.courses.Find(course => course.CreatorId == userId);
+            var userCourses = this.courses.Find(
+                course => course.CreatorId == userId,
+                course => course.Skills);
+
             response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
 
             return response;
@@ -55,7 +58,7 @@
         {
             var response = new GetCoursesResponse();
 
-            var userCourses = this.courses.GetAll();
+            var userCourses = this.courses.GetAll(course => course.Skills);
             response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
 
             return response;
@@ -92,7 +95,10 @@
                 return response;
             }
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
 
             var skillToAdd = this.skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
 
@@ -129,7 +135,10 @@
                 return response;
             }
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
 
             var skillToRemove = course.Skills.FirstOrDefault(x => x.Name == skill.Name);
 
@@ -159,9 +168,12 @@
                 return response;
             }
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                            course => course.Id == courseId,
+                            course => course.Materials)
+                            .SingleOrDefault();
 
-            if (course.Materials.Select(x => x.Id).Contains((int)materialId))
+            if (course.Materials.Any(x => x.Id == materialId))
             {
                 response.Message = ResponseMessages.AddMaterialToCourseAlreadyExists;
                 response.IsSuccessful = false;
@@ -209,7 +221,11 @@
         {
             var response = new OperationResponse();
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.JoinedUsers,
+                course => course.CompletedUsers)
+                .SingleOrDefault();
 
             if (course == null)
             {
@@ -240,7 +256,13 @@
         {
             var response = new GetCourseStatusResponse();
 
-            var course = this.courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.CompletedUsers,
+                course => course.JoinedUsers,
+                course => course.Creator,
+                course => course.Skills)
+                .SingleOrDefault();
 
             if (course == null)
             {
