@@ -5,16 +5,16 @@
     using System.Linq;
     using EducationPortal.DAL.Entities.File;
 
-    public class DbTable : IDbTable
+    public class FileDbTable : IDbTable
     {
         private Dictionary<Entity, EntityState> content;
 
-        public DbTable()
+        public FileDbTable()
         {
             this.content = new Dictionary<Entity, EntityState>();
         }
 
-        public DbTable(IEnumerable<Entity> starterSet)
+        public FileDbTable(IEnumerable<Entity> starterSet)
             : this()
         {
             if (starterSet != null)

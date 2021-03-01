@@ -8,8 +8,8 @@
 
         public string Name { get; set; }
 
-        public IEnumerable<UserSkills> UserSkills { get; set; }
+        public virtual IEnumerable<UserSkills> UserSkills { get; set; }
 
-        public IEnumerable<Course> Courses { get; set; }
+        public virtual IEnumerable<Course> Courses { get; set; }
     }
 }

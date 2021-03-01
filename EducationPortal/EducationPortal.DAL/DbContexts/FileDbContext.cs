@@ -8,15 +8,15 @@
 
     public class FileDbContext
     {
-        private IDictionary<TableNames, DbTable> tables;
+        private IDictionary<TableNames, FileDbTable> tables;
         private JsonFileHelper fileHelper;
-        private DbWatcher fileWatcher;
+        private FileDbWatcher fileWatcher;
 
         public FileDbContext()
         {
-            this.tables = new Dictionary<TableNames, DbTable>();
+            this.tables = new Dictionary<TableNames, FileDbTable>();
             this.fileHelper = JsonFileHelper.GetInstance();
-            this.fileWatcher = DbWatcher.GetInstance();
+            this.fileWatcher = FileDbWatcher.GetInstance();
 
             this.fileWatcher[TableNames.User].Created += this.OnCreate<User>;
             this.fileWatcher[TableNames.User].Changed += this.OnChange<User>;
@@ -43,9 +43,9 @@
 
             if (!this.tables.ContainsKey(tableName))
             {
-                var tablePath = DbConfig.DbPathPrefix + DbConfig.TablePaths[tableName];
+                var tablePath = FileDbConfig.DbPathPrefix + FileDbConfig.TablePaths[tableName];
                 IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
-                var table = new DbTable(tableContent);
+                var table = new FileDbTable(tableContent);
                 this.tables.Add(tableName, table);
             }
 
@@ -60,7 +60,7 @@
             var entitiesToSave = new Dictionary<Entity, EntityState>();
 
             var currentTable = this.tables[tableName];
-            var tablePath = DbConfig.DbPathPrefix + DbConfig.TablePaths[tableName];
+            var tablePath = FileDbConfig.DbPathPrefix + FileDbConfig.TablePaths[tableName];
 
             foreach (var entity in currentTable.ContentWithState)
             {
@@ -103,7 +103,7 @@
                 if (!this.tables.ContainsKey(tableName))
                 {
                     IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
-                    var table = new DbTable(tableContent);
+                    var table = new FileDbTable(tableContent);
                     this.tables.Add(tableName, table);
                 }
 
@@ -128,7 +128,7 @@
                 if (!this.tables.ContainsKey(tableName))
                 {
                     IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
-                    var table = new DbTable(tableContent);
+                    var table = new FileDbTable(tableContent);
                     this.tables.Add(tableName, table);
                 }
 
@@ -152,7 +152,7 @@
                 if (!this.tables.ContainsKey(tableName))
                 {
                     IEnumerable<T> tableContent = this.fileHelper.ReadTable<T>(tablePath);
-                    var table = new DbTable(tableContent);
+                    var table = new FileDbTable(tableContent);
                     this.tables.Add(tableName, table);
                 }
 

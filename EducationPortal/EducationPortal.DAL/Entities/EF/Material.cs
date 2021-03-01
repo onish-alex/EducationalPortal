@@ -10,8 +10,8 @@
 
         public string Url { get; set; }
 
-        public IEnumerable<Course> Courses { get; set; }
+        public virtual IEnumerable<Course> Courses { get; set; }
 
-        public IEnumerable<User> Users { get; set; }
+        public virtual IEnumerable<User> Users { get; set; }
     }
 }

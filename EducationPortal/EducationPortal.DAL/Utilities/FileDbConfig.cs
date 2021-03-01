@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public static class DbConfig
+    public static class FileDbConfig
     {
         public static readonly IDictionary<TableNames, string> TablePaths = new Dictionary<TableNames, string>()
         {

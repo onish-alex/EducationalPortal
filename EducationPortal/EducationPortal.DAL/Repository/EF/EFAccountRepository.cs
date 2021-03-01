@@ -3,9 +3,9 @@
     using EducationPortal.DAL.DbContexts;
     using EducationPortal.DAL.Entities.EF;
 
-    public class CourseRepository : EFRepository<Course>
+    public class EFAccountRepository : EFRepository<Account>
     {
-        public CourseRepository(EFDbContext db)
+        public EFAccountRepository(EFDbContext db)
             : base(db)
         {
         }

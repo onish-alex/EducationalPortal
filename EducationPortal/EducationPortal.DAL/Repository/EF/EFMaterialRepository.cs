@@ -3,9 +3,9 @@
     using EducationPortal.DAL.DbContexts;
     using EducationPortal.DAL.Entities.EF;
 
-    public class AccountRepository : EFRepository<Account>
+    public class EFMaterialRepository : EFRepository<Material>
     {
-        public AccountRepository(EFDbContext db)
+        public EFMaterialRepository(EFDbContext db)
             : base(db)
         {
         }

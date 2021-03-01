@@ -8,9 +8,9 @@
     using EducationPortal.DAL.Entities.EF;
     using Microsoft.EntityFrameworkCore;
 
-    public class UserRepository : EFRepository<User>
+    public class EFUserRepository : EFRepository<User>
     {
-        public UserRepository(EFDbContext db)
+        public EFUserRepository(EFDbContext db)
             : base(db)
         {
         }

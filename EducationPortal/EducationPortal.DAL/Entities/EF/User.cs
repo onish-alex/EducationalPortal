@@ -10,16 +10,16 @@
 
         public string Name { get; set; }
 
-        public ICollection<UserJoinedCourses> JoinedCourses { get; set; }
+        public virtual ICollection<UserJoinedCourses> JoinedCourses { get; set; }
 
-        public ICollection<UserCompletedCourses> CompletedCourses { get; set; }
+        public virtual ICollection<UserCompletedCourses> CompletedCourses { get; set; }
 
-        public ICollection<Material> LearnedMaterials { get; set; }
+        public virtual ICollection<Material> LearnedMaterials { get; set; }
 
-        public ICollection<Course> CreatedCourses { get; set; }
+        public virtual ICollection<Course> CreatedCourses { get; set; }
 
-        public ICollection<UserSkills> UserSkills { get; set; }
+        public virtual ICollection<UserSkills> UserSkills { get; set; }
 
-        public Account Account { get; set; }
+        public virtual Account Account { get; set; }
     }
 }

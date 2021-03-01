@@ -29,7 +29,7 @@
         public void SaveTable(string tablePath, IDictionary<Entity, EntityState> content)
         {
             this.mutex.WaitOne();
-            var hasGotNextId = long.TryParse(File.ReadAllText(tablePath + DbConfig.DbIdsFileName), out long nextId);
+            var hasGotNextId = long.TryParse(File.ReadAllText(tablePath + FileDbConfig.DbIdsFileName), out long nextId);
             this.mutex.ReleaseMutex();
 
             if (!hasGotNextId)
@@ -67,14 +67,14 @@
             }
 
             this.mutex.WaitOne();
-            File.WriteAllText(tablePath + DbConfig.DbIdsFileName, nextId.ToString());
+            File.WriteAllText(tablePath + FileDbConfig.DbIdsFileName, nextId.ToString());
             this.mutex.ReleaseMutex();
         }
 
         public IEnumerable<T> ReadTable<T>(string tablePath)
             where T : Entity
         {
-            var entityPaths = Directory.EnumerateFiles(tablePath).Where(file => Path.GetRelativePath(tablePath, file) != DbConfig.DbIdsFileName);
+            var entityPaths = Directory.EnumerateFiles(tablePath).Where(file => Path.GetRelativePath(tablePath, file) != FileDbConfig.DbIdsFileName);
             var tableContent = new List<T>();
             this.mutex.WaitOne();
             foreach (var entity in entityPaths)
