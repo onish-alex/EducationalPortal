@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DefaultCommandPrefix" xml:space="preserve">
+    <value>EducationPortal</value>
+  </data>
+  <data name="UserPrefix" xml:space="preserve">
+    <value>User: </value>
+  </data>
+  <data name="CoursePrefix" xml:space="preserve">
+    <value>Course: </value>
+  </data>
+  <data name="ErrorUnknownCommand" xml:space="preserve">
+    <value>
+Неизвестная команда: "{0}". Вызовите команду "help" для вывода списка доступных команд
+</value>
+  </data>
+  <data name="ErrorWrongParamsCount" xml:space="preserve">
+    <value>Указано неверное число параметров!</value>
+  </data>
+  <data name="ErrorWrongParamValue" xml:space="preserve">
+    <value>Указано недопустимое значение параметра(-ов)</value>
+  </data>
+  <data name="ErrorTryRegWhileLoggedIn" xml:space="preserve">
+    <value>Для регистрации пользователя необходимо выйти из учетной записи!</value>
+  </data>
+  <data name="ErrorTryLogInWhileLoggedIn" xml:space="preserve">
+    <value>Вы уже вошли в систему!</value>
+  </data>
+  <data name="ErrorTryLogOutWhileLoggedOut" xml:space="preserve">
+    <value>Вы еще не вошли в систему!</value>
+  </data>
+  <data name="ErrorTryCommandWhileLoggedOut" xml:space="preserve">
+    <value>Для выполнения этой команды необходимо авторизоваться!</value>
+  </data>
+  <data name="ErrorIncorrectNumberOfCourse" xml:space="preserve">
+    <value>Введен некорректный номер курса!</value>
+  </data>
+  <data name="ErrorIncorrectNumberOfMaterial" xml:space="preserve">
+    <value>Введен некорректный номер материала!</value>
+  </data>
+  <data name="ErrorCourseListIsEmpty" xml:space="preserve">
+    <value>Сперва получите список курсов!</value>
+  </data>
+  <data name="ErrorNoSelectedCourse" xml:space="preserve">
+    <value>Вы не выбрали курс!</value>
+  </data>
+  <data name="ErrorAlreadyInCourseMode" xml:space="preserve">
+    <value>Сперва покиньте выбранный курс!</value>
+  </data>
+  <data name="ErrorNotJoiningCourse" xml:space="preserve">
+    <value>Вы не являетесь участником данного курса!</value>
+  </data>
+  <data name="ErrorAlreadyCompleteCourse" xml:space="preserve">
+    <value>Вы уже прошли данный курс!</value>
+  </data>
+  <data name="ErrorWrongMaterialType" xml:space="preserve">
+    <value>Неверно указан тип материала!</value>
+  </data>
+  <data name="InfoLoggedOut" xml:space="preserve">
+    <value>Вы покинули учетную запись</value>
+  </data>
+  <data name="InputCourseName" xml:space="preserve">
+    <value>Введите название курса: </value>
+  </data>
+  <data name="InputCourseDescription" xml:space="preserve">
+    <value>Введите описание курса: </value>
+  </data>
+  <data name="InputMaterialName" xml:space="preserve">
+    <value>Введите название нового материала: </value>
+  </data>
+  <data name="InputMaterialUrl" xml:space="preserve">
+    <value>Введите URL нового материала: </value>
+  </data>
+  <data name="InputMaterialType" xml:space="preserve">
+    <value>Введите тип материала (Статья | Книга | Видео)</value>
+  </data>
+  <data name="InputPublicationDate" xml:space="preserve">
+    <value>Введите дату публикации статьи (ГГГГ-ММ-ДД): </value>
+  </data>
+  <data name="InputAuthorNames" xml:space="preserve">
+    <value>Введите имена авторов, через запятую: </value>
+  </data>
+  <data name="InputPagesCount" xml:space="preserve">
+    <value>Введите количество страниц: </value>
+  </data>
+  <data name="InputFormat" xml:space="preserve">
+    <value>Введите формат книги: </value>
+  </data>
+  <data name="InputPublicationYear" xml:space="preserve">
+    <value>Введите год издания книги: </value>
+  </data>
+  <data name="InputDuration" xml:space="preserve">
+    <value>Введите длительность видео(в секундах): </value>
+  </data>
+  <data name="InputQuality" xml:space="preserve">
+    <value>Введите качество видео: </value>
+  </data>
+  <data name="InputMaterialNumber" xml:space="preserve">
+    <value>
+Введите номер материала:</value>
+  </data>
+  <data name="OutputCourseName" xml:space="preserve">
+    <value>Название курса: {0}</value>
+  </data>
+  <data name="OutputCourseAuthorName" xml:space="preserve">
+    <value>Автор курса: {0}</value>
+  </data>
+  <data name="OutputCourseDescription" xml:space="preserve">
+    <value>Описание: {0}</value>
+  </data>
+  <data name="OutputCourseSkills" xml:space="preserve">
+    <value>По прохождению курса можно получить следующие навыки: {0}</value>
+  </data>
+  <data name="OutputEmptySkillList" xml:space="preserve">
+    <value>(Пусто)</value>
+  </data>
+  <data name="OutputIsCourseAuthor" xml:space="preserve">
+    <value>Вы - автор данного курса</value>
+  </data>
+  <data name="OutputIsJoiningCourse" xml:space="preserve">
+    <value>Вы участвуете в данном курсе</value>
+  </data>
+  <data name="OutputHasCompleteCourse" xml:space="preserve">
+    <value>Вы уже прошли данный курс</value>
+  </data>
+  <data name="OutputCourseTemplate" xml:space="preserve">
+    <value>{0}. {1}
+{2}
+Умения: {3}
+</value>
+  </data>
+  <data name="OutputMaterialTemplate" xml:space="preserve">
+    <value>{0}. {1}
+</value>
+  </data>
+  <data name="OutputProfileUserName" xml:space="preserve">
+    <value>Профиль пользователя {0}</value>
+  </data>
+  <data name="OutputProfileSkills" xml:space="preserve">
+    <value>Навык: {0}</value>
+  </data>
+  <data name="OutputProfileJoinedCourses" xml:space="preserve">
+    <value>Курсы в процессе: {0}</value>
+  </data>
+  <data name="OutputProfileCompletedCourses" xml:space="preserve">
+    <value>Завершенные курсы: {0}</value>
+  </data>
+  <data name="OutputCourseCompleted" xml:space="preserve">
+    <value>Курс {0} успешно завершен!</value>
+  </data>
+  <data name="OutputNewSkillRecieved" xml:space="preserve">
+    <value>Получен новый навык - "{0}"</value>
+  </data>
+  <data name="OutputSkillIncreased" xml:space="preserve">
+    <value>Навык "{0}" повышен!</value>
+  </data>
+  <data name="OutputNewMaterialLearned" xml:space="preserve">
+    <value>Изучен новый материал!</value>
+  </data>
+  <data name="InfoVideoDurationTemplate" xml:space="preserve">
+    <value>{0:d2}:{1:d2}</value>
+  </data>
+  <data name="InfoArticlePublicationDate" xml:space="preserve">
+    <value>Дата издания: {0}</value>
+  </data>
+  <data name="InfoBookAuthorNames" xml:space="preserve">
+    <value>Авторы: {0}</value>
+  </data>
+  <data name="InfoBookFormat" xml:space="preserve">
+    <value>Формат: {0}</value>
+  </data>
+  <data name="InfoBookPublishingYear" xml:space="preserve">
+    <value>Год издания: {0}</value>
+  </data>
+  <data name="InfoMaterialName" xml:space="preserve">
+    <value>Название: {0}</value>
+  </data>
+  <data name="InfoMaterialUrl" xml:space="preserve">
+    <value>URL: {0}</value>
+  </data>
+  <data name="InfoVideoDuration" xml:space="preserve">
+    <value>Продолжительность: {0}</value>
+  </data>
+  <data name="InfoVideoQuality" xml:space="preserve">
+    <value>Качество: {0}</value>
+  </data>
+</root>
