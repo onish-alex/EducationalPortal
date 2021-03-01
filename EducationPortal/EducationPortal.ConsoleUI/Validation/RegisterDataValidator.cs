@@ -1,46 +1,43 @@
-﻿using System;
-using System.Linq;
-using System.Net.Mail;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL;
-
-namespace EducationPortal.ConsoleUI.Validation
+﻿namespace EducationPortal.ConsoleUI.Validation
 {
-    public class RegisterDataValidator
+    using System;
+    using System.Linq;
+    using System.Net.Mail;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
+
+    public class RegisterDataValidator : Validator
     {
-        private UserDTO user;
-        private AccountDTO account;
+        public UserDTO User { get; set; }
 
-        public RegisterDataValidator(UserDTO user, AccountDTO account)
+        public AccountDTO Account { get; set; }
+
+        public override string Name => "Register";
+
+        public override ValidationResult Validate()
         {
-            this.user = user;
-            this.account = account;
-        }
-
-        public ValidationResult Validate()
-        {
-            var result = ValidateLogin();
-            
-            if (!result.IsValid)
-            {
-                return result;
-            }
-
-            result = ValidatePassword();
-            
-            if (!result.IsValid)
-            {
-                return result;
-            }
-
-            result = ValidateEmail();
+            var result = this.ValidateLogin();
 
             if (!result.IsValid)
             {
                 return result;
             }
 
-            result = ValidateName();
+            result = this.ValidatePassword();
+
+            if (!result.IsValid)
+            {
+                return result;
+            }
+
+            result = this.ValidateEmail();
+
+            if (!result.IsValid)
+            {
+                return result;
+            }
+
+            result = this.ValidateName();
 
             if (!result.IsValid)
             {
@@ -50,67 +47,69 @@ namespace EducationPortal.ConsoleUI.Validation
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateLogin()
         {
-            if (account.Login.Length < DataSettings.UserLoginMinCharacterCount
-             || account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (this.Account.Login.Length < DataSettings.UserLoginMinCharacterCount
+             || this.Account.Login.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Логин должен быть длиной от {0} до {1} символов!",
-                                             DataSettings.UserLoginMinCharacterCount,
-                                             DataSettings.UserLoginMaxCharacterCount)
+                    Message = string.Format(
+                        "Логин должен быть длиной от {0} до {1} символов!",
+                        DataSettings.UserLoginMinCharacterCount,
+                        DataSettings.UserLoginMaxCharacterCount),
                 };
             }
 
-            if (account.Login.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol)))) 
+            if (this.Account.Login.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Логин может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
+                    Message = "Логин может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\"",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidatePassword()
         {
-            if (account.Password.Length < DataSettings.UserPasswordMinCharacterCount
-             || account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
+            if (this.Account.Password.Length < DataSettings.UserPasswordMinCharacterCount
+             || this.Account.Password.Length > DataSettings.UserPasswordMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Пароль должен быть длиной от {0} до {1} символов!",
-                                             DataSettings.UserPasswordMinCharacterCount,
-                                             DataSettings.UserPasswordMaxCharacterCount)
+                    Message = string.Format(
+                        "Пароль должен быть длиной от {0} до {1} символов!",
+                        DataSettings.UserPasswordMinCharacterCount,
+                        DataSettings.UserPasswordMaxCharacterCount),
                 };
             }
 
-            if (account.Password.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol))))
+            if (this.Account.Password.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Пароль может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
+                    Message = "Пароль может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\"",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
@@ -119,65 +118,64 @@ namespace EducationPortal.ConsoleUI.Validation
             MailAddress email;
             try
             {
-                email = new MailAddress(account.Email);
+                email = new MailAddress(this.Account.Email);
             }
             catch (Exception)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Необходимо указать email!"
+                    Message = "Необходимо указать email!",
                 };
             }
 
             if (email.Address.Contains("..")
              || email.Address[0] == '.'
-             || email.Address[email.Address.Length - 1] == '.')
+             || email.Address[^1] == '.')
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Неверный формат email!"
+                    Message = "Неверный формат email!",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateName()
         {
-            if (user.Name.Length < DataSettings.UserLoginMinCharacterCount
-             || user.Name.Length > DataSettings.UserLoginMaxCharacterCount)
+            if (this.User.Name.Length < DataSettings.UserLoginMinCharacterCount
+             || this.User.Name.Length > DataSettings.UserLoginMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Имя должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.UserNameMinCharacterCount,
-                                             DataSettings.UserNameMaxCharacterCount)
+                    Message = string.Format(
+                        "Имя должно быть длиной от {0} до {1} символов!",
+                        DataSettings.UserNameMinCharacterCount,
+                        DataSettings.UserNameMaxCharacterCount),
                 };
             }
 
-            if (user.Name.Any(symbol => !DataSettings.allowableSymbols.Contains(char.ToLower(symbol))))
+            if (this.User.Name.Any(symbol => !DataSettings.AllowableSymbols.Contains(char.ToLower(symbol))))
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Имя может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\""
+                    Message = "Имя может содержать только символы A-Z, a-z, А-Я, а-я и символ \"_\"",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
-            
         }
-
     }
 }

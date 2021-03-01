@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using EducationPortal.DAL.Entities;
-
-namespace EducationPortal.DAL.Utilities
+﻿namespace EducationPortal.DAL.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using EducationPortal.DAL.Entities.File;
+
     public interface IDbTable
     {
         public IEnumerable<Entity> Content { get; }

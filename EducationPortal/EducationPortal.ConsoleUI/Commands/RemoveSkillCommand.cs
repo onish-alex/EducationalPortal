@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class RemoveSkillCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private ICourseService reciever;
         private long courseId;
         private long userId;
@@ -25,9 +19,11 @@ namespace EducationPortal.ConsoleUI.Commands
             this.skill = skill;
         }
 
+        public OperationResponse Response { get; private set; }
+
         public void Execute()
         {
-            Response = reciever.RemoveSkill(userId, courseId, skill);                                         
+            this.Response = this.reciever.RemoveSkill(this.userId, this.courseId, this.skill);
         }
     }
 }

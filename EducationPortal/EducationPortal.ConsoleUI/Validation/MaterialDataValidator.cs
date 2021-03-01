@@ -1,72 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using EducationPortal.BLL;
-using EducationPortal.BLL.DTO;
-
-namespace EducationPortal.ConsoleUI.Validation
+﻿namespace EducationPortal.ConsoleUI.Validation
 {
-    public class MaterialDataValidator
+    using System;
+    using System.IO;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
+
+    public class MaterialDataValidator : Validator
     {
-        private MaterialDTO material;
         private Uri uri;
 
-        public MaterialDataValidator(MaterialDTO material)
-        {
-            this.material = material;
-        }
+        public override string Name => "Material";
 
-        public ValidationResult Validate()
+        public MaterialDTO Material { get; set; }
+
+        public override ValidationResult Validate()
         {
-            if (material.Name.Length < DataSettings.MaterialNameMinCharacterCount
-             || material.Name.Length > DataSettings.MaterialNameMaxCharacterCount)
+            if (this.Material.Name.Length < DataSettings.MaterialNameMinCharacterCount
+             || this.Material.Name.Length > DataSettings.MaterialNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Название материала должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.MaterialNameMinCharacterCount,
-                                             DataSettings.MaterialNameMaxCharacterCount)
+                    Message = string.Format(
+                        "Название материала должно быть длиной от {0} до {1} символов!",
+                        DataSettings.MaterialNameMinCharacterCount,
+                        DataSettings.MaterialNameMaxCharacterCount),
                 };
-
             }
 
-            var isUrlCorrect = Uri.TryCreate(material.Url, UriKind.Absolute, out uri)
-                            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+            var isUrlCorrect = Uri.TryCreate(this.Material.Url, UriKind.Absolute, out this.uri)
+                            && (this.uri.Scheme == Uri.UriSchemeHttp || this.uri.Scheme == Uri.UriSchemeHttps);
 
             if (!isUrlCorrect)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Некорректный формат URL!"
+                    Message = "Некорректный формат URL!",
                 };
             }
 
-            if (material is BookDTO)
+            if (this.Material is BookDTO)
             {
-                return ValidateAsBook();
+                return this.ValidateAsBook();
             }
-            else if (material is ArticleDTO)
+            else if (this.Material is ArticleDTO)
             {
-                return ValidateAsArticle();
+                return this.ValidateAsArticle();
             }
-            else if (material is VideoDTO)
+            else if (this.Material is VideoDTO)
             {
-                return ValidateAsVideo();
+                return this.ValidateAsVideo();
             }
 
             return new ValidationResult()
             {
                 IsValid = false,
-                Message = "Неопознанный тип материала!"
+                Message = "Неопознанный тип материала!",
             };
         }
 
         private ValidationResult ValidateAsVideo()
         {
-            var video = material as VideoDTO;
+            var video = this.Material as VideoDTO;
 
             if (!int.TryParse(video.Duration, out int value)
             || value <= 0)
@@ -74,48 +70,46 @@ namespace EducationPortal.ConsoleUI.Validation
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Некорректное значение длительности видео!"
+                    Message = "Некорректное значение длительности видео!",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateAsArticle()
         {
-            var article = material as ArticleDTO;
-
-            if (!DateTime.TryParse(article.PublicationDate, out DateTime date))
+            var article = this.Material as ArticleDTO;
+            if (!DateTime.TryParse(article.PublicationDate, out _))
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Некорректный формат даты!"
+                    Message = "Некорректный формат даты!",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
-
         }
 
         private ValidationResult ValidateAsBook()
         {
-            var book = material as BookDTO;
+            var book = this.Material as BookDTO;
 
-            if (!Path.HasExtension(uri.AbsolutePath))
+            if (!Path.HasExtension(this.uri.AbsolutePath))
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "URL книги должен ссылаться на файл!"
+                    Message = "URL книги должен ссылаться на файл!",
                 };
             }
 
@@ -125,7 +119,7 @@ namespace EducationPortal.ConsoleUI.Validation
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Некорректное значение количества страниц!"
+                    Message = "Некорректное значение количества страниц!",
                 };
             }
 
@@ -135,16 +129,15 @@ namespace EducationPortal.ConsoleUI.Validation
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = "Некорректное значение года издания!"
+                    Message = "Некорректное значение года издания!",
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
-
     }
 }

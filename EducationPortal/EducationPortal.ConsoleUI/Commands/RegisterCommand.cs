@@ -1,32 +1,33 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Validation;
+
     public class RegisterCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private IUserService reciever;
         private UserDTO user;
         private AccountDTO account;
-        private RegisterDataValidator validator;
+        private IValidator validator;
 
-        public RegisterCommand(IUserService reciever, UserDTO user, AccountDTO account)
+        public RegisterCommand(IUserService reciever, IValidator validator, UserDTO user, AccountDTO account)
         {
             this.reciever = reciever;
             this.user = user;
             this.account = account;
-            this.validator = new RegisterDataValidator(user, account);
+            this.validator = validator;
         }
+
+        public OperationResponse Response { get; private set; }
 
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.Register(user, account)
-                                                  : new OperationResponse() { Message = validationResult.Message } ;
+            this.validator.SetData(this.user, this.account);
+            var validationResult = this.validator.Validate();
+            this.Response = validationResult.IsValid ? this.reciever.Register(this.user, this.account)
+                                                     : new OperationResponse() { Message = validationResult.Message };
         }
     }
 }

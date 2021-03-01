@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.BLL.DTO
+﻿namespace EducationPortal.BLL.DTO
 {
     public class UserSkillDTO
     {
@@ -12,7 +8,7 @@ namespace EducationPortal.BLL.DTO
 
         public override string ToString()
         {
-            return string.Format("{0} ({1})", Skill.Name, Level);
+            return string.Format("{0} ({1})", this.Skill.Name, this.Level);
         }
     }
 }

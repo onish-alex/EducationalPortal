@@ -6,6 +6,6 @@
         Updated,
         Deleted,
         Synchronized,
-        NotFound
+        NotFound,
     }
 }

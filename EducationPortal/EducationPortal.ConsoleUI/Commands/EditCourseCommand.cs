@@ -1,36 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Validation;
+
     public class EditCourseCommand : ICommand<OperationResponse>
     {
-        public OperationResponse Response { get; private set; }
-
         private ICourseService reciever;
         private CourseDTO course;
         private long userId;
-        
-        private CourseDataValidator validator;
+        private IValidator validator;
 
-        public EditCourseCommand(ICourseService reciever, CourseDTO course, long userId)
+        public EditCourseCommand(ICourseService reciever, IValidator validator, CourseDTO course, long userId)
         {
             this.reciever = reciever;
             this.course = course;
             this.userId = userId;
-            this.validator = new CourseDataValidator(course);
+            this.validator = validator;
         }
+
+        public OperationResponse Response { get; private set; }
 
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.EditCourse(userId, course)
-                                                  : new OperationResponse() { Message = validationResult.Message };
+            this.validator.SetData(this.course);
+            var validationResult = this.validator.Validate();
+            this.Response = validationResult.IsValid ? this.reciever.EditCourse(this.userId, this.course)
+                                                     : new OperationResponse() { Message = validationResult.Message };
         }
     }
 }

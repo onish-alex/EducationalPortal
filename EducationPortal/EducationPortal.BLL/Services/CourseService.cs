@@ -1,58 +1,43 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using EducationPortal.DAL.Repository;
-using EducationPortal.DAL.Entities;
-using AutoMapper;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
+    using System;
+    using System.Linq;
+    using EducationPortal.BLL;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Mappers;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.DAL.Entities.EF;
+    using EducationPortal.DAL.Repository.Base;
+
     public class CourseService : ICourseService
     {
         private IRepository<Course> courses;
         private IRepository<Skill> skills;
         private IRepository<Material> materials;
+        private IMapper mapper;
 
-        private Mapper courseMapper;
-        private Mapper skillMapper;
-
-        public string Name => "Course";
-        
-        public CourseService(IRepository<Course> courses, 
-                             IRepository<Skill> skills,
-                             IRepository<Material> materials)
+        public CourseService(
+            IRepository<Course> courses,
+            IRepository<Skill> skills,
+            IRepository<Material> materials,
+            IMapper mapper)
         {
             this.courses = courses;
             this.skills = skills;
             this.materials = materials;
-
-            var skillConfig = new MapperConfiguration(cfg => cfg.CreateMap<SkillDTO, Skill>().ReverseMap());
-            this.skillMapper = new Mapper(skillConfig);
-
-            var courseConfig = new MapperConfiguration(cfg => 
-            {
-                cfg.CreateMap<CourseDTO, Course>()
-                .ForMember(dest => dest.SkillIds,
-                           opt => opt.MapFrom(dto => skills.Find(skill => skill.Name == dto.Name).Select(skill => skill.Id).ToArray()));
-
-                cfg.CreateMap<Course, CourseDTO>()
-                .ForMember(dest => dest.Skills, 
-                           opt => opt.MapFrom(course => skillMapper.Map<IEnumerable<SkillDTO>>(skills.Find(a => course.SkillIds.Contains(a.Id)))));
-            });
-            this.courseMapper = new Mapper(courseConfig);
+            this.mapper = mapper;
         }
+
+        public string Name => "Course";
 
         public OperationResponse AddCourse(CourseDTO course)
         {
-            var response = new OperationResponse();
-            var courseToAdd = courseMapper.Map<Course>(course);
-            courseToAdd.MaterialIds = new long[0];
-            courseToAdd.SkillIds = new long[0];
-            courses.Create(courseToAdd);
-            courses.Save();
-            response.Message = "Новый курс успешно создан!";
+            var response = new OperationResponse(ResponseMessages.AddCourseSuccess, true);
+            var courseToAdd = this.mapper.Map<CourseDTO, Course>(course);
+
+            this.courses.Create(courseToAdd);
+            this.courses.Save();
+
             return response;
         }
 
@@ -60,9 +45,11 @@ namespace EducationPortal.BLL.Services
         {
             var response = new GetCoursesResponse();
 
-            var userCourses = courses.Find(course => course.CreatorId == userId);
+            var userCourses = this.courses.Find(
+                course => course.CreatorId == userId,
+                course => course.Skills);
 
-            response.Courses = courseMapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(userCourses);
+            response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
 
             return response;
         }
@@ -71,32 +58,29 @@ namespace EducationPortal.BLL.Services
         {
             var response = new GetCoursesResponse();
 
-            var userCourses = courses.GetAll();
-
-            response.Courses = courseMapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(userCourses);
+            var userCourses = this.courses.GetAll(course => course.Skills);
+            response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
 
             return response;
         }
 
         public OperationResponse EditCourse(long userId, CourseDTO newCourseInfo)
         {
-            var response = new OperationResponse();
+            var response = this.CanEditCourse(userId, newCourseInfo.Id);
 
-            var courseToUpdate = courses.Find(course => course.CreatorId == userId
-                                                     && newCourseInfo.Id == course.Id).SingleOrDefault();
-
-            if (courseToUpdate == null)
+            if (!response.IsSuccessful)
             {
-                response.Message = "Вы не являетесь автором данного курса";
-                response.IsSuccessful = false;
                 return response;
             }
 
+            var courseToUpdate = this.courses.GetById(newCourseInfo.Id);
             courseToUpdate.Name = newCourseInfo.Name;
             courseToUpdate.Description = newCourseInfo.Description;
-            courses.Update(courseToUpdate);
-            courses.Save();
-            response.Message = "Курс успешно обновлен";
+
+            this.courses.Update(courseToUpdate);
+            this.courses.Save();
+
+            response.Message = ResponseMessages.EditCourseSuccess;
             response.IsSuccessful = true;
 
             return response;
@@ -104,107 +88,107 @@ namespace EducationPortal.BLL.Services
 
         public OperationResponse AddSkill(long userId, long courseId, SkillDTO skill)
         {
-            var response = CanEditCourse(userId, courseId);
+            var response = this.CanEditCourse(userId, courseId);
 
             if (!response.IsSuccessful)
             {
                 return response;
             }
 
-            var course = courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
 
-            var skillToAdd = skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
+            var skillToAdd = this.skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
 
             if (skillToAdd == null)
             {
-                skillToAdd = skillMapper.Map<SkillDTO, Skill>(skill);
-                skills.Create(skillToAdd);
-                skills.Save();
-            } 
-            else if (course.SkillIds.Contains(skillToAdd.Id))
+                skillToAdd = this.mapper.Map<SkillDTO, Skill>(skill);
+                this.skills.Create(skillToAdd);
+                this.skills.Save();
+            }
+            else if (course.Skills.Contains(skillToAdd))
             {
                 response.IsSuccessful = false;
-                response.Message = "Курс уже содержит такое умение!";
+                response.Message = ResponseMessages.AddSkillAlreadyExists;
                 return response;
             }
 
-            course.SkillIds = course.SkillIds.Append(skillToAdd.Id).ToArray();
+            course.Skills.Add(skillToAdd);
 
-            courses.Update(course);
-            courses.Save();
+            this.courses.Update(course);
+            this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Умение успешно добавлено!";
+            response.Message = ResponseMessages.AddSkillSuccess;
 
             return response;
         }
 
         public OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill)
         {
-            var response = CanEditCourse(userId, courseId);
+            var response = this.CanEditCourse(userId, courseId);
 
             if (!response.IsSuccessful)
             {
                 return response;
             }
 
-            var course = courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
 
-            var skillToRemove = skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
+            var skillToRemove = course.Skills.FirstOrDefault(x => x.Name == skill.Name);
 
-            if (skillToRemove == null 
-             || !course.SkillIds.Contains(skillToRemove.Id))
+            if (skillToRemove == null)
             {
-                response.Message = "У выбранного курса нет указанного умения!";
+                response.Message = ResponseMessages.RemoveSkillNotFound;
                 response.IsSuccessful = false;
                 return response;
             }
 
-            course.SkillIds = course.SkillIds.Except(Enumerable.Repeat(skillToRemove.Id, 1)).ToArray();
-
-            courses.Update(course);
-            courses.Save();
+            course.Skills.Remove(skillToRemove);
+            this.courses.Update(course);
+            this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = "Умение успешно удалено!";
+            response.Message = ResponseMessages.RemoveSkillSuccess;
 
             return response;
         }
 
         public OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId)
         {
-            var response = CanEditCourse(userId, courseId);
+            var response = this.CanEditCourse(userId, courseId);
 
             if (!response.IsSuccessful)
             {
                 return response;
             }
 
-            var course = courses.GetById(courseId);
+            var course = this.courses.Find(
+                            course => course.Id == courseId,
+                            course => course.Materials)
+                            .SingleOrDefault();
 
-            if (materials.GetById(materialId) == null)
+            if (course.Materials.Any(x => x.Id == materialId))
             {
-                response.Message = "Данного материала не существует!";
+                response.Message = ResponseMessages.AddMaterialToCourseAlreadyExists;
                 response.IsSuccessful = false;
                 return response;
             }
 
-            if (course.MaterialIds.Contains(materialId))
-            {
-                response.Message = "Данный курс уже содержит этот материал!";
-                response.IsSuccessful = false;
-                return response;
-            }
+            var material = this.materials.GetById(materialId);
 
-            course.MaterialIds = course.MaterialIds
-                                       .Append(materialId)
-                                       .ToArray();
+            course.Materials.Add(material);
 
-            courses.Update(course);
-            courses.Save();
-            
+            this.courses.Update(course);
+            this.courses.Save();
+
             response.IsSuccessful = true;
-            response.Message = "Материал успешно добавлен к курсу!";
+            response.Message = ResponseMessages.AddMaterialToCourseSuccess;
 
             return response;
         }
@@ -213,18 +197,18 @@ namespace EducationPortal.BLL.Services
         {
             var response = new OperationResponse();
 
-            var course = courses.GetById(courseId);
+            var course = this.courses.GetById(courseId);
 
             if (course == null)
             {
-                response.Message = "Указанного курса не существует!";
+                response.Message = ResponseMessages.CourseNotFound;
                 response.IsSuccessful = false;
                 return response;
             }
 
             if (course.CreatorId != userId)
             {
-                response.Message = "Вы не являетесь автором данного курса";
+                response.Message = ResponseMessages.CanEditCourseNotAnAuthor;
                 response.IsSuccessful = false;
                 return response;
             }
@@ -237,61 +221,76 @@ namespace EducationPortal.BLL.Services
         {
             var response = new OperationResponse();
 
-            var course = courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.JoinedUsers,
+                course => course.CompletedUsers)
+                .SingleOrDefault();
 
             if (course == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Данного курса не существует!";
+                response.Message = ResponseMessages.CourseNotFound;
                 return response;
             }
 
-            //if (course.CreatorId == userId)
-            //{
-            //    response.IsSuccessful = false;
-            //    response.Message = "Вы не можете проходить собственный курс!";
-            //    return response;
-            //} 
+            if (course.JoinedUsers.Any(x => x.UserId == userId))
+            {
+                response.IsSuccessful = false;
+                response.Message = ResponseMessages.CanJoinCourseAlreadyJoin;
+                return response;
+            }
+
+            if (course.CompletedUsers.Any(x => x.UserId == userId))
+            {
+                response.IsSuccessful = false;
+                response.Message = ResponseMessages.CourseAlreadyCompleted;
+                return response;
+            }
 
             response.IsSuccessful = true;
             return response;
         }
 
-        public GetCoursesResponse GetByIds(long[] ids)
+        public GetCourseStatusResponse GetCourseStatus(long courseId, long userId)
         {
-            var response = new GetCoursesResponse();
+            var response = new GetCourseStatusResponse();
 
-            var coursesByIds = courses.Find(x => ids.Contains(x.Id));
-
-            response.Courses = courseMapper.Map<IEnumerable<CourseDTO>>(coursesByIds);
-            response.IsSuccessful = response.Courses.Count() != 0;
-
-            return response;
-        }
-
-        public OperationResponse CanCompleteCourse(long courseId, long[] learnedMaterialIds)
-        {
-            var response = new GetCoursesResponse();
-
-            var course = courses.GetById(courseId);
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.CompletedUsers,
+                course => course.JoinedUsers,
+                course => course.Creator,
+                course => course.Skills)
+                .SingleOrDefault();
 
             if (course == null)
             {
                 response.IsSuccessful = false;
-                response.Message = "Данного курса не существует!";
-                return response;
+                response.Message = ResponseMessages.CourseNotFound;
             }
 
-            if (course.MaterialIds.Any(a => !learnedMaterialIds.Contains(a)))
+            if (course.CreatorId == userId)
             {
-                response.IsSuccessful = false;
-                response.Message = "Не все материалы данного курса изучены!";
+                response.IsCreator = true;
             }
+
+            if (course.CompletedUsers.Any(x => x.UserId == userId))
+            {
+                response.IsCompleted = true;
+            }
+
+            if (course.JoinedUsers.Any(x => x.UserId == userId))
+            {
+                response.IsJoined = true;
+            }
+
+            response.CreatorName = course.Creator.Name;
+            response.Skills = this.mapper.Map<Skill, SkillDTO>(course.Skills);
 
             response.IsSuccessful = true;
 
             return response;
         }
-
     }
 }

@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL;
-
-namespace EducationPortal.ConsoleUI.Validation
+﻿namespace EducationPortal.ConsoleUI.Validation
 {
-    public class SkillDataValidator
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
+
+    public class SkillDataValidator : Validator
     {
-        private SkillDTO skill;
+        public SkillDTO Skill { get; set; }
 
-        public SkillDataValidator(SkillDTO skill)
-        {
-            this.skill = skill;
-        }
+        public override string Name => "Skill";
 
-        public ValidationResult Validate()
+        public override ValidationResult Validate()
         {
-            var result = ValidateName();
+            var result = this.ValidateName();
 
             if (!result.IsValid)
             {
@@ -27,28 +21,29 @@ namespace EducationPortal.ConsoleUI.Validation
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
 
         private ValidationResult ValidateName()
         {
-            if (skill.Name.Length < DataSettings.SkillNameMinCharacterCount
-             || skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
+            if (this.Skill.Name.Length < DataSettings.SkillNameMinCharacterCount
+             || this.Skill.Name.Length > DataSettings.SkillNameMaxCharacterCount)
             {
                 return new ValidationResult()
                 {
                     IsValid = false,
-                    Message = string.Format("Название умения должно быть длиной от {0} до {1} символов!",
-                                             DataSettings.SkillNameMinCharacterCount,
-                                             DataSettings.SkillNameMaxCharacterCount)
+                    Message = string.Format(
+                        "Название умения должно быть длиной от {0} до {1} символов!",
+                        DataSettings.SkillNameMinCharacterCount,
+                        DataSettings.SkillNameMaxCharacterCount),
                 };
             }
 
             return new ValidationResult()
             {
                 IsValid = true,
-                Message = string.Empty
+                Message = string.Empty,
             };
         }
     }

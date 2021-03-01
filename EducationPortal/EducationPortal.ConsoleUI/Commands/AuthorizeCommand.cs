@@ -1,13 +1,11 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
+
     public class AuthorizeCommand : ICommand<AuthorizeResponse>
     {
-        public AuthorizeResponse Response { get; private set; }
-
         private IUserService reciever;
         private AccountDTO account;
 
@@ -17,9 +15,11 @@ namespace EducationPortal.ConsoleUI.Commands
             this.account = account;
         }
 
+        public AuthorizeResponse Response { get; private set; }
+
         public void Execute()
         {
-            Response = reciever.Authorize(account);
+            this.Response = this.reciever.Authorize(this.account);
         }
     }
 }

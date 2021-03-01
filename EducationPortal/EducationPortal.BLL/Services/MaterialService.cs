@@ -1,75 +1,33 @@
-﻿using AutoMapper;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.DAL.Entities;
-using EducationPortal.DAL.Repository;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
+    using System.Collections.Generic;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Mappers;
+    using EducationPortal.BLL.Response;
+    using EducationPortal.DAL.Entities.EF;
+    using EducationPortal.DAL.Repository.Base;
+
     public class MaterialService : IMaterialService
     {
         private IRepository<Material> materials;
-        private Mapper materialMapper;
+        private IMapper mapper;
 
-        public string Name => "Material";
-
-        public MaterialService(IRepository<Material> materials)
+        public MaterialService(IRepository<Material> materials, IMapper mapper)
         {
             this.materials = materials;
-
-            var materialConfig = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Material, MaterialDTO>().ReverseMap();
-
-                cfg.CreateMap<ArticleDTO, Article>()
-                .ForMember(dest => dest.PublicationDate,
-                           opt => opt.MapFrom(dto => DateTime.Parse(dto.PublicationDate))); 
-
-                cfg.CreateMap<Article, ArticleDTO>()
-                .ForMember(dest => dest.PublicationDate,
-                           opt => opt.MapFrom(entity => entity.PublicationDate.ToString("yyyy-MM-dd")));
-
-                cfg.CreateMap<Book, BookDTO>()
-                .ForMember(dest => dest.PageCount,
-                           opt => opt.MapFrom(entity => entity.PageCount.ToString()))
-                .ForMember(dest => dest.PublishingYear,
-                           opt => opt.MapFrom(entity => entity.PublishingYear.ToString()));
-
-                cfg.CreateMap<BookDTO, Book>()
-                .ForMember(dest => dest.PageCount,
-                           opt => opt.MapFrom(dto => int.Parse(dto.PageCount)))
-                .ForMember(dest => dest.PublishingYear,
-                           opt => opt.MapFrom(dto => int.Parse(dto.PublishingYear)));
-
-                cfg.CreateMap<Video, VideoDTO>()
-                .ForMember(dest => dest.Duration,
-                           opt => opt.MapFrom(entity => entity.Duration.ToString()));
-
-                cfg.CreateMap<VideoDTO, Video>()
-                .ForMember(dest => dest.Duration,
-                           opt => opt.MapFrom(dto => int.Parse(dto.Duration)));
-            });
-
-            materialMapper = new Mapper(materialConfig);
+            this.mapper = mapper;
         }
+
+        public string Name => "Material";
 
         public AddMaterialResponse AddMaterial(MaterialDTO material)
         {
             var response = new AddMaterialResponse();
 
-            var entityType = materialMapper.ConfigurationProvider
-                                           .GetAllTypeMaps()
-                                           .FirstOrDefault(a => a.SourceType == material.GetType())
-                                           .DestinationType;
+            var materialToAdd = this.mapper.Map<MaterialDTO, Material>(material);
 
-            var materialToAdd = materialMapper.Map(material, material.GetType(), entityType) as Material;
-            materialToAdd.MaterialType = entityType.Name;
-
-            materials.Create(materialToAdd);
-            materials.Save();
+            this.materials.Create(materialToAdd);
+            this.materials.Save();
 
             response.MaterialId = materialToAdd.Id;
             response.IsSuccessful = true;
@@ -81,50 +39,39 @@ namespace EducationPortal.BLL.Services
         {
             var response = new GetMaterialsResponse();
 
-            var allMaterials = materials.GetAll();
+            var allMaterials = this.materials.GetAll();
 
             var allMaterialDTOs = new List<MaterialDTO>();
 
             foreach (var item in allMaterials)
             {
-                var entityType = materialMapper.ConfigurationProvider
-                                           .GetAllTypeMaps()
-                                           .FirstOrDefault(a => a.SourceType == item.GetType())
-                                           .DestinationType;
-
-                var materialToAdd = materialMapper.Map(item, item.GetType(), entityType);
-
-                allMaterialDTOs.Add(materialToAdd as MaterialDTO);
+                var materialToAdd = this.mapper.Map<Material, MaterialDTO>(item);
+                allMaterialDTOs.Add(materialToAdd);
             }
 
             response.IsSuccessful = allMaterialDTOs.Count != 0;
+
+            if (!response.IsSuccessful)
+            {
+                response.Message = ResponseMessages.GetAllMaterialsEmptyResult;
+            }
+
             response.Materials = allMaterialDTOs;
 
             return response;
         }
 
-        public GetMaterialsResponse GetByIds(long[] ids)
+        public OperationResponse CheckMaterialExisting(long materialId)
         {
-            var response = new GetMaterialsResponse();
+            var response = new OperationResponse();
 
-            var materialsByIds = materials.Find(x => ids.Contains(x.Id));
-
-            var materialDTOs = new List<MaterialDTO>();
-
-            foreach (var item in materialsByIds)
+            if (this.materials.GetById(materialId) == null)
             {
-                var entityType = materialMapper.ConfigurationProvider
-                                           .GetAllTypeMaps()
-                                           .FirstOrDefault(a => a.SourceType == item.GetType())
-                                           .DestinationType;
-
-                var materialToAdd = materialMapper.Map(item, item.GetType(), entityType);
-
-                materialDTOs.Add(materialToAdd as MaterialDTO);
+                response.IsSuccessful = false;
+                response.Message = ResponseMessages.CheckMaterialExistingNotFound;
             }
 
-            response.Materials = materialDTOs;
-            response.IsSuccessful = materialDTOs.Count != 0;
+            response.IsSuccessful = true;
 
             return response;
         }

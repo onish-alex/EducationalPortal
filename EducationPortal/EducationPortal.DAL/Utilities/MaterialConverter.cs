@@ -1,15 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using EducationPortal.DAL.Entities;
-
-namespace EducationPortal.DAL.Utilities
+﻿namespace EducationPortal.DAL.Utilities
 {
-    class MaterialConverter : JsonConverter
+    using System;
+    using System.Linq;
+    using EducationPortal.DAL.Entities.File;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
+    public class MaterialConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -34,9 +31,8 @@ namespace EducationPortal.DAL.Utilities
                         Name = (string)properties["Name"],
                         PageCount = (int)properties["PageCount"],
                         PublishingYear = (int)properties["PublishingYear"],
-                        Url = (string)properties["Url"]
+                        Url = (string)properties["Url"],
                     };
-
 
                 case "Article":
                     return new Article()
@@ -45,8 +41,7 @@ namespace EducationPortal.DAL.Utilities
                         MaterialType = (string)properties["MaterialType"],
                         Name = (string)properties["Name"],
                         Url = (string)properties["Url"],
-                        PublicationDate = (DateTime)properties["PublicationDate"]
-                        //PublicationDate = DateTime.ParseExact(properties["PublicationDate"].ToString(), "yyyy-MM-ddThh:mm:ss", CultureInfo.InvariantCulture)
+                        PublicationDate = (DateTime)properties["PublicationDate"],
                     };
 
                 case "Video":
@@ -57,7 +52,7 @@ namespace EducationPortal.DAL.Utilities
                         Name = (string)properties["Name"],
                         Url = (string)properties["Url"],
                         Duration = (int)properties["Duration"],
-                        Quality = (string)properties["Quality"]
+                        Quality = (string)properties["Quality"],
                     };
 
                 default: throw new Exception("Wrong material type");
@@ -79,6 +74,7 @@ namespace EducationPortal.DAL.Utilities
                     }
                 }
             }
+
             jObj.WriteTo(writer);
         }
     }

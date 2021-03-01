@@ -1,30 +1,26 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class CompleteCourseCommand : ICommand<OperationResponse>
-    {
-        public OperationResponse Response { get; private set; }
+    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Services;
 
+    public class CompleteCourseCommand : ICommand<CompletedCourseResponse>
+    {
         private IUserService reciever;
         private long userId;
-        private CourseDTO course;
+        private long courseId;
 
-        public CompleteCourseCommand(IUserService reciever, long userId, CourseDTO course)
+        public CompleteCourseCommand(IUserService reciever, long userId, long courseId)
         {
             this.reciever = reciever;
-            this.course = course;
+            this.courseId = courseId;
             this.userId = userId;
         }
 
+        public CompletedCourseResponse Response { get; private set; }
+
         public void Execute()
         {
-            Response = reciever.AddCompletedCourse(userId, course);
+            this.Response = this.reciever.AddCompletedCourse(this.userId, this.courseId);
         }
     }
 }

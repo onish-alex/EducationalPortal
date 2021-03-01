@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.BLL.DTO
+﻿namespace EducationPortal.BLL.DTO
 {
+    using System.Collections.Generic;
+
     public class CourseDTO
     {
         public long Id { get; set; }
@@ -14,8 +12,6 @@ namespace EducationPortal.BLL.DTO
 
         public long CreatorId { get; set; }
 
-        public SkillDTO[] Skills { get; set; }
-
-        public long[] MaterialIds { get; set; }
+        public IEnumerable<string> SkillNames { get; set; }
     }
 }

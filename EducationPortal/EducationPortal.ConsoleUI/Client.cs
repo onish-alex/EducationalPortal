@@ -1,25 +1,24 @@
-﻿using EducationPortal.BLL.DTO;
-
-namespace EducationPortal.ConsoleUI
+﻿namespace EducationPortal.ConsoleUI
 {
+    using EducationPortal.BLL.DTO;
+
     public class Client
     {
         private static Client instance = new Client();
-        
+
         private Client()
         {
-
-        }
-
-        public static Client GetInstance()
-        {
-            return instance;
         }
 
         public long Id { get; set; }
 
         public UserDTO Info { get; set; }
 
-        public CourseDTO[] courseCache { get; set; }
+        public CourseDTO[] CourseCache { get; set; }
+
+        public static Client GetInstance()
+        {
+            return instance;
+        }
     }
 }
