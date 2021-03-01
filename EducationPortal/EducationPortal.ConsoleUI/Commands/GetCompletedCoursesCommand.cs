@@ -1,24 +1,54 @@
 ﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    using EducationPortal.BLL.Response;
+    using System;
+    using System.Linq;
     using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
-    public class GetCompletedCoursesCommand : ICommand<GetCoursesResponse>
+    public class GetCompletedCoursesCommand : ICommand
     {
+        private ClientData client;
         private IUserService userService;
-        private long userId;
 
-        public GetCompletedCoursesCommand(IUserService userService, long userId)
+        public GetCompletedCoursesCommand(IUserService userService, ClientData client)
         {
+            this.client = client;
             this.userService = userService;
-            this.userId = userId;
         }
 
-        public GetCoursesResponse Response { get; set; }
+        public string Name => "completedcourses";
+
+        public string Description => "completedcourses\nОтобразить список завершенных вами курсов \n";
+
+        public int ParamsCount => 0;
 
         public void Execute()
         {
-            this.Response = this.userService.GetCompletedCourses(this.userId);
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse != null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorAlreadyInCourseMode);
+                return;
+            }
+
+            var response = this.userService.GetCompletedCourses(this.client.Id);
+
+            if (!response.IsSuccessful)
+            {
+                Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+                return;
+            }
+
+            var completedCourses = response.Courses.ToArray();
+
+            OutputHelper.PrintCourses(completedCourses);
+            this.client.CourseCache = completedCourses;
         }
     }
 }
