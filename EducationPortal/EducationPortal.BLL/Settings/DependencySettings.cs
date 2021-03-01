@@ -9,17 +9,15 @@
 
     public static class DependencySettings
     {
-        public static IServiceCollection GetDICollection()
+        public static void AddBLLDependencies(this IServiceCollection services)
         {
-            var service = new ServiceCollection();
-            service.AddDbContext<EFDbContext>();
-            service.AddSingleton<IRepository<User>, UserRepository>();
-            service.AddSingleton<IRepository<Material>, MaterialRepository>();
-            service.AddSingleton<IRepository<Course>, CourseRepository>();
-            service.AddSingleton<IRepository<Skill>, SkillRepository>();
-            service.AddSingleton<IRepository<Account>, AccountRepository>();
-            service.AddSingleton<IMapper, EntityMapper>();
-            return service;
+            services.AddDbContext<EFDbContext>();
+            services.AddSingleton<IRepository<User>, EFUserRepository>();
+            services.AddSingleton<IRepository<Material>, EFMaterialRepository>();
+            services.AddSingleton<IRepository<Course>, EFCourseRepository>();
+            services.AddSingleton<IRepository<Skill>, EFSkillRepository>();
+            services.AddSingleton<IRepository<Account>, EFAccountRepository>();
+            services.AddSingleton<IMapper, EntityMapper>();
         }
     }
 }
