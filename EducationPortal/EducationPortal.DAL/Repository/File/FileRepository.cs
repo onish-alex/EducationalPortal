@@ -66,12 +66,12 @@
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
-            throw new NotImplementedException();
+            return this.Find(predicate);
         }
 
         public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes)
         {
-            throw new NotImplementedException();
+            return this.GetAll();
         }
     }
 }
