@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using EducationPortal.BLL.DTO;
 
-    public class GetMaterialsResponse : OperationResponse
+    public class GetMaterialsResult : OperationResult
     {
         public IEnumerable<MaterialDTO> Materials { get; set; }
     }

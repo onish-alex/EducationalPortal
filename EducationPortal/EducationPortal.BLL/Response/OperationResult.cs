@@ -4,19 +4,19 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public class OperationResponse : IResponse
+    public class OperationResult : IOperationResult
     {
-        public OperationResponse()
+        public OperationResult()
         {
         }
 
-        public OperationResponse(string message, bool isSuccessful)
+        public OperationResult(string message, bool isSuccessful)
         {
-            this.Message = message;
+            this.MessageCode = message;
             this.IsSuccessful = isSuccessful;
         }
 
-        public string Message { get; set; }
+        public string MessageCode { get; set; }
 
         public bool IsSuccessful { get; set; }
     }

@@ -1,8 +1,8 @@
 ﻿namespace EducationPortal.BLL.Response
 {
-    public interface IResponse
+    public interface IOperationResult
     {
-        string Message { get; set; }
+        string MessageCode { get; set; }
 
         bool IsSuccessful { get; set; }
     }

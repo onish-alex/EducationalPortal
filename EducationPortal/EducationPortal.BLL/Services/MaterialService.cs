@@ -20,9 +20,9 @@
 
         public string Name => "Material";
 
-        public AddMaterialResponse AddMaterial(MaterialDTO material)
+        public AddMaterialResult AddMaterial(MaterialDTO material)
         {
-            var response = new AddMaterialResponse();
+            var response = new AddMaterialResult();
 
             var materialToAdd = this.mapper.Map<MaterialDTO, Material>(material);
 
@@ -35,9 +35,9 @@
             return response;
         }
 
-        public GetMaterialsResponse GetAllMaterials()
+        public GetMaterialsResult GetAllMaterials()
         {
-            var response = new GetMaterialsResponse();
+            var response = new GetMaterialsResult();
 
             var allMaterials = this.materials.GetAll();
 
@@ -53,7 +53,7 @@
 
             if (!response.IsSuccessful)
             {
-                response.Message = ResponseMessages.GetAllMaterialsEmptyResult;
+                response.MessageCode = "GetAllMaterialsEmptyResult";
             }
 
             response.Materials = allMaterialDTOs;
@@ -61,14 +61,14 @@
             return response;
         }
 
-        public OperationResponse CheckMaterialExisting(long materialId)
+        public OperationResult CheckMaterialExisting(long materialId)
         {
-            var response = new OperationResponse();
+            var response = new OperationResult();
 
             if (this.materials.GetById(materialId) == null)
             {
                 response.IsSuccessful = false;
-                response.Message = ResponseMessages.CheckMaterialExistingNotFound;
+                response.MessageCode = "CheckMaterialExistingNotFound";
             }
 
             response.IsSuccessful = true;

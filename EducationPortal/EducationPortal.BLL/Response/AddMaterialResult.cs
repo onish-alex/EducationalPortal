@@ -1,6 +1,6 @@
 ﻿namespace EducationPortal.BLL.Response
 {
-    public class AddMaterialResponse : OperationResponse
+    public class AddMaterialResult : OperationResult
     {
         public long MaterialId { get; set; }
     }

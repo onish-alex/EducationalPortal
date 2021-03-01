@@ -1,8 +1,6 @@
 ﻿namespace EducationPortal.BLL.Services
 {
-    using System;
     using System.Linq;
-    using EducationPortal.BLL;
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers;
     using EducationPortal.BLL.Response;
@@ -30,9 +28,9 @@
 
         public string Name => "Course";
 
-        public OperationResponse AddCourse(CourseDTO course)
+        public OperationResult AddCourse(CourseDTO course)
         {
-            var response = new OperationResponse(ResponseMessages.AddCourseSuccess, true);
+            var response = new OperationResult("AddCourseSuccess", true);
             var courseToAdd = this.mapper.Map<CourseDTO, Course>(course);
 
             this.courses.Create(courseToAdd);
@@ -41,9 +39,9 @@
             return response;
         }
 
-        public GetCoursesResponse GetUserCourses(long userId)
+        public GetCoursesResult GetUserCourses(long userId)
         {
-            var response = new GetCoursesResponse();
+            var response = new GetCoursesResult();
 
             var userCourses = this.courses.Find(
                 course => course.CreatorId == userId,
@@ -54,9 +52,9 @@
             return response;
         }
 
-        public GetCoursesResponse GetAllCourses()
+        public GetCoursesResult GetAllCourses()
         {
-            var response = new GetCoursesResponse();
+            var response = new GetCoursesResult();
 
             var userCourses = this.courses.GetAll(course => course.Skills);
             response.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
@@ -64,7 +62,7 @@
             return response;
         }
 
-        public OperationResponse EditCourse(long userId, CourseDTO newCourseInfo)
+        public OperationResult EditCourse(long userId, CourseDTO newCourseInfo)
         {
             var response = this.CanEditCourse(userId, newCourseInfo.Id);
 
@@ -80,13 +78,13 @@
             this.courses.Update(courseToUpdate);
             this.courses.Save();
 
-            response.Message = ResponseMessages.EditCourseSuccess;
+            response.MessageCode = "EditCourseSuccess";
             response.IsSuccessful = true;
 
             return response;
         }
 
-        public OperationResponse AddSkill(long userId, long courseId, SkillDTO skill)
+        public OperationResult AddSkill(long userId, long courseId, SkillDTO skill)
         {
             var response = this.CanEditCourse(userId, courseId);
 
@@ -111,7 +109,7 @@
             else if (course.Skills.Contains(skillToAdd))
             {
                 response.IsSuccessful = false;
-                response.Message = ResponseMessages.AddSkillAlreadyExists;
+                response.MessageCode = "AddSkillAlreadyExists";
                 return response;
             }
 
@@ -121,12 +119,12 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = ResponseMessages.AddSkillSuccess;
+            response.MessageCode = "AddSkillSuccess";
 
             return response;
         }
 
-        public OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill)
+        public OperationResult RemoveSkill(long userId, long courseId, SkillDTO skill)
         {
             var response = this.CanEditCourse(userId, courseId);
 
@@ -144,7 +142,7 @@
 
             if (skillToRemove == null)
             {
-                response.Message = ResponseMessages.RemoveSkillNotFound;
+                response.MessageCode = "RemoveSkillNotFound";
                 response.IsSuccessful = false;
                 return response;
             }
@@ -154,12 +152,12 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = ResponseMessages.RemoveSkillSuccess;
+            response.MessageCode = "RemoveSkillSuccess";
 
             return response;
         }
 
-        public OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId)
+        public OperationResult AddMaterialToCourse(long userId, long courseId, long materialId)
         {
             var response = this.CanEditCourse(userId, courseId);
 
@@ -175,7 +173,7 @@
 
             if (course.Materials.Any(x => x.Id == materialId))
             {
-                response.Message = ResponseMessages.AddMaterialToCourseAlreadyExists;
+                response.MessageCode = "AddMaterialToCourseAlreadyExists";
                 response.IsSuccessful = false;
                 return response;
             }
@@ -188,27 +186,27 @@
             this.courses.Save();
 
             response.IsSuccessful = true;
-            response.Message = ResponseMessages.AddMaterialToCourseSuccess;
+            response.MessageCode = "AddMaterialToCourseSuccess";
 
             return response;
         }
 
-        public OperationResponse CanEditCourse(long userId, long courseId)
+        public OperationResult CanEditCourse(long userId, long courseId)
         {
-            var response = new OperationResponse();
+            var response = new OperationResult();
 
             var course = this.courses.GetById(courseId);
 
             if (course == null)
             {
-                response.Message = ResponseMessages.CourseNotFound;
+                response.MessageCode = "CourseNotFound";
                 response.IsSuccessful = false;
                 return response;
             }
 
             if (course.CreatorId != userId)
             {
-                response.Message = ResponseMessages.CanEditCourseNotAnAuthor;
+                response.MessageCode = "CanEditCourseNotAnAuthor";
                 response.IsSuccessful = false;
                 return response;
             }
@@ -217,44 +215,9 @@
             return response;
         }
 
-        public OperationResponse CanJoinCourse(long userId, long courseId)
+        public GetCourseStatusResult GetCourseStatus(long courseId, long userId)
         {
-            var response = new OperationResponse();
-
-            var course = this.courses.Find(
-                course => course.Id == courseId,
-                course => course.JoinedUsers,
-                course => course.CompletedUsers)
-                .SingleOrDefault();
-
-            if (course == null)
-            {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseNotFound;
-                return response;
-            }
-
-            if (course.JoinedUsers.Any(x => x.UserId == userId))
-            {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CanJoinCourseAlreadyJoin;
-                return response;
-            }
-
-            if (course.CompletedUsers.Any(x => x.UserId == userId))
-            {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseAlreadyCompleted;
-                return response;
-            }
-
-            response.IsSuccessful = true;
-            return response;
-        }
-
-        public GetCourseStatusResponse GetCourseStatus(long courseId, long userId)
-        {
-            var response = new GetCourseStatusResponse();
+            var response = new GetCourseStatusResult();
 
             var course = this.courses.Find(
                 course => course.Id == courseId,
@@ -267,7 +230,7 @@
             if (course == null)
             {
                 response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseNotFound;
+                response.MessageCode = "CourseNotFound";
             }
 
             if (course.CreatorId == userId)

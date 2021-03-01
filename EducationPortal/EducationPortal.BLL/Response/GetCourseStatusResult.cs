@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using EducationPortal.BLL.DTO;
 
-    public class GetCourseStatusResponse : IResponse
+    public class GetCourseStatusResult : IOperationResult
     {
-        public string Message { get; set; }
+        public string MessageCode { get; set; }
 
         public string CreatorName { get; set; }
 
