@@ -4,6 +4,7 @@
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class RemoveSkillCommand : ICommand
     {
@@ -40,7 +41,7 @@
 
             if (!checkResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(checkResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
                 return;
             }
 
@@ -50,7 +51,7 @@
             };
 
             var removeSkillResponse = this.courseService.RemoveSkill(this.client.Id, this.client.SelectedCourse.Id, skill);
-            Console.WriteLine(OperationMessages.GetString(removeSkillResponse.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(removeSkillResponse.MessageCode));
         }
     }
 }

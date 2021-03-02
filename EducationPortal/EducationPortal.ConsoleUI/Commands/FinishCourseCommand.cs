@@ -3,6 +3,7 @@
     using System;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class FinishCourseCommand : ICommand
     {
@@ -39,7 +40,7 @@
 
             if (!completeCourseResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(completeCourseResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(completeCourseResponse.MessageCode));
                 return;
             }
 

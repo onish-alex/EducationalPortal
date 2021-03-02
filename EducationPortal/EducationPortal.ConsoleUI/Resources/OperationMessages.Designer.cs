@@ -151,6 +151,15 @@ namespace EducationPortal.ConsoleUI.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Курс с таким именем уже существует!.
+        /// </summary>
+        internal static string CourseAlreadyExist {
+            get {
+                return ResourceManager.GetString("CourseAlreadyExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Вы уже участник данного курса!.
         /// </summary>
         internal static string CourseAlreadyJoin {

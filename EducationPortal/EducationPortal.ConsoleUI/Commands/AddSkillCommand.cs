@@ -11,9 +11,9 @@
     {
         private ICourseService courseService;
         private ClientData client;
-        private SkillValidator skillValidator;
+        private IValidator<SkillDTO> skillValidator;
 
-        public AddSkillCommand(ICourseService courseService, SkillValidator skillValidator, ClientData client)
+        public AddSkillCommand(ICourseService courseService, IValidator<SkillDTO> skillValidator, ClientData client)
         {
             this.courseService = courseService;
             this.client = client;
@@ -44,7 +44,7 @@
 
             if (!checkResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(checkResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
                 return;
             }
 
@@ -53,7 +53,7 @@
                 Name = this.client.InputBuffer[0],
             };
 
-            var validationResult = this.skillValidator.Validate(skill);
+            var validationResult = this.skillValidator.Validate(skill, "Base", "Detail");
             if (!validationResult.IsValid)
             {
                 var errorCode = validationResult.Errors[0].ErrorCode;
@@ -62,7 +62,7 @@
             }
 
             var addSkillResponse = this.courseService.AddSkill(this.client.Id, this.client.SelectedCourse.Id, skill);
-            Console.WriteLine(OperationMessages.GetString(addSkillResponse.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(addSkillResponse.MessageCode));
         }
     }
 }

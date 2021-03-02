@@ -3,6 +3,7 @@
     using System;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class JoinCourseCommand : ICommand
     {
@@ -39,7 +40,7 @@
 
             var joinCourseResponse = this.userService.JoinToCourse(this.client.Id, this.client.SelectedCourse.Id);
 
-            Console.WriteLine(OperationMessages.GetString(joinCourseResponse.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(joinCourseResponse.MessageCode));
         }
     }
 }

@@ -12,13 +12,13 @@
     {
         private IUserService userService;
         private ClientData client;
-        private UserValidator userValidator;
-        private AccountValidator accountValidator;
+        private IValidator<UserDTO> userValidator;
+        private IValidator<AccountDTO> accountValidator;
 
         public RegisterCommand(
             IUserService userService,
-            UserValidator userValidator,
-            AccountValidator accountValidator,
+            IValidator<UserDTO> userValidator,
+            IValidator<AccountDTO> accountValidator,
             ClientData client)
         {
             this.userService = userService;
@@ -53,7 +53,7 @@
                 Name = this.client.InputBuffer[3],
             };
 
-            var validationResult = this.accountValidator.Validate(account);
+            var validationResult = this.accountValidator.Validate(account, "Base", "Detail");
 
             if (!validationResult.IsValid)
             {
@@ -73,7 +73,7 @@
 
             var response = this.userService.Register(user, account);
 
-            Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
         }
     }
 }

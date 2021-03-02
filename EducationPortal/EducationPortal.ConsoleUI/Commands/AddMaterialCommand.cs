@@ -7,7 +7,6 @@
     using EducationPortal.BLL.Validation;
     using EducationPortal.ConsoleUI.Resources;
     using EducationPortal.ConsoleUI.Utilities;
-    using FluentValidation;
     using FluentValidation.Results;
 
     public class AddMaterialCommand : ICommand
@@ -15,9 +14,9 @@
         private ClientData client;
         private ICourseService courseService;
         private IMaterialService materialService;
-        private MaterialValidator materialValidator;
+        private IValidator<MaterialDTO> materialValidator;
 
-        public AddMaterialCommand(ICourseService courseService, IMaterialService materialService, MaterialValidator materialValidator, ClientData client)
+        public AddMaterialCommand(ICourseService courseService, IMaterialService materialService, IValidator<MaterialDTO> materialValidator, ClientData client)
         {
             this.client = client;
             this.materialService = materialService;
@@ -49,7 +48,7 @@
 
             if (!checkResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(checkResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
                 return;
             }
 
@@ -81,9 +80,7 @@
                             PublicationDate = date,
                         };
 
-                        validationResult = this.materialValidator.Validate(
-                            materialToAdd,
-                            opt => opt.IncludeRuleSets("Common", "Article"));
+                        validationResult = this.materialValidator.Validate(materialToAdd, "Common", "Article");
 
                         break;
 
@@ -111,9 +108,7 @@
                             PublishingYear = year,
                         };
 
-                        validationResult = this.materialValidator.Validate(
-                            materialToAdd,
-                            opt => opt.IncludeRuleSets("Common", "Book"));
+                        validationResult = this.materialValidator.Validate(materialToAdd, "Common", "Book");
 
                         break;
 
@@ -133,9 +128,7 @@
                             Quality = quality,
                         };
 
-                        validationResult = this.materialValidator.Validate(
-                            materialToAdd,
-                            opt => opt.IncludeRuleSets("Common", "Video"));
+                        validationResult = this.materialValidator.Validate(materialToAdd, "Common", "Video");
 
                         break;
 
@@ -155,14 +148,14 @@
 
                 if (!materialResponse.IsSuccessful)
                 {
-                    Console.WriteLine(OperationMessages.GetString(materialResponse.MessageCode));
+                    Console.WriteLine(ResourceHelper.GetMessageString(materialResponse.MessageCode));
                     return;
                 }
 
                 materialToAdd.Id = materialResponse.MaterialId;
 
                 var addMaterialResponse = this.courseService.AddMaterialToCourse(this.client.Id, this.client.SelectedCourse.Id, materialToAdd.Id);
-                Console.WriteLine(OperationMessages.GetString(addMaterialResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(addMaterialResponse.MessageCode));
             }
             else if (this.client.InputBuffer[0] == "-exist")
             {
@@ -170,7 +163,7 @@
 
                 if (!response.IsSuccessful)
                 {
-                    Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+                    Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
                     return;
                 }
 
@@ -194,12 +187,12 @@
 
                 if (!checkMaterialResponse.IsSuccessful)
                 {
-                    Console.WriteLine(OperationMessages.GetString(checkMaterialResponse.MessageCode));
+                    Console.WriteLine(ResourceHelper.GetMessageString(checkMaterialResponse.MessageCode));
                     return;
                 }
 
                 var addMaterialResponse = this.courseService.AddMaterialToCourse(this.client.Id, this.client.SelectedCourse.Id, allMaterials[number - 1].Id);
-                Console.WriteLine(OperationMessages.GetString(addMaterialResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(addMaterialResponse.MessageCode));
             }
             else
             {

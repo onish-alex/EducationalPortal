@@ -3,17 +3,24 @@
     using System;
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Services;
+    using EducationPortal.BLL.Validation;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class AuthorizeCommand : ICommand
     {
         private IUserService userService;
         private ClientData client;
+        private IValidator<AccountDTO> accountValidator;
 
-        public AuthorizeCommand(IUserService userService, ClientData client)
+        public AuthorizeCommand(
+            IUserService userService,
+            ClientData client,
+            IValidator<AccountDTO> accountValidator)
         {
             this.userService = userService;
             this.client = client;
+            this.accountValidator = accountValidator;
         }
 
         public string Name => "login";
@@ -37,11 +44,20 @@
                 Password = this.client.InputBuffer[1],
             };
 
+            var validationResult = this.accountValidator.Validate(account, "Base");
+
+            if (!validationResult.IsValid)
+            {
+                var errorCode = validationResult.Errors[0].ErrorCode;
+                OutputHelper.PrintValidationError(errorCode);
+                return;
+            }
+
             var response = this.userService.Authorize(account);
 
             if (!response.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
                 return;
             }
 

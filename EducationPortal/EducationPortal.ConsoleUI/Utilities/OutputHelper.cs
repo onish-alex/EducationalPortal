@@ -36,85 +36,80 @@
 
         public static void PrintValidationError(string errorCode)
         {
-            switch (errorCode)
-            {
-                case "AccountLoginLength":
-                    Console.WriteLine(
-                        ValidationMessages.GetString(errorCode),
-                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["LoginMinLength"],
-                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["LoginMaxLength"]);
-                    break;
-
-                case "AccountPasswordLength":
-                    Console.WriteLine(
-                        ValidationMessages.GetString(errorCode),
-                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["PasswordMinLength"],
-                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["PasswordMaxLength"]);
-                    break;
-
-                case "BookAuthorNamesLength":
-                    Console.WriteLine(
-                        ValidationMessages.GetString(errorCode),
-                        DataSettings.BookAuthorNamesMaxCharacterCount);
-                    break;
-
-                case "BookFormatLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.BookFormatMinCharacterCount,
-                            DataSettings.BookFormatMaxCharacterCount);
-                    break;
-
-                case "CourseDescriptionLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.CourseDescriptionMinCharacterCount,
-                            DataSettings.CourseDescriptionMaxCharacterCount);
-                    break;
-
-                case "CourseNameLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.CourseNameMinCharacterCount,
-                            DataSettings.CourseNameMaxCharacterCount);
-                    break;
-
-                case "MaterialNameLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.MaterialNameMinCharacterCount,
-                            DataSettings.MaterialNameMaxCharacterCount);
-                    break;
-
-                case "SkillNameLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.SkillNameMinCharacterCount,
-                            DataSettings.SkillNameMaxCharacterCount);
-                    break;
-
-                case "UserNameLength":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["NameMinLength"],
-                            (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["NameMaxLength"]);
-                    break;
-
-                case "VideoQualityValue":
-                    Console.WriteLine(
-                            ValidationMessages.GetString(errorCode),
-                            DataSettings.VideoQualityMinCharacterCount,
-                            DataSettings.VideoQualityMaxCharacterCount);
-                    break;
-
-                default: Console.WriteLine(ValidationMessages.GetString(errorCode));
-                    break;
-            }
+            Console.WriteLine(GetValidationErrorString(errorCode));
         }
 
         public static void PrintSingleMaterial(MaterialDTO material)
         {
             Console.WriteLine(GetMaterialString(material));
+        }
+
+        public static string GetValidationErrorString(string errorCode)
+        {
+            switch (errorCode)
+            {
+                case "AccountLoginLength":
+                    return string.Format(
+                        ResourceHelper.GetValidationString(errorCode),
+                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["LoginMinLength"],
+                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["LoginMaxLength"]);
+
+                case "AccountPasswordLength":
+                    return string.Format(
+                        ResourceHelper.GetValidationString(errorCode),
+                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["PasswordMinLength"],
+                        (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["PasswordMaxLength"]);
+
+                case "BookAuthorNamesLength":
+                    return string.Format(
+                        ResourceHelper.GetValidationString(errorCode),
+                        DataSettings.BookAuthorNamesMaxCharacterCount);
+
+                case "BookFormatLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.BookFormatMinCharacterCount,
+                            DataSettings.BookFormatMaxCharacterCount);
+
+                case "CourseDescriptionLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.CourseDescriptionMinCharacterCount,
+                            DataSettings.CourseDescriptionMaxCharacterCount);
+
+                case "CourseNameLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.CourseNameMinCharacterCount,
+                            DataSettings.CourseNameMaxCharacterCount);
+
+                case "MaterialNameLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.MaterialNameMinCharacterCount,
+                            DataSettings.MaterialNameMaxCharacterCount);
+
+                case "SkillNameLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.SkillNameMinCharacterCount,
+                            DataSettings.SkillNameMaxCharacterCount);
+
+                case "UserNameLength":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["NameMinLength"],
+                            (ConfigurationManager.GetSection("accountSettings") as NameValueCollection)["NameMaxLength"]);
+
+                case "VideoQualityValue":
+                    return string.Format(
+                            ResourceHelper.GetValidationString(errorCode),
+                            DataSettings.VideoQualityMinCharacterCount,
+                            DataSettings.VideoQualityMaxCharacterCount);
+
+                default:
+                    return ResourceHelper.GetValidationString(errorCode);
+            }
         }
 
         private static string GetMaterialString(MaterialDTO material)

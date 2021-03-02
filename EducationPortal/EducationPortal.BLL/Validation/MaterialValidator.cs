@@ -5,8 +5,9 @@
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Settings;
     using FluentValidation;
+    using FluentValidation.Results;
 
-    public class MaterialValidator : AbstractValidator<MaterialDTO>
+    public class MaterialValidator : AbstractValidator<MaterialDTO>, IValidator<MaterialDTO>
     {
         public MaterialValidator()
         {
@@ -14,14 +15,13 @@
             {
                 this.RuleFor(x => x.Name)
                     .NotNull()
+                    .WithErrorCode("MaterialNameLength")
                     .NotEmpty()
                     .WithErrorCode("MaterialNameLength");
 
                 this.RuleFor(x => x.Name.Length)
                     .LessThanOrEqualTo(DataSettings.MaterialNameMaxCharacterCount)
-                    .WithErrorCode("MaterialNameLength");
-
-                this.RuleFor(x => x.Name.Length)
+                    .WithErrorCode("MaterialNameLength")
                     .GreaterThanOrEqualTo(DataSettings.MaterialNameMinCharacterCount)
                     .WithErrorCode("MaterialNameLength");
 
@@ -34,7 +34,9 @@
             {
                 this.RuleFor(x => (x as ArticleDTO).PublicationDate)
                     .NotNull()
+                    .WithErrorCode("ArticlePublicationDateFormat")
                     .NotEmpty()
+                    .WithErrorCode("ArticlePublicationDateFormat")
                     .Must(this.IsValidDate)
                     .WithErrorCode("ArticlePublicationDateFormat");
             });
@@ -43,6 +45,7 @@
             {
                 this.RuleFor(x => (x as BookDTO).AuthorNames)
                     .NotNull()
+                    .WithErrorCode("BookAuthorNamesEmpty")
                     .NotEmpty()
                     .WithErrorCode("BookAuthorNamesEmpty");
 
@@ -56,26 +59,29 @@
 
                 this.RuleFor(x => (x as BookDTO).Format)
                     .NotNull()
+                    .WithErrorCode("BookFormatLength")
                     .NotEmpty()
                     .WithErrorCode("BookFormatLength");
 
                 this.RuleFor(x => (x as BookDTO).Format.Length)
                     .LessThanOrEqualTo(DataSettings.BookFormatMaxCharacterCount)
-                    .WithErrorCode("BookFormatLength");
-
-                this.RuleFor(x => (x as BookDTO).Format.Length)
+                    .WithErrorCode("BookFormatLength")
                     .GreaterThanOrEqualTo(DataSettings.BookFormatMinCharacterCount)
                     .WithErrorCode("BookFormatLength");
 
                 this.RuleFor(x => (x as BookDTO).PageCount)
                     .NotNull()
+                    .WithErrorCode("BookPageCountValue")
                     .NotEmpty()
+                    .WithErrorCode("BookPageCountValue")
                     .Must(this.IsPositiveNumber)
                     .WithErrorCode("BookPageCountValue");
 
                 this.RuleFor(x => (x as BookDTO).PublishingYear)
                     .NotNull()
+                    .WithErrorCode("BookPublishingYearValue")
                     .NotEmpty()
+                    .WithErrorCode("BookPublishingYearValue")
                     .Must(this.IsValidYear)
                     .WithErrorCode("BookPublishingYearValue");
             });
@@ -84,23 +90,34 @@
             {
                 this.RuleFor(x => (x as VideoDTO).Duration)
                     .NotNull()
+                    .WithErrorCode("VideoDurationValue")
                     .NotEmpty()
+                    .WithErrorCode("VideoDurationValue")
                     .Must(this.IsPositiveNumber)
                     .WithErrorCode("VideoDurationValue");
 
                 this.RuleFor(x => (x as VideoDTO).Quality)
                     .NotNull()
+                    .WithErrorCode("VideoQualityValue")
                     .NotEmpty()
                     .WithErrorCode("VideoQualityValue");
 
                 this.RuleFor(x => (x as VideoDTO).Quality.Length)
                     .LessThanOrEqualTo(DataSettings.VideoQualityMaxCharacterCount)
-                    .WithErrorCode("VideoQualityValue");
-
-                this.RuleFor(x => (x as VideoDTO).Quality.Length)
+                    .WithErrorCode("VideoQualityValue")
                     .GreaterThanOrEqualTo(DataSettings.VideoQualityMinCharacterCount)
                     .WithErrorCode("VideoQualityValue");
             });
+        }
+
+        ValidationResult IValidator<MaterialDTO>.Validate(MaterialDTO model)
+        {
+            return this.Validate(model);
+        }
+
+        ValidationResult IValidator<MaterialDTO>.Validate(MaterialDTO model, params string[] ruleSetNames)
+        {
+            return this.Validate(model, opt => opt.IncludeRuleSets(ruleSetNames));
         }
 
         private bool HasUrlFormat(string url)

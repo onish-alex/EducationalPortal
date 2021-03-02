@@ -147,6 +147,9 @@
   <data name="CourseAlreadyCompleted" xml:space="preserve">
     <value>Вы уже прошли данный курс!</value>
   </data>
+  <data name="CourseAlreadyExist" xml:space="preserve">
+    <value>Курс с таким именем уже существует!</value>
+  </data>
   <data name="CourseAlreadyJoin" xml:space="preserve">
     <value>Вы уже участник данного курса!</value>
   </data>

@@ -11,9 +11,9 @@
     {
         private ICourseService courseService;
         private ClientData client;
-        private CourseValidator courseValidator;
+        private IValidator<CourseDTO> courseValidator;
 
-        public AddCourseCommand(ICourseService courseService, CourseValidator courseValidator, ClientData client)
+        public AddCourseCommand(ICourseService courseService, IValidator<CourseDTO> courseValidator, ClientData client)
         {
             this.courseService = courseService;
             this.client = client;
@@ -56,7 +56,7 @@
             }
 
             var response = this.courseService.AddCourse(course);
-            Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
         }
     }
 }

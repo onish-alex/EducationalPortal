@@ -11,9 +11,9 @@
     {
         private ICourseService courseService;
         private ClientData client;
-        private CourseValidator courseValidator;
+        private IValidator<CourseDTO> courseValidator;
 
-        public EditCourseCommand(ICourseService courseService, CourseValidator courseValidator, ClientData client)
+        public EditCourseCommand(ICourseService courseService, IValidator<CourseDTO> courseValidator, ClientData client)
         {
             this.courseService = courseService;
             this.client = client;
@@ -44,7 +44,7 @@
 
             if (!checkResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(checkResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
                 return;
             }
 
@@ -71,7 +71,7 @@
             }
 
             var response = this.courseService.EditCourse(this.client.Id, course);
-            Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+            Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
 
             if (response.IsSuccessful)
             {

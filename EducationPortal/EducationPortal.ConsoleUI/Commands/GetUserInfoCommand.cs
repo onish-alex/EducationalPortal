@@ -4,6 +4,7 @@
     using System.Linq;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class GetUserInfoCommand : ICommand
     {
@@ -40,7 +41,7 @@
 
             if (!response.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(response.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
                 return;
             }
 

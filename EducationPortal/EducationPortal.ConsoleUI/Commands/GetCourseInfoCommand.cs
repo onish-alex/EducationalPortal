@@ -4,6 +4,7 @@
     using System.Linq;
     using EducationPortal.BLL.Services;
     using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
     public class GetCourseInfoCommand : ICommand
     {
@@ -50,7 +51,7 @@
 
             if (!getCourseStatusResponse.IsSuccessful)
             {
-                Console.WriteLine(OperationMessages.GetString(getCourseStatusResponse.MessageCode));
+                Console.WriteLine(ResourceHelper.GetMessageString(getCourseStatusResponse.MessageCode));
                 return;
             }
 

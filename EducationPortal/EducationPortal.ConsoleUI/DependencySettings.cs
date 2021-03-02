@@ -1,5 +1,6 @@
 ﻿namespace EducationPortal.ConsoleUI
 {
+    using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Services;
     using EducationPortal.BLL.Validation;
     using EducationPortal.ConsoleUI.Commands;
@@ -17,11 +18,11 @@
 
         public static void AddValidators(this ServiceCollection service)
         {
-            service.AddSingleton<UserValidator>();
-            service.AddSingleton<MaterialValidator>();
-            service.AddSingleton<AccountValidator>();
-            service.AddSingleton<SkillValidator>();
-            service.AddSingleton<CourseValidator>();
+            service.AddSingleton<IValidator<UserDTO>, UserValidator>();
+            service.AddSingleton<IValidator<MaterialDTO>, MaterialValidator>();
+            service.AddSingleton<IValidator<AccountDTO>, AccountValidator>();
+            service.AddSingleton<IValidator<SkillDTO>, SkillValidator>();
+            service.AddSingleton<IValidator<CourseDTO>, CourseValidator>();
         }
 
         public static void AddCommands(this ServiceCollection service)

@@ -254,7 +254,7 @@
     <value>Профиль пользователя {0}</value>
   </data>
   <data name="OutputProfileSkills" xml:space="preserve">
-    <value>Навык: {0}</value>
+    <value>Навыки: {0}</value>
   </data>
   <data name="OutputProfileJoinedCourses" xml:space="preserve">
     <value>Курсы в процессе: {0}</value>
@@ -300,5 +300,8 @@
   </data>
   <data name="InfoVideoQuality" xml:space="preserve">
     <value>Качество: {0}</value>
+  </data>
+  <data name="Новая строка" xml:space="preserve">
+    <value>строка</value>
   </data>
 </root>

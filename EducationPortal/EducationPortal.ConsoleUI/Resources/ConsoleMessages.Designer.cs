@@ -563,7 +563,7 @@ namespace EducationPortal.ConsoleUI.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Навык: {0}.
+        ///   Ищет локализованную строку, похожую на Навыки: {0}.
         /// </summary>
         public static string OutputProfileSkills {
             get {
@@ -595,6 +595,15 @@ namespace EducationPortal.ConsoleUI.Resources {
         public static string UserPrefix {
             get {
                 return ResourceManager.GetString("UserPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на строка.
+        /// </summary>
+        public static string Новая_строка {
+            get {
+                return ResourceManager.GetString("Новая строка", resourceCulture);
             }
         }
     }
