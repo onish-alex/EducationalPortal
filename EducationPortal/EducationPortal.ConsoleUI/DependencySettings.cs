@@ -1,30 +1,11 @@
 ﻿namespace EducationPortal.ConsoleUI
 {
-    using EducationPortal.BLL.DTO;
-    using EducationPortal.BLL.Services;
-    using EducationPortal.BLL.Validation;
     using EducationPortal.ConsoleUI.Commands;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
 
     public static class DependencySettings
     {
-        public static void AddBusinessServices(this ServiceCollection service)
-        {
-            service.AddSingleton<IUserService, UserService>();
-            service.AddSingleton<ICourseService, CourseService>();
-            service.AddSingleton<IMaterialService, MaterialService>();
-        }
-
-        public static void AddValidators(this ServiceCollection service)
-        {
-            service.AddSingleton<IValidator<UserDTO>, UserValidator>();
-            service.AddSingleton<IValidator<MaterialDTO>, MaterialValidator>();
-            service.AddSingleton<IValidator<AccountDTO>, AccountValidator>();
-            service.AddSingleton<IValidator<SkillDTO>, SkillValidator>();
-            service.AddSingleton<IValidator<CourseDTO>, CourseValidator>();
-        }
-
         public static void AddCommands(this ServiceCollection service)
         {
             service.TryAddEnumerable(new[]

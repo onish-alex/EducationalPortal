@@ -1,0 +1,62 @@
+﻿@model CourseStudyViewModel
+
+    <div class="container">
+        @if (Model.IsCompleted)
+        {
+            <div class="text-center">
+                <p>Вы прошли все материалы курса </p>
+                <div>Если вы еще не подтвердили прохождение курса, перейдите на <a asp-controller="Course" asp-action="Index" asp-route-id="@Model.CourseId">его страницу</a> чтобы сделать это.</div>
+            </div>
+        }
+
+        <div class="text-center row">
+            <div class="col-3">
+                @if (Model.PageData.MaterialStatuses.Count != 0)
+                {
+                    foreach (var item in Model.PageData.Materials)
+                    {
+                        <div class="border-bottom border-dark">
+                            <p>@item.Name</p>
+
+                            @if (Model.PageData.MaterialStatuses[item])
+                            {
+                                <p>Пройдено</p>
+                            }
+
+                            <a asp-action="Material"
+                               asp-route-courseId="@Model.CourseId"
+                               asp-route-materialId="@item.Id"
+                               asp-route-page="@Model.PageData.Materials.Page"
+                               asp-route-pageSize="@Model.PageData.Materials.PageSize">Перейти</a>
+                        </div>
+                    }
+
+                    var prevDisabled = !Model.PageData.Materials.HasPreviousPage
+                        ? "disabled"
+                        : "";
+
+                    var nextDisabled = !Model.PageData.Materials.HasNextPage
+                        ? "disabled"
+                        : "";
+
+                    <a asp-action="Index" asp-route-page="@(Model.PageData.Materials.Page - 1)" asp-route-id="@Model.CourseId" class="@prevDisabled">Предыдущая</a>
+                    <a asp-action="Index" asp-route-page="@(Model.PageData.Materials.Page + 1)" asp-route-id="@Model.CourseId" class="@nextDisabled">Следующая</a>
+                }
+            </div>
+            <div class="col-9">
+                @{
+                    var partialViewModel = new CourseMaterialViewModel()
+                    {
+                        Material = Model.ChosenMaterial,
+                        IsLearned = Model.ChosenMaterial != null
+                            ? Model.PageData.MaterialStatuses[Model.ChosenMaterial]
+                            : true,
+                        CourseId = Model.CourseId,
+                    };
+
+                    <partial name="_Material" model="@partialViewModel" />
+                }
+            </div>
+
+        </div>
+    </div>

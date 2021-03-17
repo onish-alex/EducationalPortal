@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Threading.Tasks;
     using EducationPortal.DAL.DbContexts;
     using EducationPortal.DAL.Entities.File;
     using EducationPortal.DAL.Repository.Base;
@@ -72,6 +73,68 @@
         public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes)
         {
             return this.GetAll();
+        }
+
+        public IEnumerable<T> GetPage(int page, int pageSize)
+        {
+            return this.GetAll()
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+        }
+
+        public IEnumerable<T> GetPage(int page, int pageSize, params Expression<Func<T, object>>[] includes)
+        {
+            return this.GetPage(page, pageSize);
+        }
+
+        public void CreateAsync(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> GetByIdAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository<T>.CreateAsync(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository<T>.DeleteAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository<T>.SaveAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<T> GetPage(int page, int pageSize, Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> CountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

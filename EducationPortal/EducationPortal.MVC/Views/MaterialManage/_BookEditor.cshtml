@@ -1,0 +1,52 @@
+﻿@model BookDTO
+
+<div class="validation row text-center justify-content-center" asp-validation-summary="All"></div>
+
+<div class="row justify-content-between">
+    <div class="col-5">
+        Название
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Name)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        URL:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Url)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Авторы:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.AuthorNames)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Год издания:
+    </div>
+    <div class="col-6">
+        <input type="number" name="PublishingYear" />
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Кол-во страниц:
+    </div>
+    <div class="col-6">
+        <input type="number" name="PageCount" />
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Формат:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Format)
+    </div>
+</div>

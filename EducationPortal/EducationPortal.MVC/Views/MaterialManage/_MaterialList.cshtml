@@ -1,0 +1,55 @@
+﻿@model MaterialListViewModel
+
+@if (Model.Materials.Count != 0)
+{
+    <input type="hidden" id="course-id" value="@Model.CourseId" />
+    <div>
+        @foreach (var item in Model.Materials)
+        {
+            <div class="border-bottom border-dark @Model.DomSelectClass">
+                <partial name="_MaterialDisplay" model="@item" />
+            </div>
+        }
+    </div>
+
+    var prevDisabled = !Model.Materials.HasPreviousPage
+        ? "disabled"
+        : "";
+
+    var nextDisabled = !Model.Materials.HasNextPage
+        ? "disabled"
+        : "";
+
+    <div class="row justify-content-around text-center mt-3">
+        <form data-ajax="true"
+              data-ajax-method="Post"
+              data-ajax-url="@Model.ActionPath"
+              data-ajax-update="@Model.DomUpdateId"
+              class="col-5">
+            <input type="hidden" name="page" value="@(Model.Materials.Page - 1)" />
+            <input type="hidden" name="pageSize" value="@Model.Materials.PageSize" />
+            <input type="hidden" name="id" value="@Model.CourseId" />
+            <input @prevDisabled type="submit" value="Предыдущая" />
+        </form>        
+        <p class="h5">@Model.Materials.Page</p>
+        <form data-ajax="true"
+              data-ajax-method="Post"
+              data-ajax-url="@Model.ActionPath"
+              data-ajax-update="@Model.DomUpdateId"
+              class="col-5">
+            <input type="hidden" name="page" value="@(Model.Materials.Page + 1)" />
+            <input type="hidden" name="pageSize" value="@Model.Materials.PageSize" />
+            <input type="hidden" name="id" value="@Model.CourseId" />
+            <input @nextDisabled type="submit" value="Следующая" />
+        </form>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/materialInteraction.js"></script>
+} else
+{
+    <div class="row text-center justify-content-center">
+        <h5>Здесь пока что пусто!</h5>
+
+    </div>
+}

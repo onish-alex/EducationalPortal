@@ -12,19 +12,23 @@
             this.RuleSet("Base", () =>
             {
                 this.RuleFor(x => x.Name)
-                .NotNull()
-                .WithErrorCode("SkillNameNull")
                 .NotEmpty()
                 .WithErrorCode("SkillNameNull");
             });
 
             this.RuleSet("Detail", () =>
             {
-                this.RuleFor(x => x.Name.Length)
+                this.RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithErrorCode("SkillNameNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Name.Length)
                     .LessThanOrEqualTo(DataSettings.SkillNameMaxCharacterCount)
                     .WithErrorCode("SkillNameLength")
                     .GreaterThanOrEqualTo(DataSettings.SkillNameMinCharacterCount)
                     .WithErrorCode("SkillNameLength");
+                });
             });
         }
 

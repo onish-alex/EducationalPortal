@@ -16,7 +16,7 @@
 
                 cfg.CreateMap<Course, CourseDTO>()
                    .ForMember(
-                       dest => dest.SkillNames,
+                       dest => dest.Skills,
                        opt => opt.MapFrom(entity => entity.Skills.Select(skill => skill.Name)));
 
                 cfg.CreateMap<CourseDTO, Course>();

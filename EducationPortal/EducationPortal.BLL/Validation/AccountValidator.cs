@@ -6,63 +6,117 @@
     using System.Linq;
     using System.Net.Mail;
     using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Settings;
     using FluentValidation;
     using FluentValidation.Results;
+    using Microsoft.Extensions.Options;
 
     public class AccountValidator : AbstractValidator<AccountDTO>, IValidator<AccountDTO>
     {
-        private NameValueCollection accountSettings;
+        private NameValueCollection accountSettingsCollection;
+        private AccountSettings accountSettings;
 
         public AccountValidator()
         {
-            this.accountSettings = ConfigurationManager.GetSection("accountSettings") as NameValueCollection;
+            this.accountSettingsCollection = ConfigurationManager.GetSection("accountSettings") as NameValueCollection;
 
-            this.RuleSet("Base", () =>
-            {
-                this.RuleFor(x => x.Login)
-                .NotNull()
-                .WithErrorCode("AccountLoginNull")
-                .NotEmpty()
-                .WithErrorCode("AccountLoginNull");
-
-                this.RuleFor(x => x.Email)
-                .NotNull()
-                .WithErrorCode("AccountEmailNull")
-                .NotEmpty()
-                .WithErrorCode("AccountEmailNull");
-
-                this.RuleFor(x => x.Password)
-                .NotNull()
-                .WithErrorCode("AccountPasswordNull")
-                .NotEmpty()
-                .WithErrorCode("AccountPasswordNull");
-            });
+            this.SetBaseRules();
 
             this.RuleSet("Detail", () =>
             {
-                this.RuleFor(x => x.Login.Length)
-                    .LessThanOrEqualTo(int.Parse(this.accountSettings["LoginMaxLength"]))
+                this.RuleFor(x => x.Login)
+                .NotEmpty()
+                .WithErrorCode("AccountLoginNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Login.Length)
+                    .LessThanOrEqualTo(int.Parse(this.accountSettingsCollection["LoginMaxLength"]))
                     .WithErrorCode("AccountLoginLength")
-                    .GreaterThanOrEqualTo(int.Parse(this.accountSettings["LoginMinLength"]))
+                    .GreaterThanOrEqualTo(int.Parse(this.accountSettingsCollection["LoginMinLength"]))
                     .WithErrorCode("AccountLoginLength");
 
-                this.RuleFor(x => x.Login)
+                    this.RuleFor(x => x.Login)
                     .Must(this.ContainOnlyAllowableSymbols)
                     .WithErrorCode("AccountLoginUnallowableSymbols");
+                });
 
                 this.RuleFor(x => x.Email)
-                    .Must(this.IsValidEmail)
-                    .WithErrorCode("AccountEmailFormat");
-
-                this.RuleFor(x => x.Password.Length)
-                    .GreaterThanOrEqualTo(int.Parse(this.accountSettings["PasswordMinLength"]))
-                    .WithErrorCode("AccountPasswordLength")
-                    .LessThanOrEqualTo(int.Parse(this.accountSettings["PasswordMaxLength"]))
-                    .WithErrorCode("AccountPasswordLength");
+                .NotEmpty()
+                .WithErrorCode("AccountEmailNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Email)
+                        .EmailAddress(FluentValidation.Validators.EmailValidationMode.AspNetCoreCompatible)
+                        .WithErrorCode("AccountEmailFormat");
+                });
 
                 this.RuleFor(x => x.Password)
-                    .Must(this.ContainOnlyAllowableSymbols)
-                    .WithErrorCode("AccountPasswordUnallowableSymbols");
+                .NotEmpty()
+                .WithErrorCode("AccountPasswordNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Password.Length)
+                        .GreaterThanOrEqualTo(int.Parse(this.accountSettingsCollection["PasswordMinLength"]))
+                        .WithErrorCode("AccountPasswordLength")
+                        .LessThanOrEqualTo(int.Parse(this.accountSettingsCollection["PasswordMaxLength"]))
+                        .WithErrorCode("AccountPasswordLength");
+
+                    this.RuleFor(x => x.Password)
+                        .Must(this.ContainOnlyAllowableSymbols)
+                        .WithErrorCode("AccountPasswordUnallowableSymbols");
+                });
+            });
+        }
+
+        public AccountValidator(IOptionsSnapshot<AccountSettings> options)
+        {
+            this.accountSettings = options.Value;
+
+            this.SetBaseRules();
+
+            this.RuleSet("Detail", () =>
+            {
+                this.RuleFor(x => x.Login)
+                .NotEmpty()
+                .WithErrorCode("AccountLoginNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Login.Length)
+                        .LessThanOrEqualTo(this.accountSettings.LoginMaxLength)
+                        .WithErrorCode("AccountLoginLength")
+                        .GreaterThanOrEqualTo(this.accountSettings.LoginMinLength)
+                        .WithErrorCode("AccountLoginLength");
+
+                    this.RuleFor(x => x.Login)
+                        .Must(this.ContainOnlyAllowableSymbols)
+                        .WithErrorCode("AccountLoginUnallowableSymbols");
+                });
+
+                this.RuleFor(x => x.Email)
+                .NotEmpty()
+                .WithErrorCode("AccountEmailNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Email)
+                    .EmailAddress(FluentValidation.Validators.EmailValidationMode.AspNetCoreCompatible)
+                    .WithErrorCode("AccountEmailFormat");
+                });
+
+                this.RuleFor(x => x.Password)
+                .NotEmpty()
+                .WithErrorCode("AccountPasswordNull")
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Password.Length)
+                        .GreaterThanOrEqualTo(this.accountSettings.PasswordMinLength)
+                        .WithErrorCode("AccountPasswordLength")
+                        .LessThanOrEqualTo(this.accountSettings.PasswordMaxLength)
+                        .WithErrorCode("AccountPasswordLength");
+
+                    this.RuleFor(x => x.Password)
+                        .Must(this.ContainOnlyAllowableSymbols)
+                        .WithErrorCode("AccountPasswordUnallowableSymbols");
+                });
             });
         }
 
@@ -76,32 +130,37 @@
             return this.Validate(model, opt => opt.IncludeRuleSets(ruleSetNames));
         }
 
-        private bool ContainOnlyAllowableSymbols(string property)
+        private void SetBaseRules()
         {
-            var allowableSymbols = this.accountSettings["allowableSymbols"];
-            return property.All(symbol => allowableSymbols.Contains(char.ToLower(symbol)));
+            this.RuleSet("Base", () =>
+            {
+                this.RuleFor(x => x.Login)
+                .NotEmpty()
+                .WithErrorCode("AccountLoginNull");
+
+                this.RuleFor(x => x.Email)
+                .NotEmpty()
+                .WithErrorCode("AccountEmailNull");
+
+                this.RuleFor(x => x.Password)
+                .NotEmpty()
+                .WithErrorCode("AccountPasswordNull");
+            });
         }
 
-        private bool IsValidEmail(string emailStr)
+        private bool ContainOnlyAllowableSymbols(string property)
         {
-            MailAddress email;
-            try
+            var allowableSymbols = string.Empty;
+            if (this.accountSettingsCollection != null)
             {
-                email = new MailAddress(emailStr);
+                allowableSymbols = this.accountSettingsCollection["allowableSymbols"];
             }
-            catch (Exception)
+            else
             {
-                return false;
-            }
-
-            if (email.Address.Contains("..")
-             || email.Address[0] == '.'
-             || email.Address[^1] == '.')
-            {
-                return false;
+                allowableSymbols = this.accountSettings.AllowableSymbols;
             }
 
-            return true;
+            return property.All(symbol => allowableSymbols.Contains(char.ToLower(symbol)));
         }
     }
 }

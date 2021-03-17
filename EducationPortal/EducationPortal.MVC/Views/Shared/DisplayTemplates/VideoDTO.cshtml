@@ -1,0 +1,42 @@
+﻿@model VideoDTO
+
+<input type="hidden" class="material-item-id" value="@Model.Id" />
+
+<div class="row justify-content-between">
+    <div class="col-5">
+        Видео
+    </div>
+    <div class="col-6">
+        "@Model.Name"
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        URL:
+    </div>
+    <div class="col-6">
+        @Model.Url
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Качество:
+    </div>
+    <div class="col-6">
+        @Model.Quality
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Длительность:
+    </div>
+    <div class="col-6">
+        @{
+            var duration = int.Parse(Model.Duration);
+            var hour = duration / 60;
+            var minute = duration % 60;
+            var durationStr = string.Format("{0:d2}:{1:d2}", hour, minute);
+        } 
+        @durationStr
+    </div>
+</div>

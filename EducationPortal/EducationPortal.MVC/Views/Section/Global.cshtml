@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Все курсы";
+}
+@model PaginatedList<CourseDTO>
+
+<div class="container">
+
+    @if (Model.Count != 0)
+    {
+        <div class="row justify-content-around">
+            @foreach (var item in Model)
+            {
+                <div class="col-5 card course-card mb-3">
+                    <div class="card-body">
+                        <a class="h4 card-title"
+                           asp-controller="Course"
+                           asp-action="Index"
+                           asp-route-id="@item.Id">@item.Name</a>
+
+                        @if (item.Description.Length > 100)
+                        {
+                            <p class="mt-2  ">@item.Description.Substring(0, 99)...</p>
+                        }
+                        else
+                        {
+                            <p class="mt-2">@item.Description</p>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        @{
+                            var skillsStr = CommonMessages.LabelSkills + ": ";
+                            skillsStr += item.Skills.Count == 0
+                                ? "(Отсутствуют)"
+                                : string.Join(", ", item.Skills.Select(x => x.Name));
+
+                        }
+                        <p>@skillsStr</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        var prevDisabled = !Model.HasPreviousPage
+        ? "disabled"
+        : "";
+
+        var nextDisabled = !Model.HasNextPage
+        ? "disabled"
+        : "";
+
+        <div class="row justify-content-around text-center mt-3">
+            <a asp-action="Global" 
+               asp-route-page="@(Model.Page - 1)"
+               asp-route-pageSize="@(Model.PageSize)" class="@prevDisabled col-2 btn btn-primary">Назад</a>
+            <p class="h5">@Model.Page</p>
+            <a asp-action="Global" 
+               asp-route-page="@(Model.Page + 1)"
+               asp-route-pageSize="@(Model.PageSize)" class="@nextDisabled col-2 btn btn-primary">Вперед</a>
+        </div>
+    }
+    else
+    {
+        <div class="h4 text-center">Кажется, здесь еще пусто. Создайте <a asp-controller="Course" asp-action="Create">свой первый курс</a>!</div>
+    }
+</div>

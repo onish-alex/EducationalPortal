@@ -1,0 +1,9 @@
+﻿@model AddMaterialViewModel
+
+<partial name="_MaterialDisplay" model="@Model.Material" />
+
+<a asp-action="RemoveMaterial"
+   asp-route-materialId="@Model.Material.Id"
+   asp-route-courseId="@Model.CourseId">
+    Убрать из курса
+</a>

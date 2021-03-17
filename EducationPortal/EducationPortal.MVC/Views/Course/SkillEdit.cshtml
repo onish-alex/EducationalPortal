@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Управление навыками";
+}
+
+@model SkillViewModel
+
+<div class="container">
+    <div class="row justify-content-around">
+        <div class="col-5">
+            <div class="row h4 mb-3">
+                Удалить навыки
+            </div>
+            <form asp-action="RemoveSkill">
+
+                @if (Model.Course.Skills != null
+                 && Model.Course.Skills.Count() != 0)
+                {
+                    for (var i = 0; i < Model.Course.Skills.Count; i++)
+                    {
+                        Model.SkillsToRemove.Add(Model.Course.Skills[i].Id, false);
+
+                        <div class="row justify-content-between align-content-center skill-to-delete">
+                            <label>@Model.Course.Skills[i].Name</label>
+                            <input type="checkbox" asp-for="@Model.SkillsToRemove[Model.Course.Skills[i].Id]" />
+                        </div>
+                    }
+
+                    <input type="hidden" asp-for="Course.Id" value="@Model.Course.Id" />
+                    @for (var i = 0; i < Model.Course.Skills.Count; i++)
+                    {
+                        <input type="hidden" asp-for="Course.Skills[i].Id" value="@Model.Course.Skills[i].Id" />
+                        <input type="hidden" asp-for="Course.Skills[i].Name" value="@Model.Course.Skills[i].Name" />
+                    }
+
+                    <div class="row justify-content-center">
+                        <input type="submit" class="btn btn-danger" value="Удалить навыки" />
+                    </div>
+                }
+                else
+                {
+                    <p>В данном курсе еще нет материалов</p>
+                }
+            </form>
+        </div>
+
+        <div class="border-right border-dark"></div>
+
+        <div class="col-5">
+            <div class="row h4 mb-3">
+                Добавить навык
+            </div>
+            <form asp-action="AddSkill">
+
+                <input type="hidden" asp-for="Course.Id" value="@Model.Course.Id" />
+                <div class="validation row text-center justify-content-center" asp-validation-summary="All"></div>
+
+                @if (Model.Course.Skills != null)
+                {
+
+                    @for (var i = 0; i < Model.Course.Skills.Count; i++)
+                    {
+                        <input type="hidden" asp-for="Course.Skills[i].Id" value="@Model.Course.Skills[i].Id" />
+                        <input type="hidden" asp-for="Course.Skills[i].Name" value="@Model.Course.Skills[i].Name" />
+                    }
+                }
+
+                <div class="row justify-content-between mb-3">
+                    <div class="col-5">
+                        <label asp-for="Skill.Name">Название навыка</label>
+                    </div>
+                    <div class="col-5">
+                        <input asp-for="Skill.Name" type="text" />
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <input type="submit" class="btn btn-primary" value="Добавить" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <a asp-action="Index" asp-route-id="@Model.Course.Id" class="mt-3">Вернутся к курсу</a>
+</div>
+
+
