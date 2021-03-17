@@ -24,7 +24,12 @@
                 cfg.CreateMap<MaterialDTO, Material>().ReverseMap();
 
                 cfg.CreateMap<BookDTO, Book>().ReverseMap();
-                cfg.CreateMap<ArticleDTO, Article>().ReverseMap();
+
+                cfg.CreateMap<ArticleDTO, Article>();
+                cfg.CreateMap<Article, ArticleDTO>().ForMember(
+                    dest => dest.PublicationDate,
+                    opt => opt.MapFrom(entity => entity.PublicationDate.ToShortDateString()));
+
                 cfg.CreateMap<VideoDTO, Video>().ForMember(
                     dest => dest.Duration,
                     opt => opt.MapFrom(dto => TimeSpan.FromSeconds(int.Parse(dto.Duration))));

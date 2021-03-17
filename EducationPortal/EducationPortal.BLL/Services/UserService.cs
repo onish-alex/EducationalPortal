@@ -8,6 +8,7 @@
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers;
     using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Validation;
     using EducationPortal.DAL.Entities.EF;
     using EducationPortal.DAL.Repository.Base;
 
@@ -18,26 +19,48 @@
         private IRepository<Skill> skills;
         private IRepository<Course> courses;
         private IMapper mapper;
+        private IValidator<AccountDTO> accountValidator;
+        private IValidator<UserDTO> userValidator;
 
         public UserService(
             IRepository<User> users,
             IRepository<Account> accounts,
             IRepository<Skill> skills,
             IRepository<Course> courses,
-            IMapper mapper)
+            IMapper mapper,
+            IValidator<AccountDTO> accountValidator,
+            IValidator<UserDTO> userValidator)
         {
             this.users = users;
             this.accounts = accounts;
             this.skills = skills;
             this.courses = courses;
             this.mapper = mapper;
+            this.accountValidator = accountValidator;
+            this.userValidator = userValidator;
         }
 
         public string Name => "User";
 
-        public AuthorizeResponse Authorize(AccountDTO account)
+        public AuthorizeResult Authorize(AccountDTO account)
         {
-            var responce = new AuthorizeResponse();
+            var result = new AuthorizeResult();
+
+            if (account == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "AccountNull";
+                return result;
+            }
+
+            var validationResult = this.accountValidator.Validate(account, "Base");
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
 
             var accountToLogIn = this.mapper.Map<AccountDTO, Account>(account);
 
@@ -52,34 +75,67 @@
 
             if (loggedInAccount == null)
             {
-                responce.Message = ResponseMessages.AuthorizeWrongCredentials;
-                return responce;
+                result.IsSuccessful = false;
+                result.MessageCode = "AuthorizeWrongCredentials";
+                return result;
             }
 
-            responce.Id = loggedInAccount.Id;
-            responce.User = this.mapper.Map<User, UserDTO>(loggedInAccount.User);
-            responce.IsSuccessful = true;
+            result.Id = loggedInAccount.Id;
+            result.User = this.mapper.Map<User, UserDTO>(loggedInAccount.User);
+            result.IsSuccessful = true;
 
-            return responce;
+            return result;
         }
 
-        public OperationResponse Register(UserDTO user, AccountDTO account)
+        public OperationResult Register(UserDTO user, AccountDTO account)
         {
-            var responce = new OperationResponse();
+            var result = new OperationResult();
+
+            if (account == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "AccountNull";
+                return result;
+            }
+
+            if (user == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNull";
+                return result;
+            }
+
+            var validationResult = this.accountValidator.Validate(account, "Base", "Detail");
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
+
+            validationResult = this.userValidator.Validate(user);
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
 
             var userToRegister = this.mapper.Map<UserDTO, User>(user);
             var accountToRegister = this.mapper.Map<AccountDTO, Account>(account);
 
             if (this.accounts.Find(account => account.Email == accountToRegister.Email.ToLower()).SingleOrDefault() != null)
             {
-                responce.Message = ResponseMessages.RegisterEmailUsed;
-                return responce;
+                result.MessageCode = "RegisterEmailUsed";
+                return result;
             }
 
             if (this.accounts.Find(account => account.Login == accountToRegister.Login).SingleOrDefault() != null)
             {
-                responce.Message = ResponseMessages.RegisterEmailUsed;
-                return responce;
+                result.MessageCode = "RegisterLoginUsed";
+                return result;
             }
 
             accountToRegister.Email = accountToRegister.Email.ToLower();
@@ -89,13 +145,14 @@
             this.accounts.Create(accountToRegister);
             this.accounts.Save();
 
-            responce.Message = ResponseMessages.RegisterSuccess;
-            return responce;
+            result.IsSuccessful = true;
+            result.MessageCode = "RegisterSuccess";
+            return result;
         }
 
-        public GetUserInfoResponse GetUserById(long userId)
+        public GetUserInfoResult GetUserById(long userId)
         {
-            var response = new GetUserInfoResponse();
+            var result = new GetUserInfoResult();
 
             var user = this.users.Find(
                 user => user.Id == userId,
@@ -107,13 +164,13 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.GetUserByIdNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "GetUserByIdNotFound";
+                return result;
             }
 
-            response.User = this.mapper.Map<User, UserDTO>(user);
-            response.CompletedCourses = this.mapper.Map<Course, CourseDTO>(user.CompletedCourses.Select(x => x.Course));
+            result.User = this.mapper.Map<User, UserDTO>(user);
+            result.CompletedCourses = this.mapper.Map<Course, CourseDTO>(user.CompletedCourses.Select(x => x.Course));
 
             var joinedCourseProgress = new Dictionary<CourseDTO, int>();
             var joinedCourses = this.courses.Find(
@@ -132,20 +189,19 @@
                 joinedCourseProgress.Add(this.mapper.Map<Course, CourseDTO>(course), (int)(percent * 100));
             }
 
-            response.JoinedCoursesProgress = joinedCourseProgress;
+            result.JoinedCoursesProgress = joinedCourseProgress;
 
             var userSkills = this.skills.Find(x => user.UserSkills.Select(a => a.SkillId).Contains(x.Id));
 
-            response.SkillLevels = userSkills.ToDictionary(k => this.mapper.Map<Skill, SkillDTO>(k), v => user.UserSkills.First(x => x.SkillId == v.Id).Level);
-            response.Message = string.Empty;
-            response.IsSuccessful = true;
+            result.SkillLevels = userSkills.ToDictionary(k => this.mapper.Map<Skill, SkillDTO>(k), v => user.UserSkills.First(x => x.SkillId == v.Id).Level);
+            result.IsSuccessful = true;
 
-            return response;
+            return result;
         }
 
-        public OperationResponse JoinToCourse(long userId, long courseId)
+        public OperationResult JoinToCourse(long userId, long courseId)
         {
-            var response = new GetUserInfoResponse();
+            var result = new GetUserInfoResult();
 
             var user = this.users.Find(
                 user => user.Id == userId,
@@ -154,9 +210,36 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.UserNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
+            }
+
+            var course = this.courses.Find(
+                course => course.Id == courseId,
+                course => course.JoinedUsers,
+                course => course.CompletedUsers)
+                .SingleOrDefault();
+
+            if (course == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotFound";
+                return result;
+            }
+
+            if (course.JoinedUsers.Any(x => x.UserId == userId))
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseAlreadyJoin";
+                return result;
+            }
+
+            if (course.CompletedUsers.Any(x => x.UserId == userId))
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseAlreadyCompleted";
+                return result;
             }
 
             user.JoinedCourses.Add(new UserJoinedCourses()
@@ -168,14 +251,14 @@
             this.users.Update(user);
             this.users.Save();
 
-            response.IsSuccessful = true;
-            response.Message = ResponseMessages.JoinToCourseSuccess;
-            return response;
+            result.IsSuccessful = true;
+            result.MessageCode = "JoinToCourseSuccess";
+            return result;
         }
 
-        public CompletedCourseResponse AddCompletedCourse(long userId, long courseId)
+        public CompletedCourseResult AddCompletedCourse(long userId, long courseId)
         {
-            var response = new CompletedCourseResponse();
+            var result = new CompletedCourseResult();
 
             var user = this.users.Find(
                 user => user.Id == userId,
@@ -187,9 +270,9 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.UserNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
             }
 
             var course = this.courses.Find(
@@ -198,25 +281,32 @@
                 course => course.Skills)
                 .SingleOrDefault();
 
-            if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
+            if (course == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseNotJoined;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotFound";
+                return result;
             }
 
             if (user.CompletedCourses.Select(x => x.Course).Contains(course))
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseAlreadyCompleted;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseAlreadyCompleted";
+                return result;
+            }
+
+            if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotJoined";
+                return result;
             }
 
             if (course.Materials.Any(x => !user.LearnedMaterials.Contains(x)))
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.AddCompletedCourseNotCompleted;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "AddCompletedCourseNotCompleted";
+                return result;
             }
 
             user.JoinedCourses.Remove(user.JoinedCourses.Single(x => x.CourseId == courseId));
@@ -250,20 +340,20 @@
 
             var smth = user.UserSkills.Where(x => course.Skills.Contains(x.Skill));
 
-            response.RecievedSkills = user.UserSkills
+            result.RecievedSkills = user.UserSkills
                                           .Where(x => course.Skills.Contains(x.Skill))
                                           .ToDictionary(k => this.mapper.Map<Skill, SkillDTO>(k.Skill), v => v.Level);
 
             this.users.Update(user);
             this.users.Save();
 
-            response.IsSuccessful = true;
-            return response;
+            result.IsSuccessful = true;
+            return result;
         }
 
-        public GetCoursesResponse GetJoinedCourses(long userId)
+        public GetCoursesResult GetJoinedCourses(long userId)
         {
-            var response = new GetCoursesResponse();
+            var result = new GetCoursesResult();
 
             var user = this.users.Find(
                 user => user.Id == userId,
@@ -272,9 +362,9 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.UserNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
             }
 
             var joinedCourseIds = user.JoinedCourses.Select(x => x.CourseId);
@@ -282,15 +372,15 @@
                 course => joinedCourseIds.Contains(course.Id),
                 course => course.Skills);
 
-            response.Courses = this.mapper.Map<Course, CourseDTO>(joinedCourses);
+            result.Courses = this.mapper.Map<Course, CourseDTO>(joinedCourses);
 
-            response.IsSuccessful = true;
-            return response;
+            result.IsSuccessful = true;
+            return result;
         }
 
-        public GetCoursesResponse GetCompletedCourses(long userId)
+        public GetCoursesResult GetCompletedCourses(long userId)
         {
-            var response = new GetCoursesResponse();
+            var result = new GetCoursesResult();
 
             var user = this.users.Find(
                             user => user.Id == userId,
@@ -299,9 +389,9 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.UserNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
             }
 
             var completedCourseIds = user.CompletedCourses.Select(x => x.CourseId);
@@ -309,15 +399,15 @@
                 course => completedCourseIds.Contains(course.Id),
                 course => course.Skills);
 
-            response.Courses = this.mapper.Map<Course, CourseDTO>(completedCourses);
+            result.Courses = this.mapper.Map<Course, CourseDTO>(completedCourses);
 
-            response.IsSuccessful = true;
-            return response;
+            result.IsSuccessful = true;
+            return result;
         }
 
-        public GetMaterialsResponse GetNextMaterial(long userId, long courseId)
+        public GetMaterialsResult GetNextMaterial(long userId, long courseId)
         {
-            var response = new GetMaterialsResponse();
+            var result = new GetMaterialsResult();
 
             var user = this.users.Find(
                 user => user.Id == userId,
@@ -327,9 +417,9 @@
 
             if (user == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.UserNotFound;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
             }
 
             var course = this.courses.Find(
@@ -339,18 +429,18 @@
 
             if (!user.JoinedCourses.Select(x => x.Course).Contains(course))
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CourseNotJoined;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotJoined";
+                return result;
             }
 
             var materialToLearn = course.Materials.FirstOrDefault(x => !user.LearnedMaterials.Contains(x));
 
             if (materialToLearn == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.GetNextMaterialAnyNewMaterial;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "GetNextMaterialAnyNewMaterial";
+                return result;
             }
 
             user.LearnedMaterials.Add(materialToLearn);
@@ -358,9 +448,9 @@
             this.users.Update(user);
             this.users.Save();
 
-            response.Materials = new MaterialDTO[] { this.mapper.Map<Material, MaterialDTO>(materialToLearn) };
-            response.IsSuccessful = true;
-            return response;
+            result.Materials = new MaterialDTO[] { this.mapper.Map<Material, MaterialDTO>(materialToLearn) };
+            result.IsSuccessful = true;
+            return result;
         }
 
         private string GetPasswordHash(string password)

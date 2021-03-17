@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using EducationPortal.BLL.DTO;
 
-    public class GetUserInfoResponse : OperationResponse
+    public class GetUserInfoResult : OperationResult
     {
         public UserDTO User { get; set; }
 

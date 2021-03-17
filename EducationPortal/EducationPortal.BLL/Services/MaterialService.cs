@@ -4,6 +4,7 @@
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers;
     using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Validation;
     using EducationPortal.DAL.Entities.EF;
     using EducationPortal.DAL.Repository.Base;
 
@@ -11,33 +12,71 @@
     {
         private IRepository<Material> materials;
         private IMapper mapper;
+        private IValidator<MaterialDTO> materialValidator;
 
-        public MaterialService(IRepository<Material> materials, IMapper mapper)
+        public MaterialService(
+            IRepository<Material> materials,
+            IMapper mapper,
+            IValidator<MaterialDTO> materialValidator)
         {
             this.materials = materials;
             this.mapper = mapper;
+            this.materialValidator = materialValidator;
         }
 
         public string Name => "Material";
 
-        public AddMaterialResponse AddMaterial(MaterialDTO material)
+        public AddMaterialResult AddMaterial(MaterialDTO material)
         {
-            var response = new AddMaterialResponse();
+            var result = new AddMaterialResult();
+
+            if (material == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "MaterialNull";
+                return result;
+            }
+
+            var validationRuleSetStr = string.Empty;
+
+            switch (material)
+            {
+                case ArticleDTO _:
+                    validationRuleSetStr = "Article";
+                    break;
+
+                case BookDTO _:
+                    validationRuleSetStr = "Book";
+                    break;
+
+                case VideoDTO _:
+                    validationRuleSetStr = "Video";
+                    break;
+            }
+
+            var validationResult = this.materialValidator.Validate(material, "Common", validationRuleSetStr);
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
 
             var materialToAdd = this.mapper.Map<MaterialDTO, Material>(material);
 
             this.materials.Create(materialToAdd);
             this.materials.Save();
 
-            response.MaterialId = materialToAdd.Id;
-            response.IsSuccessful = true;
+            result.MaterialId = materialToAdd.Id;
+            result.IsSuccessful = true;
 
-            return response;
+            return result;
         }
 
-        public GetMaterialsResponse GetAllMaterials()
+        public GetMaterialsResult GetAllMaterials()
         {
-            var response = new GetMaterialsResponse();
+            var result = new GetMaterialsResult();
 
             var allMaterials = this.materials.GetAll();
 
@@ -49,31 +88,31 @@
                 allMaterialDTOs.Add(materialToAdd);
             }
 
-            response.IsSuccessful = allMaterialDTOs.Count != 0;
+            result.IsSuccessful = allMaterialDTOs.Count != 0;
 
-            if (!response.IsSuccessful)
+            if (!result.IsSuccessful)
             {
-                response.Message = ResponseMessages.GetAllMaterialsEmptyResult;
+                result.MessageCode = "GetAllMaterialsEmptyResult";
             }
 
-            response.Materials = allMaterialDTOs;
+            result.Materials = allMaterialDTOs;
 
-            return response;
+            return result;
         }
 
-        public OperationResponse CheckMaterialExisting(long materialId)
+        public OperationResult CheckMaterialExisting(long materialId)
         {
-            var response = new OperationResponse();
+            var result = new OperationResult();
 
             if (this.materials.GetById(materialId) == null)
             {
-                response.IsSuccessful = false;
-                response.Message = ResponseMessages.CheckMaterialExistingNotFound;
+                result.IsSuccessful = false;
+                result.MessageCode = "CheckMaterialExistingNotFound";
             }
 
-            response.IsSuccessful = true;
+            result.IsSuccessful = true;
 
-            return response;
+            return result;
         }
     }
 }

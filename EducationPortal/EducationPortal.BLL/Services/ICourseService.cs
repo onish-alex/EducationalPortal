@@ -5,24 +5,22 @@
 
     public interface ICourseService : IService
     {
-        OperationResponse AddCourse(CourseDTO course);
+        OperationResult AddCourse(CourseDTO course);
 
-        GetCoursesResponse GetUserCourses(long userId);
+        GetCoursesResult GetUserCourses(long userId);
 
-        GetCoursesResponse GetAllCourses();
+        GetCoursesResult GetAllCourses();
 
-        OperationResponse EditCourse(long userId, CourseDTO newCourseInfo);
+        OperationResult EditCourse(long userId, CourseDTO newCourseInfo);
 
-        OperationResponse AddSkill(long userId, long courseId, SkillDTO skill);
+        OperationResult AddSkill(long userId, long courseId, SkillDTO skill);
 
-        OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill);
+        OperationResult RemoveSkill(long userId, long courseId, SkillDTO skill);
 
-        OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId);
+        OperationResult AddMaterialToCourse(long userId, long courseId, long materialId);
 
-        OperationResponse CanEditCourse(long userId, long courseId);
+        OperationResult CanEditCourse(long userId, long courseId);
 
-        OperationResponse CanJoinCourse(long userId, long courseId);
-
-        GetCourseStatusResponse GetCourseStatus(long courseId, long userId);
+        GetCourseStatusResult GetCourseStatus(long courseId, long userId);
     }
 }

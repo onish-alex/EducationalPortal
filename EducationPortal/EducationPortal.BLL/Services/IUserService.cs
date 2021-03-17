@@ -5,20 +5,20 @@
 
     public interface IUserService : IService
     {
-        OperationResponse Register(UserDTO user, AccountDTO account);
+        OperationResult Register(UserDTO user, AccountDTO account);
 
-        AuthorizeResponse Authorize(AccountDTO account);
+        AuthorizeResult Authorize(AccountDTO account);
 
-        GetUserInfoResponse GetUserById(long userId);
+        GetUserInfoResult GetUserById(long userId);
 
-        OperationResponse JoinToCourse(long userId, long courseId);
+        OperationResult JoinToCourse(long userId, long courseId);
 
-        CompletedCourseResponse AddCompletedCourse(long userId, long courseId);
+        CompletedCourseResult AddCompletedCourse(long userId, long courseId);
 
-        GetCoursesResponse GetJoinedCourses(long userId);
+        GetCoursesResult GetJoinedCourses(long userId);
 
-        GetCoursesResponse GetCompletedCourses(long userId);
+        GetCoursesResult GetCompletedCourses(long userId);
 
-        GetMaterialsResponse GetNextMaterial(long userId, long courseId);
+        GetMaterialsResult GetNextMaterial(long userId, long courseId);
     }
 }

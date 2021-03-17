@@ -1,11 +1,12 @@
 ﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    using EducationPortal.BLL.Response;
-
-    public interface ICommand<T>
-        where T : IResponse
+    public interface ICommand
     {
-        T Response { get; }
+        string Name { get; }
+
+        string Description { get; }
+
+        int ParamsCount { get; }
 
         void Execute();
     }

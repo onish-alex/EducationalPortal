@@ -5,10 +5,10 @@
 
     public interface IMaterialService : IService
     {
-        AddMaterialResponse AddMaterial(MaterialDTO material);
+        AddMaterialResult AddMaterial(MaterialDTO material);
 
-        GetMaterialsResponse GetAllMaterials();
+        GetMaterialsResult GetAllMaterials();
 
-        OperationResponse CheckMaterialExisting(long materialId);
+        OperationResult CheckMaterialExisting(long materialId);
     }
 }

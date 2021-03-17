@@ -1,26 +1,54 @@
 ﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    using EducationPortal.BLL.Response;
+    using System;
     using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
 
-    public class GetNextMaterialCommand : ICommand<GetMaterialsResponse>
+    public class GetNextMaterialCommand : ICommand
     {
-        private IUserService reciever;
-        private long courseId;
-        private long userId;
+        private ClientData client;
+        private IUserService userService;
 
-        public GetNextMaterialCommand(IUserService reciever, long userId, long courseId)
+        public GetNextMaterialCommand(IUserService userService, ClientData client)
         {
-            this.reciever = reciever;
-            this.courseId = courseId;
-            this.userId = userId;
+            this.client = client;
+            this.userService = userService;
         }
 
-        public GetMaterialsResponse Response { get; private set; }
+        public string Name => "nextstep";
+
+        public string Description => "nextstep\nПерейти к следующему материалу курса\n";
+
+        public int ParamsCount => 0;
 
         public void Execute()
         {
-            this.Response = this.reciever.GetNextMaterial(this.userId, this.courseId);
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse == null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorNoSelectedCourse);
+                return;
+            }
+
+            var response = this.userService.GetNextMaterial(this.client.Id, this.client.SelectedCourse.Id);
+
+            if (!response.IsSuccessful)
+            {
+                Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
+                return;
+            }
+
+            foreach (var item in response.Materials)
+            {
+                Console.WriteLine(ConsoleMessages.OutputNewMaterialLearned);
+                OutputHelper.PrintSingleMaterial(item);
+            }
         }
     }
 }

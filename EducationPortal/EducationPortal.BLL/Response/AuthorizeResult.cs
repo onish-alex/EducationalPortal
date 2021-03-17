@@ -2,7 +2,7 @@
 {
     using EducationPortal.BLL.DTO;
 
-    public class AuthorizeResponse : OperationResponse
+    public class AuthorizeResult : OperationResult
     {
         public long Id { get; set; }
 
