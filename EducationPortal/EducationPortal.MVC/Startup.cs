@@ -1,5 +1,7 @@
 namespace EducationPortal.MVC
 {
+    using System.Linq;
+    using System.Threading.Tasks;
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers.Profiles;
     using EducationPortal.BLL.Services;
@@ -27,8 +29,15 @@ namespace EducationPortal.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddControllersWithViews().AddNewtonsoftJson();
+
+            services.AddSwaggerGen(x =>
+            {
+                x.CustomSchemaIds(type => type.FullName);
+                x.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+            });
+
+            services.AddHttpContextAccessor();
 
             services.AddBLLDependencies(this.Configuration);
 
@@ -46,13 +55,28 @@ namespace EducationPortal.MVC
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IMaterialService, MaterialService>();
 
-            services.AddScoped<IResourceHelper, ResourceHelper>();
-            services.AddScoped<ISignInManager, SignInManager>();
+            services.AddSingleton<IResourceHelper, ResourceHelper>();
+            services.AddSingleton<ISignInManager, SignInManager>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = new PathString("/Account/Login");
+                    options.Events.OnRedirectToLogin = context =>
+                    {
+                        var isFromApi = context.Request.Path.StartsWithSegments(new PathString("/api"));
+
+                        if (isFromApi)
+                        {
+                            context.Response.StatusCode = 401;
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = 303;
+                            context.Response.Headers["Location"] = "/Account/Login";
+                        }
+
+                        return Task.CompletedTask;
+                    };
                 });
         }
 
@@ -76,6 +100,12 @@ namespace EducationPortal.MVC
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "EducationPortal V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {

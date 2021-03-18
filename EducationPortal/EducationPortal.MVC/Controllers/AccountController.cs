@@ -8,6 +8,7 @@
     using EducationPortal.MVC.Models;
     using EducationPortal.MVC.Utilities;
     using FluentValidation;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     public class AccountController : Controller
@@ -124,6 +125,7 @@
             });
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult Cabinet()
         {

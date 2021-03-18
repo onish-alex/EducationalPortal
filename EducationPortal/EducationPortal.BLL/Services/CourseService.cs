@@ -206,7 +206,8 @@
 
             var skillToRemove = await this.skillRepository.GetByIdAsync(skillId);
 
-            if (skillToRemove == null)
+            if (skillToRemove == null
+             || !course.Skills.Contains(skillToRemove))
             {
                 result.MessageCode = "RemoveSkillNotFound";
                 result.IsSuccessful = false;
