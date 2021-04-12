@@ -8,6 +8,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVDemo", "CSVDemo\CSVDemo.csproj", "{95037E98-A255-4E4F-830A-54410F5A4F4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqTask", "LinqTask\LinqTask.csproj", "{5A68376C-C365-4C8E-9C54-BA3DA5406A06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BullsAndCows", "BullsAndCows\BullsAndCows.csproj", "{2E4A40C2-4D31-4C75-8464-C435DD49F9DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVDemo", "CSVDemo\CSVDemo.csproj", "{95037E98-A255-4E4F-830A-54410F5A4F4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

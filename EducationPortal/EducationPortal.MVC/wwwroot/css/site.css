@@ -1,0 +1,139 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: gray;
+}
+
+#course-delete-confirm,
+#create-material-area,
+#create-material-submit {
+    display: none;
+}
+
+a.dropdown-toggle {
+    color: #343a40 !important;
+}
+
+a.dropdown-toggle:hover {
+    color: black !important;
+}
+
+.cabinet-content a+p {
+    display: inline;
+}
+
+.course-card {
+    height: 250px;
+    padding: 0;
+}
+
+.course-description {
+    margin-top: 1em;
+    font-size: 14pt;
+}
+
+.course-details div {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    border: solid 1px blue;
+    text-align: center;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
+.skill-list {
+    font-weight: bold;
+}
+
+.skill-to-delete {
+    font-size: 14pt;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.5);
+    margin-top: 0.25em;
+}
+
+.course-material-item:hover,
+.global-material-item:hover {
+    background-color: lightblue;
+}
+
+.course-material-item:active,
+.global-material-item:active {
+    background-color: dodgerblue;
+}
+
+

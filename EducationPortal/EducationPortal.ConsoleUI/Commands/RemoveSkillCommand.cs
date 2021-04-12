@@ -1,33 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.ConsoleUI.Validation;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class RemoveSkillCommand : ICommand<OperationResponse>
+    using System;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
+
+    public class RemoveSkillCommand : ICommand
     {
-        public OperationResponse Response { get; private set; }
+        private ICourseService courseService;
+        private ClientData client;
 
-        private ICourseService reciever;
-        private long courseId;
-        private long userId;
-        private SkillDTO skill;
-
-        public RemoveSkillCommand(ICourseService reciever, long userId, long courseId, SkillDTO skill)
+        public RemoveSkillCommand(ICourseService courseService, ClientData client)
         {
-            this.reciever = reciever;
-            this.courseId = courseId;
-            this.userId = userId;
-            this.skill = skill;
+            this.courseService = courseService;
+            this.client = client;
         }
+
+        public string Name => "removeskill";
+
+        public string Description => "removeskill\nУдаление умения из выбранного курса\n";
+
+        public int ParamsCount => 1;
 
         public void Execute()
         {
-            Response = reciever.RemoveSkill(userId, courseId, skill);                                         
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse == null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorNoSelectedCourse);
+                return;
+            }
+
+            var checkResponse = this.courseService.CanEditCourse(this.client.Id, this.client.SelectedCourse.Id);
+
+            if (!checkResponse.IsSuccessful)
+            {
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
+                return;
+            }
+
+            var skill = new SkillDTO()
+            {
+                Name = this.client.InputBuffer[0],
+            };
+
+            var removeSkillResponse = this.courseService.RemoveSkill(this.client.Id, this.client.SelectedCourse.Id, skill);
+            Console.WriteLine(ResourceHelper.GetMessageString(removeSkillResponse.MessageCode));
         }
     }
 }

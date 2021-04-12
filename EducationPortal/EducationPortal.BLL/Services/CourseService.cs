@@ -1,297 +1,626 @@
-﻿using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using EducationPortal.DAL.Repository;
-using EducationPortal.DAL.Entities;
-using AutoMapper;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
+    using System;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Threading.Tasks;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Mappers;
+    using EducationPortal.BLL.Results;
+    using EducationPortal.BLL.Utilities;
+    using EducationPortal.DAL.Entities.EF;
+    using EducationPortal.DAL.Repository.Base;
+    using FluentValidation;
+
     public class CourseService : ICourseService
     {
-        private IRepository<Course> courses;
-        private IRepository<Skill> skills;
-        private IRepository<Material> materials;
+        private IRepository<Course> courseRepository;
+        private IRepository<Skill> skillRepository;
+        private IRepository<Material> materialRepository;
+        private IRepository<User> userRepository;
+        private IMapper mapper;
+        private IValidator<CourseDTO> courseValidator;
+        private IValidator<SkillDTO> skillValidator;
 
-        private Mapper courseMapper;
-        private Mapper skillMapper;
-
-        public string Name => "Course";
-        
-        public CourseService(IRepository<Course> courses, 
-                             IRepository<Skill> skills,
-                             IRepository<Material> materials)
+        public CourseService(
+            IRepository<Course> courseRepository,
+            IRepository<Skill> skillRepository,
+            IRepository<Material> materialRepository,
+            IRepository<User> userRepository,
+            IMapper mapper,
+            IValidator<CourseDTO> courseValidator,
+            IValidator<SkillDTO> skillValidator)
         {
-            this.courses = courses;
-            this.skills = skills;
-            this.materials = materials;
-
-            var skillConfig = new MapperConfiguration(cfg => cfg.CreateMap<SkillDTO, Skill>().ReverseMap());
-            this.skillMapper = new Mapper(skillConfig);
-
-            var courseConfig = new MapperConfiguration(cfg => 
-            {
-                cfg.CreateMap<CourseDTO, Course>()
-                .ForMember(dest => dest.SkillIds,
-                           opt => opt.MapFrom(dto => skills.Find(skill => skill.Name == dto.Name).Select(skill => skill.Id).ToArray()));
-
-                cfg.CreateMap<Course, CourseDTO>()
-                .ForMember(dest => dest.Skills, 
-                           opt => opt.MapFrom(course => skillMapper.Map<IEnumerable<SkillDTO>>(skills.Find(a => course.SkillIds.Contains(a.Id)))));
-            });
-            this.courseMapper = new Mapper(courseConfig);
+            this.courseRepository = courseRepository;
+            this.skillRepository = skillRepository;
+            this.materialRepository = materialRepository;
+            this.userRepository = userRepository;
+            this.mapper = mapper;
+            this.courseValidator = courseValidator;
+            this.skillValidator = skillValidator;
         }
 
-        public OperationResponse AddCourse(CourseDTO course)
+        public async Task<OperationResult> AddCourse(CourseDTO course)
         {
-            var response = new OperationResponse();
-            var courseToAdd = courseMapper.Map<Course>(course);
-            courseToAdd.MaterialIds = new long[0];
-            courseToAdd.SkillIds = new long[0];
-            courses.Create(courseToAdd);
-            courses.Save();
-            response.Message = "Новый курс успешно создан!";
-            return response;
-        }
-
-        public GetCoursesResponse GetUserCourses(long userId)
-        {
-            var response = new GetCoursesResponse();
-
-            var userCourses = courses.Find(course => course.CreatorId == userId);
-
-            response.Courses = courseMapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(userCourses);
-
-            return response;
-        }
-
-        public GetCoursesResponse GetAllCourses()
-        {
-            var response = new GetCoursesResponse();
-
-            var userCourses = courses.GetAll();
-
-            response.Courses = courseMapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(userCourses);
-
-            return response;
-        }
-
-        public OperationResponse EditCourse(long userId, CourseDTO newCourseInfo)
-        {
-            var response = new OperationResponse();
-
-            var courseToUpdate = courses.Find(course => course.CreatorId == userId
-                                                     && newCourseInfo.Id == course.Id).SingleOrDefault();
-
-            if (courseToUpdate == null)
-            {
-                response.Message = "Вы не являетесь автором данного курса";
-                response.IsSuccessful = false;
-                return response;
-            }
-
-            courseToUpdate.Name = newCourseInfo.Name;
-            courseToUpdate.Description = newCourseInfo.Description;
-            courses.Update(courseToUpdate);
-            courses.Save();
-            response.Message = "Курс успешно обновлен";
-            response.IsSuccessful = true;
-
-            return response;
-        }
-
-        public OperationResponse AddSkill(long userId, long courseId, SkillDTO skill)
-        {
-            var response = CanEditCourse(userId, courseId);
-
-            if (!response.IsSuccessful)
-            {
-                return response;
-            }
-
-            var course = courses.GetById(courseId);
-
-            var skillToAdd = skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
-
-            if (skillToAdd == null)
-            {
-                skillToAdd = skillMapper.Map<SkillDTO, Skill>(skill);
-                skills.Create(skillToAdd);
-                skills.Save();
-            } 
-            else if (course.SkillIds.Contains(skillToAdd.Id))
-            {
-                response.IsSuccessful = false;
-                response.Message = "Курс уже содержит такое умение!";
-                return response;
-            }
-
-            course.SkillIds = course.SkillIds.Append(skillToAdd.Id).ToArray();
-
-            courses.Update(course);
-            courses.Save();
-
-            response.IsSuccessful = true;
-            response.Message = "Умение успешно добавлено!";
-
-            return response;
-        }
-
-        public OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill)
-        {
-            var response = CanEditCourse(userId, courseId);
-
-            if (!response.IsSuccessful)
-            {
-                return response;
-            }
-
-            var course = courses.GetById(courseId);
-
-            var skillToRemove = skills.Find(sk => sk.Name == skill.Name).SingleOrDefault();
-
-            if (skillToRemove == null 
-             || !course.SkillIds.Contains(skillToRemove.Id))
-            {
-                response.Message = "У выбранного курса нет указанного умения!";
-                response.IsSuccessful = false;
-                return response;
-            }
-
-            course.SkillIds = course.SkillIds.Except(Enumerable.Repeat(skillToRemove.Id, 1)).ToArray();
-
-            courses.Update(course);
-            courses.Save();
-
-            response.IsSuccessful = true;
-            response.Message = "Умение успешно удалено!";
-
-            return response;
-        }
-
-        public OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId)
-        {
-            var response = CanEditCourse(userId, courseId);
-
-            if (!response.IsSuccessful)
-            {
-                return response;
-            }
-
-            var course = courses.GetById(courseId);
-
-            if (materials.GetById(materialId) == null)
-            {
-                response.Message = "Данного материала не существует!";
-                response.IsSuccessful = false;
-                return response;
-            }
-
-            if (course.MaterialIds.Contains(materialId))
-            {
-                response.Message = "Данный курс уже содержит этот материал!";
-                response.IsSuccessful = false;
-                return response;
-            }
-
-            course.MaterialIds = course.MaterialIds
-                                       .Append(materialId)
-                                       .ToArray();
-
-            courses.Update(course);
-            courses.Save();
-            
-            response.IsSuccessful = true;
-            response.Message = "Материал успешно добавлен к курсу!";
-
-            return response;
-        }
-
-        public OperationResponse CanEditCourse(long userId, long courseId)
-        {
-            var response = new OperationResponse();
-
-            var course = courses.GetById(courseId);
+            var result = new OperationResult("AddCourseSuccess", true);
 
             if (course == null)
             {
-                response.Message = "Указанного курса не существует!";
-                response.IsSuccessful = false;
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNull";
+                return result;
+            }
+
+            var validationResult = this.courseValidator.Validate(course);
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
+
+            if (this.courseRepository.Find(x => x.Name == course.Name).SingleOrDefault() != null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseAlreadyExist";
+                return result;
+            }
+
+            var courseToAdd = this.mapper.Map<CourseDTO, Course>(course);
+
+            await this.courseRepository.CreateAsync(courseToAdd);
+            await this.courseRepository.SaveAsync();
+
+            course.Id = courseToAdd.Id;
+
+            return result;
+        }
+
+        public GetCoursesResult GetUserCourses(long userId)
+        {
+            var result = new GetCoursesResult();
+
+            var userCourses = this.courseRepository.Find(
+                course => course.CreatorId == userId,
+                course => course.Skills);
+
+            result.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
+            return result;
+        }
+
+        public GetCoursesResult GetAllCourses()
+        {
+            var result = new GetCoursesResult();
+
+            var userCourses = this.courseRepository.GetAll(course => course.Skills);
+            result.Courses = this.mapper.Map<Course, CourseDTO>(userCourses);
+
+            return result;
+        }
+
+        public async Task<OperationResult> EditCourse(long userId, CourseDTO newCourseInfo)
+        {
+            if (newCourseInfo == null)
+            {
+                return new OperationResult("CourseNull", false);
+            }
+
+            var result = await this.CanEditCourse(userId, newCourseInfo.Id);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var validationResult = this.courseValidator.Validate(newCourseInfo);
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
+
+            var courseToUpdate = await this.courseRepository.GetByIdAsync(newCourseInfo.Id);
+            courseToUpdate.Name = newCourseInfo.Name;
+            courseToUpdate.Description = newCourseInfo.Description;
+
+            this.courseRepository.Update(courseToUpdate);
+            await this.courseRepository.SaveAsync();
+
+            result.MessageCode = "EditCourseSuccess";
+            result.IsSuccessful = true;
+
+            return result;
+        }
+
+        public async Task<OperationResult> AddSkill(long userId, long courseId, SkillDTO skill)
+        {
+            if (skill == null)
+            {
+                return new OperationResult("SkillNull", false);
+            }
+
+            var result = await this.CanEditCourse(userId, courseId);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var validationResult = this.skillValidator.Validate(skill, "Base", "Detail");
+
+            if (!validationResult.IsValid)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = validationResult.Errors[0].ErrorCode;
+                return result;
+            }
+
+            var course = this.courseRepository.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
+
+            var skillToAdd = this.skillRepository.Find(sk => sk.Name.ToLower() == skill.Name.ToLower()).SingleOrDefault();
+
+            if (skillToAdd == null)
+            {
+                skillToAdd = this.mapper.Map<SkillDTO, Skill>(skill);
+                await this.skillRepository.CreateAsync(skillToAdd);
+                await this.skillRepository.SaveAsync();
+                skill.Id = skillToAdd.Id;
+            }
+            else if (course.Skills.Contains(skillToAdd))
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "AddSkillAlreadyExists";
+                return result;
+            }
+
+            course.Skills.Add(skillToAdd);
+
+            this.courseRepository.Update(course);
+            await this.courseRepository.SaveAsync();
+
+            result.IsSuccessful = true;
+            result.MessageCode = "AddSkillSuccess";
+
+            return result;
+        }
+
+        public async Task<OperationResult> RemoveSkill(long userId, long courseId, long skillId)
+        {
+            var result = await this.CanEditCourse(userId, courseId);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var course = this.courseRepository.Find(
+                course => course.Id == courseId,
+                course => course.Skills)
+                .SingleOrDefault();
+
+            var skillToRemove = await this.skillRepository.GetByIdAsync(skillId);
+
+            if (skillToRemove == null
+             || !course.Skills.Contains(skillToRemove))
+            {
+                result.MessageCode = "RemoveSkillNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            course.Skills.Remove(skillToRemove);
+            this.courseRepository.Update(course);
+            await this.courseRepository.SaveAsync();
+
+            result.IsSuccessful = true;
+            result.MessageCode = "RemoveSkillSuccess";
+
+            return result;
+        }
+
+        public async Task<OperationResult> AddMaterialToCourse(long userId, long courseId, long materialId)
+        {
+            var result = await this.CanEditCourse(userId, courseId);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var course = this.courseRepository.Find(
+                            course => course.Id == courseId,
+                            course => course.Materials)
+                            .SingleOrDefault();
+
+            if (course.Materials.Any(x => x.Id == materialId))
+            {
+                result.MessageCode = "AddMaterialToCourseAlreadyExists";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            var material = await this.materialRepository.GetByIdAsync(materialId);
+
+            if (material == null)
+            {
+                result.MessageCode = "MaterialNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            course.Materials.Add(material);
+
+            this.courseRepository.Update(course);
+            await this.courseRepository.SaveAsync();
+
+            result.IsSuccessful = true;
+            result.MessageCode = "AddMaterialToCourseSuccess";
+
+            return result;
+        }
+
+        public async Task<OperationResult> CanEditCourse(long userId, long courseId)
+        {
+            var result = new OperationResult();
+
+            var course = await this.courseRepository.GetByIdAsync(courseId);
+
+            if (course == null)
+            {
+                result.MessageCode = "CourseNotFound";
+                result.IsSuccessful = false;
+                return result;
             }
 
             if (course.CreatorId != userId)
             {
-                response.Message = "Вы не являетесь автором данного курса";
-                response.IsSuccessful = false;
-                return response;
+                result.MessageCode = "CanEditCourseNotAnAuthor";
+                result.IsSuccessful = false;
+                return result;
             }
 
-            response.IsSuccessful = true;
-            return response;
+            result.IsSuccessful = true;
+            return result;
         }
 
-        public OperationResponse CanJoinCourse(long userId, long courseId)
+        public GetCourseStatusResult GetCourseStatus(long courseId, long userId)
         {
-            var response = new OperationResponse();
+            var result = new GetCourseStatusResult();
 
-            var course = courses.GetById(courseId);
+            var course = this.courseRepository.Find(
+                course => course.Id == courseId,
+                course => course.CompletedUsers,
+                course => course.JoinedUsers,
+                course => course.Creator,
+                course => course.Skills,
+                course => course.Materials)
+                .SingleOrDefault();
 
             if (course == null)
             {
-                response.IsSuccessful = false;
-                response.Message = "Данного курса не существует!";
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotFound";
+                return result;
             }
 
-            //if (course.CreatorId == userId)
-            //{
-            //    response.IsSuccessful = false;
-            //    response.Message = "Вы не можете проходить собственный курс!";
-            //    return response;
-            //} 
+            if (course.CreatorId == userId)
+            {
+                result.IsCreator = true;
+            }
 
-            response.IsSuccessful = true;
-            return response;
+            if (course.CompletedUsers.Any(x => x.UserId == userId))
+            {
+                result.IsCompleted = true;
+            }
+
+            if (course.JoinedUsers.Any(x => x.UserId == userId))
+            {
+                result.IsJoined = true;
+            }
+
+            var completnessResult = this.CheckCourseCompletness(courseId, userId);
+
+            if (completnessResult.IsSuccessful)
+            {
+                result.IsReadyToComplete = true;
+            }
+
+            result.Name = course.Name;
+            result.Description = course.Description;
+            result.CreatorName = course.Creator.Name;
+            result.SkillNames = this.mapper.Map<Skill, SkillDTO>(course.Skills).Select(x => x.Name);
+            result.HasMaterials = course.Materials.Count != 0;
+            result.IsSuccessful = true;
+
+            return result;
         }
 
-        public GetCoursesResponse GetByIds(long[] ids)
+        public async Task<GetCoursesResult> GetGlobalCourses(int page, int pageSize)
         {
-            var response = new GetCoursesResponse();
+            var result = new GetCoursesResult();
 
-            var coursesByIds = courses.Find(x => ids.Contains(x.Id));
+            if (pageSize <= 0)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
 
-            response.Courses = courseMapper.Map<IEnumerable<CourseDTO>>(coursesByIds);
-            response.IsSuccessful = response.Courses.Count() != 0;
+            var maxPages = (int)Math.Ceiling(await this.courseRepository.CountAsync() / (double)pageSize);
 
-            return response;
+            if (maxPages == 0)
+            {
+                maxPages++;
+            }
+
+            if (page < 1 || page > maxPages)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            var userCourses = this.courseRepository.GetPage(page, pageSize, course => course.Skills);
+            var courseDtos = this.mapper.Map<Course, CourseDTO>(userCourses);
+
+            result.Courses = new PaginatedList<CourseDTO>(courseDtos, page, pageSize, maxPages);
+            result.IsSuccessful = true;
+
+            return result;
         }
 
-        public OperationResponse CanCompleteCourse(long courseId, long[] learnedMaterialIds)
+        public GetSingleCourseResult GetCourse(long id)
         {
-            var response = new GetCoursesResponse();
+            var result = new GetSingleCourseResult();
 
-            var course = courses.GetById(courseId);
+            var course = this.courseRepository.Find(
+                x => x.Id == id,
+                x => x.Skills)
+                .SingleOrDefault();
 
             if (course == null)
             {
-                response.IsSuccessful = false;
-                response.Message = "Данного курса не существует!";
-                return response;
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotFound";
+                return result;
             }
 
-            if (course.MaterialIds.Any(a => !learnedMaterialIds.Contains(a)))
-            {
-                response.IsSuccessful = false;
-                response.Message = "Не все материалы данного курса изучены!";
-            }
+            result.Course = this.mapper.Map<Course, CourseDTO>(course);
+            result.IsSuccessful = true;
 
-            response.IsSuccessful = true;
-
-            return response;
+            return result;
         }
 
+        public async Task<OperationResult> DeleteCourse(long userId, long courseId)
+        {
+            var result = await this.CanEditCourse(userId, courseId);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var courseToDelete = await this.courseRepository.GetByIdAsync(courseId);
+
+            if (courseToDelete == null)
+            {
+                result.MessageCode = "CourseNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            await this.courseRepository.DeleteAsync(courseId);
+            await this.courseRepository.SaveAsync();
+            result.IsSuccessful = true;
+
+            return result;
+        }
+
+        public async Task<GetCoursesResult> GetUserCourses(int page, int pageSize, long userId)
+        {
+            var result = new GetCoursesResult();
+
+            if (pageSize <= 0)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            Expression<Func<Course, bool>> creatorPredicate = course => course.CreatorId == userId;
+
+            var maxPages = (int)Math.Ceiling(await this.courseRepository.CountAsync(creatorPredicate) / (double)pageSize);
+
+            if (maxPages == 0)
+            {
+                maxPages++;
+            }
+
+            if (page < 1 || page > maxPages)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            var userCourses = this.courseRepository.GetPage(
+                page,
+                pageSize,
+                creatorPredicate,
+                course => course.Skills);
+
+            var courseDtos = this.mapper.Map<Course, CourseDTO>(userCourses);
+
+            result.Courses = new PaginatedList<CourseDTO>(courseDtos, page, pageSize, maxPages);
+            result.IsSuccessful = true;
+
+            return result;
+        }
+
+        public async Task<GetCoursesResult> GetJoinedCourses(int page, int pageSize, long userId)
+        {
+            var result = new GetCoursesResult();
+
+            if (pageSize <= 0)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            Expression<Func<Course, bool>> joinedPredicate = course => course.JoinedUsers.Any(x => x.UserId == userId);
+
+            var maxPages = (int)Math.Ceiling(await this.courseRepository.CountAsync(joinedPredicate) / (double)pageSize);
+
+            if (maxPages == 0)
+            {
+                maxPages++;
+            }
+
+            if (page < 1 || page > maxPages)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            var joinedCourses = this.courseRepository.GetPage(
+                page,
+                pageSize,
+                joinedPredicate,
+                course => course.Skills,
+                course => course.JoinedUsers);
+
+            var courseDtos = this.mapper.Map<Course, CourseDTO>(joinedCourses);
+
+            result.Courses = new PaginatedList<CourseDTO>(courseDtos, page, pageSize, maxPages);
+            result.IsSuccessful = true;
+
+            return result;
+        }
+
+        public async Task<GetCoursesResult> GetCompletedCourses(int page, int pageSize, long userId)
+        {
+            var result = new GetCoursesResult();
+
+            if (pageSize <= 0)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            Expression<Func<Course, bool>> completedPredicate = course => course.CompletedUsers.Any(x => x.UserId == userId);
+
+            var maxPages = (int)Math.Ceiling(await this.courseRepository.CountAsync(completedPredicate) / (double)pageSize);
+
+            if (maxPages == 0)
+            {
+                maxPages++;
+            }
+
+            if (page < 1 || page > maxPages)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "WrongPage";
+                return result;
+            }
+
+            var completedCourses = this.courseRepository.GetPage(
+                page,
+                pageSize,
+                completedPredicate,
+                course => course.Skills,
+                course => course.CompletedUsers);
+
+            var courseDtos = this.mapper.Map<Course, CourseDTO>(completedCourses);
+
+            result.Courses = new PaginatedList<CourseDTO>(courseDtos, page, pageSize, maxPages);
+            result.IsSuccessful = true;
+
+            return result;
+        }
+
+        public OperationResult CheckCourseCompletness(long courseId, long userId)
+        {
+            var result = new OperationResult();
+
+            var course = this.courseRepository.Find(
+                course => course.Id == courseId,
+                course => course.Materials)
+                .SingleOrDefault();
+
+            if (course == null)
+            {
+                result.MessageCode = "CourseNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            var user = this.userRepository.Find(
+                user => user.Id == userId,
+                user => user.LearnedMaterials)
+                .SingleOrDefault();
+
+            if (user == null)
+            {
+                result.MessageCode = "UserNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            var currentCourseLearnedMaterials = user.LearnedMaterials.Intersect(course.Materials);
+
+            if (course.Materials.All(x => currentCourseLearnedMaterials.Contains(x)))
+            {
+                result.IsSuccessful = true;
+            }
+
+            return result;
+        }
+
+        public async Task<OperationResult> RemoveMaterialFromCourse(long userId, long courseId, long materialId)
+        {
+            var result = await this.CanEditCourse(userId, courseId);
+
+            if (!result.IsSuccessful)
+            {
+                return result;
+            }
+
+            var course = this.courseRepository.Find(
+                            course => course.Id == courseId,
+                            course => course.Materials)
+                            .SingleOrDefault();
+
+            var material = await this.materialRepository.GetByIdAsync(materialId);
+
+            if (material == null)
+            {
+                result.MessageCode = "MaterialNotFound";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            if (!course.Materials.Contains(material))
+            {
+                result.MessageCode = "RemoveMaterialFromCourseNotContain";
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            course.Materials.Remove(material);
+            this.courseRepository.Update(course);
+            await this.courseRepository.SaveAsync();
+
+            result.IsSuccessful = true;
+            return result;
+        }
     }
 }

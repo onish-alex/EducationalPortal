@@ -1,36 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class EditCourseCommand : ICommand<OperationResponse>
+    using System;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.BLL.Validation;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
+
+    public class EditCourseCommand : ICommand
     {
-        public OperationResponse Response { get; private set; }
+        private ICourseService courseService;
+        private ClientData client;
+        private IValidator<CourseDTO> courseValidator;
 
-        private ICourseService reciever;
-        private CourseDTO course;
-        private long userId;
-        
-        private CourseDataValidator validator;
-
-        public EditCourseCommand(ICourseService reciever, CourseDTO course, long userId)
+        public EditCourseCommand(ICourseService courseService, IValidator<CourseDTO> courseValidator, ClientData client)
         {
-            this.reciever = reciever;
-            this.course = course;
-            this.userId = userId;
-            this.validator = new CourseDataValidator(course);
+            this.courseService = courseService;
+            this.client = client;
+            this.courseValidator = courseValidator;
         }
+
+        public string Name => "editcourse";
+
+        public string Description => "editcourse\nРедактирование выбранного курса\n";
+
+        public int ParamsCount => 0;
 
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.EditCourse(userId, course)
-                                                  : new OperationResponse() { Message = validationResult.Message };
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse == null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorNoSelectedCourse);
+                return;
+            }
+
+            var checkResponse = this.courseService.CanEditCourse(this.client.Id, this.client.SelectedCourse.Id);
+
+            if (!checkResponse.IsSuccessful)
+            {
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
+                return;
+            }
+
+            Console.WriteLine(ConsoleMessages.InputCourseName);
+            var name = Console.ReadLine();
+            Console.WriteLine(ConsoleMessages.InputCourseDescription);
+            var description = Console.ReadLine();
+
+            var course = new CourseDTO()
+            {
+                Name = name,
+                Description = description,
+                CreatorId = this.client.SelectedCourse.CreatorId,
+                Id = this.client.SelectedCourse.Id,
+            };
+
+            var validationResult = this.courseValidator.Validate(course);
+
+            if (!validationResult.IsValid)
+            {
+                var errorCode = validationResult.Errors[0].ErrorCode;
+                OutputHelper.PrintValidationError(errorCode);
+                return;
+            }
+
+            var response = this.courseService.EditCourse(this.client.Id, course);
+            Console.WriteLine(ResourceHelper.GetMessageString(response.MessageCode));
+
+            if (response.IsSuccessful)
+            {
+                this.client.ConsoleStatePrefix = ConsoleMessages.CoursePrefix + name;
+                this.client.SelectedCourse.Name = name;
+                this.client.SelectedCourse.Description = description;
+            }
         }
     }
 }

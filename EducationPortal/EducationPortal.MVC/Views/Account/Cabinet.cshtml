@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Кабинет пользователя";
+}
+
+@using EducationPortal.BLL.Results;
+@model GetUserInfoResult
+
+<div class="container">
+    <div class="row justify-content-center mb-4">
+        <h2>@string.Format(CommonMessages.OutputProfileHeader, Model.User.Name)</h2>
+    </div>
+    <div class="text-center cabinet-content">
+        <div class="row">
+            <div class="col-4">
+                <p>@string.Format(CommonMessages.OutputProfileJoinedCourses, string.Empty)</p>
+                <ul>
+                    @foreach (var item in Model.JoinedCoursesProgress)
+                    {
+                        <li>
+                            <a asp-controller="Course"
+                               asp-action="Index"
+                               asp-route-id="@item.Key.Id">@item.Key.Name</a>
+                            <p>- @item.Value%</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="col-4 border-left border-right border-info">
+                <p>@string.Format(CommonMessages.OutputProfileCompletedCourses, string.Empty)</p>
+                <ul>
+                    @foreach (var item in Model.CompletedCourses)
+                    {
+                        <li>
+                            <a asp-controller="Course"
+                               asp-action="Index"
+                               asp-route-id="@item.Id">@item.Name</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="col-4">
+                <p>@string.Format(CommonMessages.OutputProfileSkills, string.Empty)</p>
+                <ul>
+                    @foreach (var item in Model.SkillLevels)
+                    {
+                        <li>
+                            <p>@item.Key.Name - @item.Value @CommonMessages.LabelLevel</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

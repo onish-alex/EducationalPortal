@@ -7,5 +7,5 @@
         Course,
         Material,
         Skill,
-    };
+    }
 }

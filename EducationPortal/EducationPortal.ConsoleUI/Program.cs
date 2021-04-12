@@ -1,26 +1,37 @@
-﻿using EducationPortal.BLL.Services;
-using EducationPortal.BLL;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace EducationPortal.ConsoleUI
+﻿namespace EducationPortal.ConsoleUI
 {
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.BLL.Settings;
+    using EducationPortal.BLL.Validation;
+    using EducationPortal.ConsoleUI.Commands;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+
     public class Program
     {
         public static void Main(string[] args)
         {
             var service = new ServiceCollection();
-            service.Add(DependencySettings.GetDICollection());
-            service.TryAddEnumerable(new[]
-                {
-                    ServiceDescriptor.Singleton<IService, UserService>(),
-                    ServiceDescriptor.Singleton<IService, CourseService>(),
-                    ServiceDescriptor.Singleton<IService, MaterialService>(),
-                });
+
+            service.AddBLLDependencies();
+
+            service.AddSingleton<IUserService, UserService>();
+            service.AddSingleton<ICourseService, CourseService>();
+            service.AddSingleton<IMaterialService, MaterialService>();
+
+            service.AddSingleton<IValidator<UserDTO>, UserValidator>(provider => new UserValidator());
+            service.AddSingleton<IValidator<MaterialDTO>, MaterialValidator>();
+            service.AddSingleton<IValidator<AccountDTO>, AccountValidator>(provider => new AccountValidator());
+            service.AddSingleton<IValidator<SkillDTO>, SkillValidator>();
+            service.AddSingleton<IValidator<CourseDTO>, CourseValidator>();
+
+            service.AddSingleton<ClientData>();
+            service.AddCommands();
 
             var provider = service.BuildServiceProvider();
 
-            var handler = new CommandManager(provider.GetServices<IService>());
+            var handler = new CommandManager(provider.GetService<ClientData>(), provider.GetServices<ICommand>());
             handler.Run();
         }
     }

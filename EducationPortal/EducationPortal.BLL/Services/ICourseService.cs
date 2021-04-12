@@ -1,33 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
-    public interface ICourseService : IService
+    using System.Threading.Tasks;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Results;
+
+    public interface ICourseService
     {
-        OperationResponse AddCourse(CourseDTO course);
+        Task<OperationResult> AddCourse(CourseDTO course);
 
-        GetCoursesResponse GetUserCourses(long userId);
+        GetCoursesResult GetUserCourses(long userId);
 
-        GetCoursesResponse GetAllCourses();
+        GetCoursesResult GetAllCourses();
 
-        OperationResponse EditCourse(long userId, CourseDTO newCourseInfo);
+        Task<OperationResult> EditCourse(long userId, CourseDTO newCourseInfo);
 
-        OperationResponse AddSkill(long userId, long courseId, SkillDTO skill);
+        Task<OperationResult> AddSkill(long userId, long courseId, SkillDTO skill);
 
-        OperationResponse RemoveSkill(long userId, long courseId, SkillDTO skill);
-        
-        OperationResponse AddMaterialToCourse(long userId, long courseId, long materialId);
+        Task<OperationResult> RemoveSkill(long userId, long courseId, long skillId);
 
-        OperationResponse CanEditCourse(long userId, long courseId);
+        Task<OperationResult> AddMaterialToCourse(long userId, long courseId, long materialId);
 
-        OperationResponse CanJoinCourse(long userId, long courseId);
-        
-        GetCoursesResponse GetByIds(long[] ids);
+        Task<OperationResult> CanEditCourse(long userId, long courseId);
 
-        OperationResponse CanCompleteCourse(long courseId, long[] learnedMaterialIds);
+        GetCourseStatusResult GetCourseStatus(long courseId, long userId);
+
+        Task<GetCoursesResult> GetGlobalCourses(int page, int pageSize);
+
+        Task<GetCoursesResult> GetUserCourses(int page, int pageSize, long userId);
+
+        Task<GetCoursesResult> GetJoinedCourses(int page, int pageSize, long userId);
+
+        Task<GetCoursesResult> GetCompletedCourses(int page, int pageSize, long userId);
+
+        GetSingleCourseResult GetCourse(long id);
+
+        Task<OperationResult> DeleteCourse(long userId, long courseId);
+
+        OperationResult CheckCourseCompletness(long courseId, long userId);
+
+        Task<OperationResult> RemoveMaterialFromCourse(long userId, long courseId, long materialId);
     }
 }

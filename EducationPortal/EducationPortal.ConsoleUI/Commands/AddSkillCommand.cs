@@ -1,38 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using EducationPortal.ConsoleUI.Validation;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class AddSkillCommand : ICommand<OperationResponse>
+    using System;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.BLL.Validation;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
+
+    public class AddSkillCommand : ICommand
     {
-        public OperationResponse Response { get; private set; }
+        private ICourseService courseService;
+        private ClientData client;
+        private IValidator<SkillDTO> skillValidator;
 
-        private ICourseService reciever;
-        private long courseId;
-        private long userId;
-        private SkillDTO skill;
-
-        private SkillDataValidator validator;
-
-        public AddSkillCommand(ICourseService reciever, long userId, long courseId, SkillDTO skill)
+        public AddSkillCommand(ICourseService courseService, IValidator<SkillDTO> skillValidator, ClientData client)
         {
-            this.reciever = reciever;
-            this.courseId = courseId;
-            this.userId = userId;
-            this.skill = skill;
-            this.validator = new SkillDataValidator(skill);
+            this.courseService = courseService;
+            this.client = client;
+            this.skillValidator = skillValidator;
         }
+
+        public string Name => "addskill";
+
+        public string Description => "addskill\nДобавление умения к выбранному курсу\n";
+
+        public int ParamsCount => 1;
 
         public void Execute()
         {
-            var validationResult = validator.Validate();
-            Response = (validationResult.IsValid) ? reciever.AddSkill(userId, courseId, skill)
-                                                  : new OperationResponse() { Message = validationResult.Message };
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse == null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorNoSelectedCourse);
+                return;
+            }
+
+            var checkResponse = this.courseService.CanEditCourse(this.client.Id, this.client.SelectedCourse.Id);
+
+            if (!checkResponse.IsSuccessful)
+            {
+                Console.WriteLine(ResourceHelper.GetMessageString(checkResponse.MessageCode));
+                return;
+            }
+
+            var skill = new SkillDTO()
+            {
+                Name = this.client.InputBuffer[0],
+            };
+
+            var validationResult = this.skillValidator.Validate(skill, "Base", "Detail");
+            if (!validationResult.IsValid)
+            {
+                var errorCode = validationResult.Errors[0].ErrorCode;
+                OutputHelper.PrintValidationError(errorCode);
+                return;
+            }
+
+            var addSkillResponse = this.courseService.AddSkill(this.client.Id, this.client.SelectedCourse.Id, skill);
+            Console.WriteLine(ResourceHelper.GetMessageString(addSkillResponse.MessageCode));
         }
     }
 }

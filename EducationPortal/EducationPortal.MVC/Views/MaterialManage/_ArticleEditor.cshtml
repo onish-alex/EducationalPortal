@@ -1,0 +1,34 @@
+﻿@model ArticleDTO
+
+<div class="validation row text-center justify-content-center" asp-validation-summary="All"></div>
+
+@{
+    var dateValue = Model == null
+        ? DateTime.Now.ToString("yyyy-MM-dd")
+        : Model.PublicationDate;
+}
+
+<div class="row justify-content-between">
+    <div class="col-5">
+        Название
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Name)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        URL:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Url)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Дата издания:
+    </div>
+    <div class="col-6">
+        <input type="date" name="PublicationDate" value="@dateValue" />
+    </div>
+</div>

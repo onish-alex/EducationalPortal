@@ -1,0 +1,37 @@
+﻿@using EducationPortal.BLL.DTO
+@model VideoDTO
+
+<div class="validation row text-center justify-content-center" asp-validation-summary="All"></div>
+<div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Название
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Name)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        URL:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Url)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Качество:
+    </div>
+    <div class="col-6">
+        @Html.EditorFor(m => m.Quality)
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Длительность:
+    </div>
+    <div class="col-6">
+        <input type="number" name="Duration"  />
+    </div>
+</div>

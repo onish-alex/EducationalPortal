@@ -1,29 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.Response;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Services;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class GetUserCoursesCommand : ICommand<GetCoursesResponse>
+    using System;
+    using System.Linq;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
+
+    public class GetUserCoursesCommand : ICommand
     {
+        private ClientData client;
         private ICourseService courseService;
 
-        public GetCoursesResponse Response { get; set; }
-
-        private long userId;
-
-        public GetUserCoursesCommand(ICourseService courseService, long userId)
+        public GetUserCoursesCommand(ICourseService courseService, ClientData client)
         {
             this.courseService = courseService;
-            this.userId = userId;
+            this.client = client;
         }
+
+        public string Name => "mycourses";
+
+        public string Description => "mycourses\nОтобразить список созданных вами курсов\n";
+
+        public int ParamsCount => 0;
 
         public void Execute()
         {
-            Response = courseService.GetUserCourses(userId);
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse != null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorAlreadyInCourseMode);
+                return;
+            }
+
+            var response = this.courseService.GetUserCourses(this.client.Id);
+
+            var courseArray = response.Courses.ToArray();
+            this.client.CourseCache = courseArray;
+            OutputHelper.PrintCourses(courseArray);
         }
     }
 }

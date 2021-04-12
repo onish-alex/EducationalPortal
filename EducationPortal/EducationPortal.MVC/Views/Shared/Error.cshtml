@@ -1,0 +1,12 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container">
+    <h2 class="text-danger">Ошибка.</h2>
+
+    <p>@Model.Message</p>
+
+    <a asp-action="Global" asp-controller="Section">На главную</a>
+</div>

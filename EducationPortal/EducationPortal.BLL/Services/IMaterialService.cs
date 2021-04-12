@@ -1,18 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EducationPortal.BLL.DTO;
-using EducationPortal.BLL.Response;
-
-namespace EducationPortal.BLL.Services
+﻿namespace EducationPortal.BLL.Services
 {
-    public interface IMaterialService : IService
+    using System.Threading.Tasks;
+    using EducationPortal.BLL.DTO;
+    using EducationPortal.BLL.Results;
+
+    public interface IMaterialService
     {
-        //void GetByName();
-        AddMaterialResponse AddMaterial(MaterialDTO material);
+        Task<AddMaterialResult> AddMaterial(MaterialDTO material);
 
-        GetMaterialsResponse GetAllMaterials();
+        GetMaterialsResult GetAllMaterials();
 
-        GetMaterialsResponse GetByIds(long[] ids);
+        Task<OperationResult> CheckMaterialExisting(long materialId);
+
+        GetMaterialPageResult GetMaterialsToStudy(long courseId, long userId, int page, int pageSize);
+
+        Task<GetMaterialPageResult> GetCourseMaterials(long courseId, int page, int pageSize);
+
+        Task<GetMaterialPageResult> GetGlobalMaterials(int page, int pageSize, long? courseId = null);
+
+        Task<GetSingleMaterialResult> GetMaterial(long id);
     }
 }

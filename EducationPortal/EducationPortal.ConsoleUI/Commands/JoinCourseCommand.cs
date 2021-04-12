@@ -1,29 +1,46 @@
-﻿using EducationPortal.BLL.Response;
-using EducationPortal.BLL.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EducationPortal.ConsoleUI.Commands
+﻿namespace EducationPortal.ConsoleUI.Commands
 {
-    public class JoinCourseCommand : ICommand<OperationResponse>
+    using System;
+    using EducationPortal.BLL.Services;
+    using EducationPortal.ConsoleUI.Resources;
+    using EducationPortal.ConsoleUI.Utilities;
+
+    public class JoinCourseCommand : ICommand
     {
-        public OperationResponse Response { get; private set; }
+        private ClientData client;
+        private IUserService userService;
+        private ICourseService courseService;
 
-        private IUserService reciever;
-        private long userId;
-        private long courseId;
-
-        public JoinCourseCommand(IUserService reciever, long userId, long courseId)
+        public JoinCourseCommand(IUserService userService, ICourseService courseService, ClientData client)
         {
-            this.reciever = reciever;
-            this.courseId = courseId;
-            this.userId = userId;
+            this.client = client;
+            this.userService = userService;
+            this.courseService = courseService;
         }
+
+        public string Name => "joincourse";
+
+        public string Description => "joincourse\nНачать прохождение курса\n";
+
+        public int ParamsCount => 0;
 
         public void Execute()
         {
-            Response = reciever.JoinToCourse(userId, courseId);
+            if (!this.client.IsAuthorized)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorTryCommandWhileLoggedOut);
+                return;
+            }
+
+            if (this.client.SelectedCourse == null)
+            {
+                Console.WriteLine(ConsoleMessages.ErrorNoSelectedCourse);
+                return;
+            }
+
+            var joinCourseResponse = this.userService.JoinToCourse(this.client.Id, this.client.SelectedCourse.Id);
+
+            Console.WriteLine(ResourceHelper.GetMessageString(joinCourseResponse.MessageCode));
         }
     }
 }
