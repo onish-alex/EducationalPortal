@@ -9,11 +9,11 @@
 
     public class EntityMapper : IMapper
     {
-        private Mapper mapper;
+        private AutoMapper.IMapper mapper;
 
-        public EntityMapper()
+        public EntityMapper(AutoMapper.IMapper mapper)
         {
-            this.mapper = new Mapper(MappingConfigurations.Configurations);
+            this.mapper = mapper;
         }
 
         public TDestination Map<TSource, TDestination>(TSource source)

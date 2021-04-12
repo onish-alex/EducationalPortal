@@ -1,0 +1,111 @@
+﻿@model ConcreteCourseViewModel
+
+@{
+    ViewData["Title"] = Model.CourseInfo.Name;
+}
+<div class="container">
+
+    <div class="row justify-content-start">
+        <h3>@Model.CourseInfo.Name</h3>
+    </div>
+    <div class="row justify-content-start">
+        <p class="course-description">Описание: @Model.CourseInfo.Description</p>
+    </div>
+    <div class="row justify-content-start">
+        <p>Автор курса: @Model.CourseInfo.CreatorName</p>
+    </div>
+    <div class="row">
+        <span class="mr-1">По прохождению курса можно получить следующие навыки:</span>
+        @{
+            var skillsStr = Model.CourseInfo.SkillNames.Count() == 0
+                ? "(Пусто)"
+                : string.Join(", ", Model.CourseInfo.SkillNames);
+        }
+        <span class="skill-list">@skillsStr</span>
+    </div>
+
+    @foreach (var item in Model.DetailInfo)
+    {
+        <div class="row course-details justify-content-center"><div class="col-5">@item</div></div>
+    }
+    <div class="row justify-content-around mt-3">
+
+        <div class="col-4">
+            @if (Model.CourseInfo.HasMaterials)
+            {
+                if (!Model.CourseInfo.IsCompleted)
+                {
+                    if (!Model.CourseInfo.IsJoined)
+                    {
+                        <div class="row justify-content-center my-1">
+                            <a class="btn btn-primary"
+                               asp-route-id="@Model.Id"
+                               asp-action="Join">
+                                Начать изучение
+                            </a>
+                        </div>
+                    }
+                    else if (Model.CourseInfo.IsReadyToComplete)
+                    {
+                        <div class="row justify-content-center my-1">
+                            <a class="btn btn-primary"
+                               asp-controller="Course"
+                               asp-action="ConfirmComplete"
+                               asp-route-id="@Model.Id">
+                                Подтвердить завершение
+                            </a>
+                        </div>
+                    }
+                }
+            }
+            else if (!Model.CourseInfo.IsCreator)
+            {
+                <p>@CommonMessages.OutputCourseHasNotMaterialsYet</p>
+            }
+
+
+            @if (Model.CourseInfo.IsJoined
+ && !Model.CourseInfo.IsReadyToComplete)
+            {
+                <div class="row justify-content-center my-1">
+                    <a class="btn btn-primary" asp-controller="Study" asp-action="Index" asp-route-id="@Model.Id">Продолжить изучение</a>
+                </div>
+            }
+
+
+            @if (Model.CourseInfo.IsCompleted
+    || Model.CourseInfo.IsReadyToComplete)
+            {
+                <a class="btn btn-primary" asp-controller="Study" asp-action="Index" asp-route-id="@Model.Id">Просмотреть изученные материалы</a>
+            }
+        </div>
+
+        <div class="border-right border-dark"></div>
+
+        <div class="col-4 ">
+
+            @if (Model.CourseInfo.IsCreator)
+            {
+                <div class="row justify-content-center my-1">
+                    <a class="btn btn-primary" asp-action="SkillEdit" asp-route-id="@Model.Id">Редактировать навыки</a>
+                </div>
+                <div class="row justify-content-center my-1">
+                    <a class="btn btn-primary" asp-controller="MaterialManage" asp-action="Index" asp-route-id="@Model.Id">Управление материалами</a>
+                </div>
+                <div class="row justify-content-center my-1">
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Редактировать курс</a>
+                </div>
+                <div class="row justify-content-center my-1">
+                    <button class="btn btn-danger" id="course-delete-button">Удалить курс</button>
+                </div>
+                <div class="row justify-content-center" id="course-delete-confirm">
+                    <p class="col-12">Вы действительно хотите удалить курс?</p>
+                    <div class="row justify-content-around">
+                        <a class="btn btn-danger col-2" asp-action="Delete" asp-route-id="@Model.Id">Да</a>
+                        <button id="course-delete-cancel" class="btn btn-primary col-2">Нет</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

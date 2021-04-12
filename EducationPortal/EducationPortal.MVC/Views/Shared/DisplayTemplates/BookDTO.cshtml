@@ -1,0 +1,52 @@
+﻿@model BookDTO
+
+<input type="hidden" class="material-item-id" value="@Model.Id" />
+
+<div class="row justify-content-between">
+    <div class="col-5">
+        Книга
+    </div>
+    <div class="col-6">
+        "@Model.Name"
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        URL:
+    </div>
+    <div class="col-6">
+        @Model.Url
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Авторы:
+    </div>
+    <div class="col-6">
+        @Model.AuthorNames
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Год издания:
+    </div>
+    <div class="col-6">
+        @Model.PublishingYear
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Кол-во страниц:
+    </div>
+    <div class="col-6">
+        @Model.PageCount
+    </div>
+</div>
+<div class="row justify-content-between">
+    <div class="col-5">
+        Формат:
+    </div>
+    <div class="col-6">
+        @Model.Format
+    </div>
+</div>

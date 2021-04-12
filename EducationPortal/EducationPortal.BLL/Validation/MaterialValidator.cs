@@ -14,99 +14,119 @@
             this.RuleSet("Common", () =>
             {
                 this.RuleFor(x => x.Name)
-                    .NotNull()
-                    .WithErrorCode("MaterialNameLength")
                     .NotEmpty()
-                    .WithErrorCode("MaterialNameLength");
-
-                this.RuleFor(x => x.Name.Length)
-                    .LessThanOrEqualTo(DataSettings.MaterialNameMaxCharacterCount)
                     .WithErrorCode("MaterialNameLength")
-                    .GreaterThanOrEqualTo(DataSettings.MaterialNameMinCharacterCount)
-                    .WithErrorCode("MaterialNameLength");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => x.Name.Length)
+                            .LessThanOrEqualTo(DataSettings.MaterialNameMaxCharacterCount)
+                            .WithErrorCode("MaterialNameLength")
+                            .GreaterThanOrEqualTo(DataSettings.MaterialNameMinCharacterCount)
+                            .WithErrorCode("MaterialNameLength");
+                    });
 
                 this.RuleFor(x => x.Url)
-                    .Must(this.HasUrlFormat)
-                    .WithErrorCode("MaterialUrlFormat");
+                    .NotEmpty()
+                    .WithErrorCode("MaterialUrlFormat")
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => x.Url)
+                            .Must(this.HasUrlFormat)
+                            .WithErrorCode("MaterialUrlFormat");
+                    });
             });
 
             this.RuleSet("Article", () =>
             {
                 this.RuleFor(x => (x as ArticleDTO).PublicationDate)
-                    .NotNull()
-                    .WithErrorCode("ArticlePublicationDateFormat")
                     .NotEmpty()
                     .WithErrorCode("ArticlePublicationDateFormat")
-                    .Must(this.IsValidDate)
-                    .WithErrorCode("ArticlePublicationDateFormat");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as ArticleDTO).PublicationDate)
+                            .Must(this.IsValidDate)
+                            .WithErrorCode("ArticlePublicationDateFormat");
+                    });
             });
 
             this.RuleSet("Book", () =>
             {
                 this.RuleFor(x => (x as BookDTO).AuthorNames)
-                    .NotNull()
-                    .WithErrorCode("BookAuthorNamesEmpty")
                     .NotEmpty()
-                    .WithErrorCode("BookAuthorNamesEmpty");
-
-                this.RuleFor(x => (x as BookDTO).AuthorNames.Length)
-                    .LessThanOrEqualTo(DataSettings.BookAuthorNamesMaxCharacterCount)
-                    .WithErrorCode("BookAuthorNamesMaxCharacterCount");
+                    .WithErrorCode("BookAuthorNamesEmpty")
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as BookDTO).AuthorNames.Length)
+                            .LessThanOrEqualTo(DataSettings.BookAuthorNamesMaxCharacterCount)
+                            .WithErrorCode("BookAuthorNamesMaxCharacterCount");
+                    });
 
                 this.RuleFor(x => x.Url)
-                    .Must(this.HasExtension)
-                    .WithErrorCode("BookUrlExtension");
+                    .NotEmpty()
+                    .WithErrorCode("BookUrlExtension")
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => x.Url)
+                            .Must(this.HasExtension)
+                            .WithErrorCode("BookUrlExtension");
+                    });
 
                 this.RuleFor(x => (x as BookDTO).Format)
-                    .NotNull()
-                    .WithErrorCode("BookFormatLength")
                     .NotEmpty()
-                    .WithErrorCode("BookFormatLength");
-
-                this.RuleFor(x => (x as BookDTO).Format.Length)
-                    .LessThanOrEqualTo(DataSettings.BookFormatMaxCharacterCount)
                     .WithErrorCode("BookFormatLength")
-                    .GreaterThanOrEqualTo(DataSettings.BookFormatMinCharacterCount)
-                    .WithErrorCode("BookFormatLength");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as BookDTO).Format.Length)
+                            .LessThanOrEqualTo(DataSettings.BookFormatMaxCharacterCount)
+                            .WithErrorCode("BookFormatLength")
+                            .GreaterThanOrEqualTo(DataSettings.BookFormatMinCharacterCount)
+                            .WithErrorCode("BookFormatLength");
+                    });
 
                 this.RuleFor(x => (x as BookDTO).PageCount)
-                    .NotNull()
-                    .WithErrorCode("BookPageCountValue")
                     .NotEmpty()
                     .WithErrorCode("BookPageCountValue")
-                    .Must(this.IsPositiveNumber)
-                    .WithErrorCode("BookPageCountValue");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as BookDTO).PageCount)
+                            .Must(this.IsPositiveNumber)
+                            .WithErrorCode("BookPageCountValue");
+                    });
 
                 this.RuleFor(x => (x as BookDTO).PublishingYear)
-                    .NotNull()
-                    .WithErrorCode("BookPublishingYearValue")
                     .NotEmpty()
                     .WithErrorCode("BookPublishingYearValue")
-                    .Must(this.IsValidYear)
-                    .WithErrorCode("BookPublishingYearValue");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as BookDTO).PublishingYear)
+                            .Must(this.IsValidYear)
+                            .WithErrorCode("BookPublishingYearValue");
+                    });
             });
 
             this.RuleSet("Video", () =>
             {
                 this.RuleFor(x => (x as VideoDTO).Duration)
-                    .NotNull()
-                    .WithErrorCode("VideoDurationValue")
                     .NotEmpty()
                     .WithErrorCode("VideoDurationValue")
-                    .Must(this.IsPositiveNumber)
-                    .WithErrorCode("VideoDurationValue");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as VideoDTO).Duration)
+                            .Must(this.IsPositiveNumber)
+                            .WithErrorCode("VideoDurationValue");
+                    });
 
                 this.RuleFor(x => (x as VideoDTO).Quality)
-                    .NotNull()
-                    .WithErrorCode("VideoQualityValue")
                     .NotEmpty()
-                    .WithErrorCode("VideoQualityValue");
-
-                this.RuleFor(x => (x as VideoDTO).Quality.Length)
-                    .LessThanOrEqualTo(DataSettings.VideoQualityMaxCharacterCount)
                     .WithErrorCode("VideoQualityValue")
-                    .GreaterThanOrEqualTo(DataSettings.VideoQualityMinCharacterCount)
-                    .WithErrorCode("VideoQualityValue");
+                    .DependentRules(() =>
+                    {
+                        this.RuleFor(x => (x as VideoDTO).Quality.Length)
+                            .LessThanOrEqualTo(DataSettings.VideoQualityMaxCharacterCount)
+                            .WithErrorCode("VideoQualityValue")
+                            .GreaterThanOrEqualTo(DataSettings.VideoQualityMinCharacterCount)
+                            .WithErrorCode("VideoQualityValue");
+                    });
             });
         }
 

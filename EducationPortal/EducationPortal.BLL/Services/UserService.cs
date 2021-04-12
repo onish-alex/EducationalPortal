@@ -5,47 +5,46 @@
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
+    using System.Threading.Tasks;
     using EducationPortal.BLL.DTO;
     using EducationPortal.BLL.Mappers;
-    using EducationPortal.BLL.Response;
-    using EducationPortal.BLL.Validation;
+    using EducationPortal.BLL.Results;
+    using EducationPortal.BLL.Utilities;
     using EducationPortal.DAL.Entities.EF;
     using EducationPortal.DAL.Repository.Base;
+    using FluentValidation;
 
     public class UserService : IUserService
     {
-        private IRepository<User> users;
-        private IRepository<Account> accounts;
-        private IRepository<Skill> skills;
-        private IRepository<Course> courses;
+        private IRepository<User> userRepository;
+        private IRepository<Account> accountRepository;
+        private IRepository<Skill> skillRepository;
+        private IRepository<Course> courseRepository;
         private IMapper mapper;
         private IValidator<AccountDTO> accountValidator;
         private IValidator<UserDTO> userValidator;
 
         public UserService(
-            IRepository<User> users,
-            IRepository<Account> accounts,
-            IRepository<Skill> skills,
-            IRepository<Course> courses,
+            IRepository<User> userRepository,
+            IRepository<Account> accountRepository,
+            IRepository<Skill> skillRepository,
+            IRepository<Course> courseRepository,
             IMapper mapper,
             IValidator<AccountDTO> accountValidator,
             IValidator<UserDTO> userValidator)
         {
-            this.users = users;
-            this.accounts = accounts;
-            this.skills = skills;
-            this.courses = courses;
+            this.userRepository = userRepository;
+            this.accountRepository = accountRepository;
+            this.skillRepository = skillRepository;
+            this.courseRepository = courseRepository;
             this.mapper = mapper;
             this.accountValidator = accountValidator;
             this.userValidator = userValidator;
         }
 
-        public string Name => "User";
-
         public AuthorizeResult Authorize(AccountDTO account)
         {
             var result = new AuthorizeResult();
-
             if (account == null)
             {
                 result.IsSuccessful = false;
@@ -66,7 +65,7 @@
 
             var hash = this.GetPasswordHash(accountToLogIn.Password);
 
-            var loggedInAccount = this.accounts.Find(
+            var loggedInAccount = this.accountRepository.Find(
                 account => (account.Email == accountToLogIn.Email.ToLower()
                          || account.Login == accountToLogIn.Login)
                          && account.Password == hash,
@@ -87,7 +86,7 @@
             return result;
         }
 
-        public OperationResult Register(UserDTO user, AccountDTO account)
+        public async Task<OperationResult> Register(UserDTO user, AccountDTO account)
         {
             var result = new OperationResult();
 
@@ -126,13 +125,13 @@
             var userToRegister = this.mapper.Map<UserDTO, User>(user);
             var accountToRegister = this.mapper.Map<AccountDTO, Account>(account);
 
-            if (this.accounts.Find(account => account.Email == accountToRegister.Email.ToLower()).SingleOrDefault() != null)
+            if (this.accountRepository.Find(account => account.Email == accountToRegister.Email.ToLower()).SingleOrDefault() != null)
             {
                 result.MessageCode = "RegisterEmailUsed";
                 return result;
             }
 
-            if (this.accounts.Find(account => account.Login == accountToRegister.Login).SingleOrDefault() != null)
+            if (this.accountRepository.Find(account => account.Login == accountToRegister.Login).SingleOrDefault() != null)
             {
                 result.MessageCode = "RegisterLoginUsed";
                 return result;
@@ -142,8 +141,8 @@
             accountToRegister.Password = this.GetPasswordHash(accountToRegister.Password);
             accountToRegister.User = userToRegister;
 
-            this.accounts.Create(accountToRegister);
-            this.accounts.Save();
+            await this.accountRepository.CreateAsync(accountToRegister);
+            await this.accountRepository.SaveAsync();
 
             result.IsSuccessful = true;
             result.MessageCode = "RegisterSuccess";
@@ -154,7 +153,7 @@
         {
             var result = new GetUserInfoResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                 user => user.Id == userId,
                 user => user.JoinedCourses,
                 user => user.CompletedCourses,
@@ -173,14 +172,14 @@
             result.CompletedCourses = this.mapper.Map<Course, CourseDTO>(user.CompletedCourses.Select(x => x.Course));
 
             var joinedCourseProgress = new Dictionary<CourseDTO, int>();
-            var joinedCourses = this.courses.Find(
+            var joinedCourses = this.courseRepository.Find(
                 x => user.JoinedCourses.Select(y => y.CourseId).Contains(x.Id),
                 x => x.Materials);
 
             foreach (var course in joinedCourses)
             {
                 var completedMaterialCount = course.Materials.Intersect(user.LearnedMaterials).Count();
-                var allMaterialCount = course.Materials.Count();
+                var allMaterialCount = course.Materials.Count;
 
                 var percent = (allMaterialCount != 0)
                     ? Math.Round(completedMaterialCount / (double)allMaterialCount, 2)
@@ -191,7 +190,7 @@
 
             result.JoinedCoursesProgress = joinedCourseProgress;
 
-            var userSkills = this.skills.Find(x => user.UserSkills.Select(a => a.SkillId).Contains(x.Id));
+            var userSkills = this.skillRepository.Find(x => user.UserSkills.Select(a => a.SkillId).Contains(x.Id));
 
             result.SkillLevels = userSkills.ToDictionary(k => this.mapper.Map<Skill, SkillDTO>(k), v => user.UserSkills.First(x => x.SkillId == v.Id).Level);
             result.IsSuccessful = true;
@@ -199,11 +198,11 @@
             return result;
         }
 
-        public OperationResult JoinToCourse(long userId, long courseId)
+        public async Task<OperationResult> JoinToCourse(long userId, long courseId)
         {
             var result = new GetUserInfoResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                 user => user.Id == userId,
                 user => user.JoinedCourses)
                 .SingleOrDefault();
@@ -215,7 +214,7 @@
                 return result;
             }
 
-            var course = this.courses.Find(
+            var course = this.courseRepository.Find(
                 course => course.Id == courseId,
                 course => course.JoinedUsers,
                 course => course.CompletedUsers)
@@ -248,19 +247,19 @@
                 CourseId = (int)courseId,
             });
 
-            this.users.Update(user);
-            this.users.Save();
+            this.userRepository.Update(user);
+            await this.userRepository.SaveAsync();
 
             result.IsSuccessful = true;
             result.MessageCode = "JoinToCourseSuccess";
             return result;
         }
 
-        public CompletedCourseResult AddCompletedCourse(long userId, long courseId)
+        public async Task<CompletedCourseResult> AddCompletedCourse(long userId, long courseId)
         {
             var result = new CompletedCourseResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                 user => user.Id == userId,
                 user => user.CompletedCourses,
                 user => user.JoinedCourses,
@@ -275,7 +274,7 @@
                 return result;
             }
 
-            var course = this.courses.Find(
+            var course = this.courseRepository.Find(
                 course => course.Id == courseId,
                 course => course.Materials,
                 course => course.Skills)
@@ -344,8 +343,8 @@
                                           .Where(x => course.Skills.Contains(x.Skill))
                                           .ToDictionary(k => this.mapper.Map<Skill, SkillDTO>(k.Skill), v => v.Level);
 
-            this.users.Update(user);
-            this.users.Save();
+            this.userRepository.Update(user);
+            await this.userRepository.SaveAsync();
 
             result.IsSuccessful = true;
             return result;
@@ -355,7 +354,7 @@
         {
             var result = new GetCoursesResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                 user => user.Id == userId,
                 user => user.JoinedCourses)
                 .SingleOrDefault();
@@ -368,7 +367,7 @@
             }
 
             var joinedCourseIds = user.JoinedCourses.Select(x => x.CourseId);
-            var joinedCourses = this.courses.Find(
+            var joinedCourses = this.courseRepository.Find(
                 course => joinedCourseIds.Contains(course.Id),
                 course => course.Skills);
 
@@ -382,7 +381,7 @@
         {
             var result = new GetCoursesResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                             user => user.Id == userId,
                             user => user.CompletedCourses)
                             .SingleOrDefault();
@@ -395,7 +394,7 @@
             }
 
             var completedCourseIds = user.CompletedCourses.Select(x => x.CourseId);
-            var completedCourses = this.courses.Find(
+            var completedCourses = this.courseRepository.Find(
                 course => completedCourseIds.Contains(course.Id),
                 course => course.Skills);
 
@@ -405,11 +404,11 @@
             return result;
         }
 
-        public GetMaterialsResult GetNextMaterial(long userId, long courseId)
+        public async Task<GetMaterialsResult> GetNextMaterial(long userId, long courseId)
         {
             var result = new GetMaterialsResult();
 
-            var user = this.users.Find(
+            var user = this.userRepository.Find(
                 user => user.Id == userId,
                 user => user.LearnedMaterials,
                 user => user.JoinedCourses)
@@ -422,7 +421,7 @@
                 return result;
             }
 
-            var course = this.courses.Find(
+            var course = this.courseRepository.Find(
                 course => course.Id == courseId,
                 course => course.Materials)
                 .SingleOrDefault();
@@ -445,10 +444,64 @@
 
             user.LearnedMaterials.Add(materialToLearn);
 
-            this.users.Update(user);
-            this.users.Save();
+            this.userRepository.Update(user);
+            await this.userRepository.SaveAsync();
 
             result.Materials = new MaterialDTO[] { this.mapper.Map<Material, MaterialDTO>(materialToLearn) };
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public async Task<OperationResult> LearnMaterial(long userId, long courseId, long materialId)
+        {
+            var result = new OperationResult();
+
+            var user = this.userRepository.Find(
+                user => user.Id == userId,
+                user => user.LearnedMaterials,
+                user => user.JoinedCourses)
+                .SingleOrDefault();
+
+            if (user == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "UserNotFound";
+                return result;
+            }
+
+            var course = this.courseRepository.Find(
+                course => course.Id == courseId,
+                course => course.Materials)
+                .SingleOrDefault();
+
+            if (course == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotFound";
+                return result;
+            }
+
+            if (!user.JoinedCourses.Any(x => x.Course == course))
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "CourseNotJoined";
+                return result;
+            }
+
+            var materialToLearn = course.Materials.SingleOrDefault(x => x.Id == materialId);
+
+            if (materialToLearn == null)
+            {
+                result.IsSuccessful = false;
+                result.MessageCode = "MaterialNotFound";
+                return result;
+            }
+
+            user.LearnedMaterials.Add(materialToLearn);
+
+            this.userRepository.Update(user);
+            await this.userRepository.SaveAsync();
+
             result.IsSuccessful = true;
             return result;
         }

@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Завершение курса";
+}
+
+@model CourseCompleteViewModel
+<div class="container">
+
+    <h2>Поздравляем с прохождением курса @Model.CourseName</h2>
+
+    @foreach (var skill in Model.RecievedSkills)
+    {
+        if (skill.Value > 1)
+        {
+            <p>Навык @skill.Key.Name повышен до @skill.Value уровня!</p>
+        }
+        else
+        {
+            <p>Получен новый навык - @skill.Key.Name</p>
+        }
+    }
+
+    <a asp-controller="Course"
+       asp-action="Index"
+       asp-route-id="@Model.CourseId">
+        Вернутся к курсу
+    </a>
+</div>

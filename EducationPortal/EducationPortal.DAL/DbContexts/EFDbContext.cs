@@ -5,6 +5,11 @@
 
     public class EFDbContext : DbContext
     {
+        public EFDbContext(DbContextOptions<EFDbContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Account> Accounts { get; set; }
@@ -108,11 +113,6 @@
             modelBuilder.Entity<Article>().Property(a => a.PublicationDate).HasColumnType("date");
 
             modelBuilder.Entity<Video>().Property(v => v.Duration).HasColumnType("time(0)");
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=EducationPortal;Integrated Security=true");
         }
     }
 }

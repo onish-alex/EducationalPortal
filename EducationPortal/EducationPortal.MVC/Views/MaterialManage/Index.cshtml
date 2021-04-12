@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Управление материалами";
+}
+@model MaterialManageViewModel
+
+<div class="row mx-4">
+    <div class="col-4" id="global-materials">
+        <div class="row justify-content-center">
+            <h4>Доступные материалы:</h4>
+        </div>
+        @{
+            var partialViewModel = new MaterialListViewModel()
+            {
+                ActionPath = "/MaterialManage/GlobalMaterialPage",
+                CourseId = Model.CourseId,
+                DomUpdateId = "#global-materials",
+                DomSelectClass = "global-material-item",
+                Materials = Model.GlobalMaterials,
+            };
+
+            <partial name="_MaterialList" model="@partialViewModel" />
+        }
+    </div>
+    <div class="col-4">
+        <div class="row justify-content-center">
+            <button id="create-material-button">Создать новый материал</button>
+        </div>
+        <div id="display-material-area"></div>
+        <div class="row justify-content-center text-center" id="create-material-area">
+            <select class="col-5" id="material-type-select" asp-items="Model.MaterialTypeNames">
+                <option value="" selected disabled hidden>Выберите тип</option>
+            </select>
+            <form id="create-material-form"
+                  data-ajax="true"
+                  data-ajax-update="#create-material-form-content"
+                  data-ajax-success="OnTryCreateMaterial(@Model.CourseId)">
+                <div id="create-material-form-content">
+
+                </div>
+                <input type="hidden" name="courseId" value="@Model.CourseId" />
+                <div class="row justify-content-center">
+                    <input type="submit" value="Создать" id="create-material-submit" class="col-3 mt-3" />
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <div class="col-4" id="course-materials">
+        <div class="row justify-content-center">
+            <h4>Материалы выбранного курса:</h4>
+        </div>
+        @{
+            partialViewModel = new MaterialListViewModel()
+            {
+                ActionPath = "/MaterialManage/CourseMaterialPage",
+                CourseId = Model.CourseId,
+                DomUpdateId = "#course-materials",
+                DomSelectClass = "course-material-item",
+                Materials = Model.CourseMaterials,
+            };
+
+            <partial name="_MaterialList" model="@partialViewModel" />
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
+}

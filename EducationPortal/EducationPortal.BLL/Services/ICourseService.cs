@@ -1,26 +1,43 @@
 ﻿namespace EducationPortal.BLL.Services
 {
+    using System.Threading.Tasks;
     using EducationPortal.BLL.DTO;
-    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Results;
 
-    public interface ICourseService : IService
+    public interface ICourseService
     {
-        OperationResult AddCourse(CourseDTO course);
+        Task<OperationResult> AddCourse(CourseDTO course);
 
         GetCoursesResult GetUserCourses(long userId);
 
         GetCoursesResult GetAllCourses();
 
-        OperationResult EditCourse(long userId, CourseDTO newCourseInfo);
+        Task<OperationResult> EditCourse(long userId, CourseDTO newCourseInfo);
 
-        OperationResult AddSkill(long userId, long courseId, SkillDTO skill);
+        Task<OperationResult> AddSkill(long userId, long courseId, SkillDTO skill);
 
-        OperationResult RemoveSkill(long userId, long courseId, SkillDTO skill);
+        Task<OperationResult> RemoveSkill(long userId, long courseId, long skillId);
 
-        OperationResult AddMaterialToCourse(long userId, long courseId, long materialId);
+        Task<OperationResult> AddMaterialToCourse(long userId, long courseId, long materialId);
 
-        OperationResult CanEditCourse(long userId, long courseId);
+        Task<OperationResult> CanEditCourse(long userId, long courseId);
 
         GetCourseStatusResult GetCourseStatus(long courseId, long userId);
+
+        Task<GetCoursesResult> GetGlobalCourses(int page, int pageSize);
+
+        Task<GetCoursesResult> GetUserCourses(int page, int pageSize, long userId);
+
+        Task<GetCoursesResult> GetJoinedCourses(int page, int pageSize, long userId);
+
+        Task<GetCoursesResult> GetCompletedCourses(int page, int pageSize, long userId);
+
+        GetSingleCourseResult GetCourse(long id);
+
+        Task<OperationResult> DeleteCourse(long userId, long courseId);
+
+        OperationResult CheckCourseCompletness(long courseId, long userId);
+
+        Task<OperationResult> RemoveMaterialFromCourse(long userId, long courseId, long materialId);
     }
 }

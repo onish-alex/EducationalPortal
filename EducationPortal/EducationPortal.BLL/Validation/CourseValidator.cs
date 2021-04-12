@@ -10,28 +10,28 @@
         public CourseValidator()
         {
             this.RuleFor(x => x.Name)
-                .NotNull()
-                .WithErrorCode("CourseNameLength")
                 .NotEmpty()
-                .WithErrorCode("CourseNameLength");
-
-            this.RuleFor(x => x.Name.Length)
-                .GreaterThanOrEqualTo(DataSettings.CourseNameMinCharacterCount)
                 .WithErrorCode("CourseNameLength")
-                .LessThanOrEqualTo(DataSettings.CourseNameMaxCharacterCount)
-                .WithErrorCode("CourseNameLength");
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Name.Length)
+                        .GreaterThanOrEqualTo(DataSettings.CourseNameMinCharacterCount)
+                        .WithErrorCode("CourseNameLength")
+                        .LessThanOrEqualTo(DataSettings.CourseNameMaxCharacterCount)
+                        .WithErrorCode("CourseNameLength");
+                });
 
             this.RuleFor(x => x.Description)
-                .NotNull()
-                .WithErrorCode("CourseDescriptionLength")
                 .NotEmpty()
-                .WithErrorCode("CourseDescriptionLength");
-
-            this.RuleFor(x => x.Description.Length)
-                .LessThanOrEqualTo(DataSettings.CourseDescriptionMaxCharacterCount)
                 .WithErrorCode("CourseDescriptionLength")
-                .GreaterThanOrEqualTo(DataSettings.CourseDescriptionMinCharacterCount)
-                .WithErrorCode("CourseDescriptionLength");
+                .DependentRules(() =>
+                {
+                    this.RuleFor(x => x.Description.Length)
+                        .LessThanOrEqualTo(DataSettings.CourseDescriptionMaxCharacterCount)
+                        .WithErrorCode("CourseDescriptionLength")
+                        .GreaterThanOrEqualTo(DataSettings.CourseDescriptionMinCharacterCount)
+                        .WithErrorCode("CourseDescriptionLength");
+                });
         }
 
         ValidationResult IValidator<CourseDTO>.Validate(CourseDTO model)

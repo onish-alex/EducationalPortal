@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <CodeAnalysisRuleSet>EducationPortal.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -18,39 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EducationPortal.BLL\EducationPortal.BLL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Resources\ConsoleMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ConsoleMessages.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Resources\OperationMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>OperationMessages.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Resources\ValidationMessages.Designer.cs">
-      <DependentUpon>ValidationMessages.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\ConsoleMessages.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>ConsoleMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\OperationMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>OperationMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\ValidationMessages.resx">
-      <LastGenOutput>ValidationMessages.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

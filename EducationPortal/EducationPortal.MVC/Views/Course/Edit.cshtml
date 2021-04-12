@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Редактирование курса";
+}
+
+@model CourseDTO
+<div class="container">
+    <div class="row justify-content-center">
+        <form asp-action="Edit">
+            <div class="row">
+                <div class="validation row text-center justify-content-center" asp-validation-summary="All"></div>
+            </div>
+
+            <input type="hidden" value="@Model.Id" />
+            <div class="row justify-content-between">
+                <label asp-for="Name" class="col-4">Название:</label>
+                <input type="text" asp-for="Name" class="col-6" value="@Model.Name" />
+            </div>
+            <div class="row justify-content-between mt-2">
+                <label asp-for="Description" class="col-4">Описание:</label>
+                <textarea asp-for="Description" class="col-6">@Model.Description</textarea>
+            </div>
+            <div class="row mt-2 justify-content-center">
+                <input type="submit" class="btn btn-primary col-5" value="Сохранить" />
+            </div>
+        </form>
+    </div>
+
+</div>

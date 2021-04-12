@@ -1,24 +1,27 @@
 ﻿namespace EducationPortal.BLL.Services
 {
+    using System.Threading.Tasks;
     using EducationPortal.BLL.DTO;
-    using EducationPortal.BLL.Response;
+    using EducationPortal.BLL.Results;
 
-    public interface IUserService : IService
+    public interface IUserService
     {
-        OperationResult Register(UserDTO user, AccountDTO account);
+        Task<OperationResult> Register(UserDTO user, AccountDTO account);
 
         AuthorizeResult Authorize(AccountDTO account);
 
         GetUserInfoResult GetUserById(long userId);
 
-        OperationResult JoinToCourse(long userId, long courseId);
+        Task<OperationResult> JoinToCourse(long userId, long courseId);
 
-        CompletedCourseResult AddCompletedCourse(long userId, long courseId);
+        Task<CompletedCourseResult> AddCompletedCourse(long userId, long courseId);
 
         GetCoursesResult GetJoinedCourses(long userId);
 
         GetCoursesResult GetCompletedCourses(long userId);
 
-        GetMaterialsResult GetNextMaterial(long userId, long courseId);
+        Task<GetMaterialsResult> GetNextMaterial(long userId, long courseId);
+
+        Task<OperationResult> LearnMaterial(long userId, long courseId, long materialId);
     }
 }

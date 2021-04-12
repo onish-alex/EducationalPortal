@@ -1,0 +1,16 @@
+﻿@model CourseMaterialViewModel
+
+@if (Model.Material != null)
+{
+    <partial name="_MaterialDisplay" model="@Model.Material"/>
+
+    if (!Model.IsLearned)
+    {
+        <a class="btn btn-primary" 
+           asp-action="Learn" 
+           asp-route-materialId="@Model.Material.Id"
+           asp-route-courseId="@Model.CourseId">Пометить как пройденное</a>
+    }
+}
+
+

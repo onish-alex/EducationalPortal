@@ -12,6 +12,6 @@
 
         public long CreatorId { get; set; }
 
-        public IEnumerable<string> SkillNames { get; set; }
+        public IList<SkillDTO> Skills { get; set; }
     }
 }

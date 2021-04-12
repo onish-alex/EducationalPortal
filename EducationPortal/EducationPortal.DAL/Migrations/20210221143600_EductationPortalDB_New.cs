@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-namespace EducationPortal.DAL.Migrations
+﻿namespace EducationPortal.DAL.Migrations
 {
+    using System;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class EductationPortalDB_New : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,7 +14,7 @@ namespace EducationPortal.DAL.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Url = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                    Url = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -27,7 +27,7 @@ namespace EducationPortal.DAL.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -43,7 +43,7 @@ namespace EducationPortal.DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Login = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true)
+                    Password = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -55,7 +55,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
-                    PublicationDate = table.Column<DateTime>(type: "date", nullable: false)
+                    PublicationDate = table.Column<DateTime>(type: "date", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -76,7 +76,7 @@ namespace EducationPortal.DAL.Migrations
                     AuthorNames = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PageCount = table.Column<int>(type: "int", nullable: false),
                     Format = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
-                    PublishingYear = table.Column<short>(type: "smallint", nullable: false)
+                    PublishingYear = table.Column<short>(type: "smallint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -95,7 +95,7 @@ namespace EducationPortal.DAL.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     Duration = table.Column<TimeSpan>(type: "time(0)", nullable: false),
-                    Quality = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    Quality = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -116,7 +116,7 @@ namespace EducationPortal.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    CreatorId = table.Column<long>(type: "bigint", nullable: false)
+                    CreatorId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -134,7 +134,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     LearnedMaterialsId = table.Column<long>(type: "bigint", nullable: false),
-                    UsersId = table.Column<long>(type: "bigint", nullable: false)
+                    UsersId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -159,7 +159,7 @@ namespace EducationPortal.DAL.Migrations
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     SkillId = table.Column<long>(type: "bigint", nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false)
+                    Level = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -183,7 +183,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     CoursesId = table.Column<long>(type: "bigint", nullable: false),
-                    MaterialsId = table.Column<long>(type: "bigint", nullable: false)
+                    MaterialsId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -207,7 +207,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     CoursesId = table.Column<long>(type: "bigint", nullable: false),
-                    SkillsId = table.Column<long>(type: "bigint", nullable: false)
+                    SkillsId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -231,7 +231,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false),
-                    CourseId = table.Column<long>(type: "bigint", nullable: false)
+                    CourseId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -253,7 +253,7 @@ namespace EducationPortal.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false),
-                    CourseId = table.Column<long>(type: "bigint", nullable: false)
+                    CourseId = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
