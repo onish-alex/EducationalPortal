@@ -1,3 +1,11 @@
 .vs/
+EducationPortal/EducationPortal.DAL/bin/
+EducationPortal/EducationPortal.DAL/obj/
+HomeTasks/BullsAndCows/bin/
+HomeTasks/BullsAndCows/obj/
+HomeTasks/CSVDemo/bin/
+HomeTasks/CSVDemo/obj/
+HomeTasks/LinqTask/bin/
+HomeTasks/LinqTask/obj/
 EducationPortal/EducationPortal.DAL/obj/
 EducationPortal/EducationPortal.DAL/bin/
